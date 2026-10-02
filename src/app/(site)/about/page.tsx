@@ -20,7 +20,7 @@ export default async function AboutPage() {
 
   return (
     <>
-      <PageHero eyebrow="About us" title={headline} image="/images/heritage-courtyard.jpg">
+      <PageHero eyebrow="About us" title={headline} art="heritage">
         <p className="max-w-3xl leading-relaxed">
           {info?.aboutSummary || 'Nothing published yet.'}
         </p>

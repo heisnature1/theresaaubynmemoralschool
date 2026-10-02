@@ -17,6 +17,8 @@ interface PortalWorkspaceProps {
   initialTab?: string;
   /** The school's published particulars, shown on the report sheets. */
   siteInfo?: SchoolInformation | null;
+  /** True when the website's content database is connected for publishing. */
+  websiteConfigured?: boolean;
 }
 
 export function PortalWorkspace({
@@ -25,6 +27,7 @@ export function PortalWorkspace({
   user,
   initialTab,
   siteInfo,
+  websiteConfigured = false,
 }: PortalWorkspaceProps) {
   const [state, setState] = useState<SchoolStateSnapshot>(initialState);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
@@ -66,6 +69,7 @@ export function PortalWorkspace({
         <SuperAdminDashboard
           state={state}
           siteInfo={siteInfo}
+          websiteConfigured={websiteConfigured}
           onStateChange={setState}
           onNotify={notify}
         />

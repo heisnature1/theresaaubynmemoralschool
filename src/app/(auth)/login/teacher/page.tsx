@@ -48,6 +48,10 @@ export default function TeacherLoginPage() {
           <Link href="/login/super-admin" className="font-semibold text-theresa-green-800 hover:underline">
             Super Administrator sign-in
           </Link>
+          <span className="mx-2 text-slate-400">|</span>
+          <Link href="/login/parent" className="font-semibold text-theresa-green-800 hover:underline">
+            Parent sign-in
+          </Link>
         </p>
       </div>
     </div>

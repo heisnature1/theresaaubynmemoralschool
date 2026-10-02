@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { UserRole } from '@/types/school';
 
 export const SESSION_COOKIE = 'sta_staff_session';
+export const PARENT_SESSION_COOKIE = 'sta_parent_session';
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 8; // eight hour school-day shift
 
 const KEY_LENGTH = 64;
@@ -50,6 +51,20 @@ export interface StaffSession {
   fullName: string;
   email: string;
   role: UserRole;
+  issuedAt: number;
+  expiresAt: number;
+}
+
+/**
+ * A parent signs in to see their own children only. The session names the
+ * pupil records the parent may look at, so nothing else is ever reachable.
+ */
+export interface ParentSession {
+  fullName: string;
+  /** Pupil record ids the parent is allowed to open. */
+  studentIds: string[];
+  /** The guardian telephone number the sign-in was verified against. */
+  guardianPhone: string;
   issuedAt: number;
   expiresAt: number;
 }
@@ -106,6 +121,52 @@ export function readSessionToken(token?: string | null): StaffSession | null {
   }
 }
 
+export function createParentSessionToken(parent: {
+  fullName: string;
+  studentIds: string[];
+  guardianPhone: string;
+}): string {
+  const now = Math.floor(Date.now() / 1000);
+  const session: ParentSession & { v: number; kind: string } = {
+    v: 1,
+    kind: 'parent',
+    fullName: parent.fullName,
+    studentIds: parent.studentIds,
+    guardianPhone: parent.guardianPhone,
+    issuedAt: now,
+    expiresAt: now + SESSION_MAX_AGE_SECONDS,
+  };
+
+  const payload = Buffer.from(JSON.stringify(session)).toString('base64url');
+  return `${payload}.${sign(payload)}`;
+}
+
+export function readParentSessionToken(token?: string | null): ParentSession | null {
+  if (!token) return null;
+  const [payload, signature] = token.split('.');
+  if (!payload || !signature) return null;
+
+  const expected = sign(payload);
+  if (
+    expected.length !== signature.length ||
+    !crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature))
+  ) {
+    return null;
+  }
+
+  try {
+    const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf-8')) as ParentSession & {
+      kind?: string;
+    };
+    if (decoded?.kind !== 'parent') return null;
+    if (!decoded?.expiresAt || decoded.expiresAt * 1000 < Date.now()) return null;
+    if (!Array.isArray(decoded.studentIds)) return null;
+    return decoded;
+  } catch {
+    return null;
+  }
+}
+
 export function sessionCookieOptions() {
   return {
     httpOnly: true,
@@ -120,8 +181,22 @@ export function sessionCookieOptions() {
 /*  Server helpers                                                            */
 /* -------------------------------------------------------------------------- */
 
+export function parentCookieOptions() {
+  return {
+    httpOnly: true,
+    sameSite: 'lax' as const,
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: SESSION_MAX_AGE_SECONDS,
+  };
+}
+
 export function getSession(): StaffSession | null {
   return readSessionToken(cookies().get(SESSION_COOKIE)?.value);
+}
+
+export function getParentSession(): ParentSession | null {
+  return readParentSessionToken(cookies().get(PARENT_SESSION_COOKIE)?.value);
 }
 
 export const HOME_FOR_ROLE: Record<UserRole, string> = {
@@ -154,8 +229,20 @@ export function requireStaff(): StaffSession {
   return session;
 }
 
-export const ROLE_LABELS: Record<UserRole, string> = {
-  super_admin: 'Super Administrator',
-  headmaster: 'Administrator',
-  teacher: 'Teacher',
-};
+/** Use inside the parents' area to gate a page on a parent sign-in. */
+export function requireParent(): ParentSession {
+  const session = getParentSession();
+  if (!session) redirect('/login/parent');
+  return session;
+}
+
+/** True when the parent session covers this pupil record. */
+export function parentMaySeeStudent(session: ParentSession | null, studentId: string): boolean {
+  return Boolean(session && session.studentIds.includes(studentId));
+}
+
+/**
+ * Role labels live in `constants.ts` so that client components can show them
+ * without pulling in this server-only module (it reads cookies).
+ */
+export { ROLE_LABELS } from '@/lib/constants';

@@ -8,11 +8,9 @@ import { AlertCircle, Eye, EyeOff, LogIn } from 'lucide-react';
 interface LoginFormProps {
   portal: 'super_admin' | 'administrator' | 'teacher';
   submitLabel: string;
-  /** Preview credentials supplied with this build, shown to the school for testing. */
-  previewAccount?: { email: string; password: string };
 }
 
-export function LoginForm({ portal, submitLabel, previewAccount }: LoginFormProps) {
+export function LoginForm({ portal, submitLabel }: LoginFormProps) {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -124,22 +122,6 @@ export function LoginForm({ portal, submitLabel, previewAccount }: LoginFormProp
           </>
         )}
       </button>
-
-      {previewAccount && (
-        <details className="rounded-xl border border-dashed border-slate-300 bg-slate-50/80 px-4 py-3 text-xs text-slate-600 transition hover:border-theresa-green-400">
-          <summary className="cursor-pointer font-semibold text-slate-700">
-            Preview account for this build
-          </summary>
-          <p className="mt-2">
-            Email: <code className="font-mono">{previewAccount.email}</code>
-            <br />
-            Password: <code className="font-mono">{previewAccount.password}</code>
-          </p>
-          <p className="mt-2 text-slate-500">
-            Remove this note once the school has issued its own passwords.
-          </p>
-        </details>
-      )}
     </form>
   );
 }

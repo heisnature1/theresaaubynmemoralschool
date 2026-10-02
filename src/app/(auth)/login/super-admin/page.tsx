@@ -29,11 +29,7 @@ export default function SuperAdminLoginPage() {
         </p>
 
         <div className="mt-6">
-          <LoginForm
-            portal="super_admin"
-            submitLabel="Sign in as Super Administrator"
-            previewAccount={{ email: 'owner@sttheresa-aubyn.edu.gh', password: 'Theresa@1988' }}
-          />
+          <LoginForm portal="super_admin" submitLabel="Sign in as Super Administrator" />
         </div>
       </div>
 
@@ -45,6 +41,10 @@ export default function SuperAdminLoginPage() {
           <span className="mx-2 text-slate-400">|</span>
           <Link href="/login/teacher" className="font-semibold text-theresa-green-800 hover:underline">
             Teacher sign-in
+          </Link>
+          <span className="mx-2 text-slate-400">|</span>
+          <Link href="/login/parent" className="font-semibold text-theresa-green-800 hover:underline">
+            Parent sign-in
           </Link>
         </p>
         <p className="text-xs text-slate-500">

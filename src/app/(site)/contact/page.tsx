@@ -28,7 +28,7 @@ export default async function ContactPage() {
 
   return (
     <>
-      <PageHero eyebrow="Contact" title="Speaking to the school" image="/images/library-dining.jpg">
+      <PageHero eyebrow="Contact" title="Speaking to the school" art="contact">
         <p className="max-w-3xl leading-relaxed">
           {info?.officeHours
             ? `The school office is open ${info.officeHours}. Parents are welcome to call in; it helps to telephone ahead if you wish to meet a particular teacher.`

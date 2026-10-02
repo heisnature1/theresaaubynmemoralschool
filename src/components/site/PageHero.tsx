@@ -1,33 +1,29 @@
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
+import { GradientArt, type GradientArtVariant } from '@/components/site/GradientArt';
 
 interface PageHeroProps {
   eyebrow: string;
   title: string;
-  /** One of the campus photographs in /public/images. */
-  image: string;
+  /**
+   * Which of the school's gradient fields sits behind the title. The site
+   * draws its own artwork — no stock photographs are shipped with the build.
+   */
+  art?: GradientArtVariant;
   /** Optional short line under the title before the children. */
   children?: React.ReactNode;
 }
 
 /**
- * The shared banner at the top of every public page: the page title over a
- * photograph of the compound, with a breadcrumb back to the home page.
+ * The shared banner at the top of every public page: the page title over one
+ * of the school's gradient fields, with a breadcrumb back to the home page.
  */
-export function PageHero({ eyebrow, title, image, children }: PageHeroProps) {
+export function PageHero({ eyebrow, title, art = 'campus', children }: PageHeroProps) {
   return (
     <section className="relative isolate overflow-hidden">
-      <div className="absolute inset-0 -z-10">
-        <img
-          src={image}
-          alt=""
-          aria-hidden="true"
-          className="h-full w-full scale-105 object-cover animate-ken-burns"
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-theresa-green-950/95 via-theresa-green-900/90 to-[#04251a]/85" />
-        <div className="absolute inset-0 pattern-grid opacity-[0.12]" />
-        <div className="hero-blob left-[-8rem] top-[-4rem] h-72 w-72 bg-theresa-green-600/30 animate-float-slow" />
-        <div className="hero-blob right-[-6rem] bottom-[-8rem] h-72 w-72 bg-theresa-gold-600/20 animate-float" />
+      <div className="absolute inset-0 -z-10 bg-theresa-green-950">
+        <GradientArt variant={art} className="h-full w-full" />
+        <div className="absolute inset-0 bg-gradient-to-br from-theresa-green-950/85 via-theresa-green-900/70 to-[#04251a]/85" />
       </div>
 
       <div className="mx-auto max-w-6xl px-4 py-16 lg:px-6 lg:py-20">

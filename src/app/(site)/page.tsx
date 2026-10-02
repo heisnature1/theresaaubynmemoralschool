@@ -16,6 +16,8 @@ import { SCHOOL_NAME } from '@/lib/constants';
 import { getSiteData } from '@/lib/site-data';
 import { Reveal } from '@/components/site/Reveal';
 import { CountUp } from '@/components/site/CountUp';
+import { GradientArt } from '@/components/site/GradientArt';
+import { SchoolCrest } from '@/components/SchoolCrest';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,22 +53,13 @@ export default async function HomePage() {
   return (
     <>
       {/* ---------------------------------------------------------------- */}
-      {/* Hero — welcome message over the campus photograph                */}
+      {/* Hero — welcome message over the school's own gradient field      */}
       {/* ---------------------------------------------------------------- */}
       <section className="relative isolate flex min-h-[92vh] items-center overflow-hidden">
-        {/* Background image with a slow zoom */}
+        {/* Layered gradients in the school colours, drifting slowly */}
         <div className="absolute inset-0 -z-10">
-          <img
-            src="/images/campus-hero.jpg"
-            alt=""
-            aria-hidden="true"
-            className="h-full w-full scale-105 object-cover animate-ken-burns"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-theresa-green-950/92 via-theresa-green-900/85 to-[#04251a]/80" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(217,175,55,0.22),transparent_55%)]" />
-          <div className="absolute inset-0 pattern-grid opacity-[0.13]" />
-          <div className="hero-blob left-[-6rem] top-[18%] h-80 w-80 bg-theresa-green-600/40 animate-float-slow" />
-          <div className="hero-blob right-[-8rem] bottom-[-6rem] h-96 w-96 bg-theresa-gold-600/25 animate-float" />
+          <GradientArt variant="campus" className="h-full w-full" />
+          <div className="absolute inset-0 bg-gradient-to-br from-theresa-green-950/80 via-theresa-green-900/60 to-[#04251a]/80" />
         </div>
 
         <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-20 lg:grid-cols-12 lg:px-6 lg:py-24">
@@ -133,11 +126,23 @@ export default async function HomePage() {
             <div className="relative animate-flip-in anim-delay-3">
               <div className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-theresa-gold-400/40 via-transparent to-theresa-green-400/30 blur-2xl" />
               <figure className="relative overflow-hidden rounded-[1.75rem] border border-white/25 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.75)]">
-                <img
-                  src="/images/heritage-courtyard.jpg"
-                  alt={`The compound of ${headline}`}
-                  className="h-[420px] w-full object-cover transition-transform duration-[1200ms] hover:scale-110"
-                />
+                <GradientArt variant="memorial" className="h-[420px] w-full">
+                  <div className="flex h-[420px] flex-col items-center justify-center gap-5 p-8 text-center">
+                    <SchoolCrest size="xl" className="animate-float-slow" />
+                    <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-theresa-gold-300">
+                      {info?.schoolName || headline}
+                    </p>
+                    {info?.foundedYear && (
+                      <p className="font-serif text-4xl font-bold text-white">
+                        Since {info.foundedYear}
+                      </p>
+                    )}
+                    <span className="h-px w-24 bg-gradient-to-r from-transparent via-theresa-gold-400 to-transparent" />
+                    <p className="max-w-xs text-xs leading-relaxed text-emerald-50/80">
+                      KG 1 to JHS 3 &middot; a day school in the heart of our community
+                    </p>
+                  </div>
+                </GradientArt>
                 {info?.motto && (
                   <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-theresa-green-950 via-theresa-green-950/80 to-transparent p-6 pt-16">
                     <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-theresa-gold-300">
@@ -353,11 +358,11 @@ export default async function HomePage() {
                 )}
               </p>
               <div className="group relative mt-6 overflow-hidden rounded-2xl shadow-soft">
-                <img
-                  src="/images/heritage-courtyard.jpg"
-                  alt="The school compound"
-                  className="h-60 w-full object-cover transition-transform duration-[1400ms] group-hover:scale-110"
-                />
+                <GradientArt variant="heritage" className="h-60 w-full">
+                  <div className="flex h-60 items-center justify-center">
+                    <SchoolCrest size="xl" className="transition-transform duration-[1400ms] group-hover:scale-110" />
+                  </div>
+                </GradientArt>
                 <div className="absolute inset-0 bg-gradient-to-t from-theresa-green-950/70 to-transparent" />
               </div>
             </Reveal>
@@ -582,16 +587,8 @@ export default async function HomePage() {
       {/* Closing call to action                                           */}
       {/* ---------------------------------------------------------------- */}
       <section className="relative overflow-hidden bg-theresa-green-900 py-14 lg:py-16">
-        <div className="absolute inset-0 opacity-25">
-          <img
-            src="/images/sports-culture.jpg"
-            alt=""
-            aria-hidden="true"
-            className="h-full w-full object-cover animate-ken-burns"
-          />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-theresa-green-950 via-theresa-green-900/95 to-theresa-green-950/80" />
-        <div className="hero-blob -right-10 top-[-30%] h-72 w-72 bg-theresa-gold-600/30 animate-float-slow" />
+        <GradientArt variant="sport" className="absolute inset-0" />
+        <div className="absolute inset-0 bg-gradient-to-r from-theresa-green-950 via-theresa-green-900/85 to-theresa-green-950/70" />
 
         <Reveal className="relative mx-auto flex max-w-6xl flex-col gap-8 px-4 lg:px-6 sm:flex-row sm:items-center sm:justify-between">
           <div>

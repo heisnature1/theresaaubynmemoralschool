@@ -22,7 +22,46 @@ export interface StaffProfile {
   photo?: string;
   /** scrypt hash, never exposed to the browser */
   passwordHash?: string;
+  /**
+   * The matching Supabase Auth user, when the school has connected a Supabase
+   * project. Sign-in is then handled by Supabase Auth; the scrypt hash stays
+   * as the fallback for a deployment that runs without the database.
+   */
+  authUserId?: string;
   lastLoginAt?: string;
+}
+
+export type AdmissionStatus =
+  | 'new'
+  | 'contacted'
+  | 'assessment'
+  | 'offered'
+  | 'enrolled'
+  | 'declined';
+
+/** An application for a place, from the website or entered at the office. */
+export interface AdmissionApplication {
+  id: string;
+  /** Human reference quoted by parents, e.g. ADM/2026/0142 */
+  reference: string;
+  childFullName: string;
+  childDateOfBirth?: string;
+  gender?: 'Male' | 'Female';
+  classApplied: string;
+  guardianName: string;
+  guardianPhone: string;
+  guardianEmail?: string;
+  previousSchool?: string;
+  notes?: string;
+  status: AdmissionStatus;
+  /** Staff member who last moved the application along. */
+  reviewedBy?: string;
+  reviewedAt?: string;
+  /** Set when the applicant is enrolled and becomes a pupil. */
+  studentId?: string;
+  studentCode?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface TeacherRegistrationRequest {
@@ -70,8 +109,17 @@ export interface StudentRecord {
   className: string;
   guardianName: string;
   guardianPhone: string;
+  /** Used to send receipts and term reports when the office keeps one. */
+  guardianEmail?: string;
   /** Passport photograph taken when the pupil was enrolled, stored as a data URL */
   photo?: string;
+  /**
+   * Optional parent access PIN issued by the office and hashed at rest. A
+   * parent signs in with the pupil's code and this PIN, or with the guardian
+   * telephone number already on the pupil's record.
+   */
+  accessPinHash?: string;
+  accessPinIssuedAt?: string;
   tuitionPaid: number;
   extraClassesPaid: number;
   mealFeePaid: number;
@@ -145,7 +193,16 @@ export interface AuditLogEntry {
   actorName: string;
   actorRole: UserRole;
   action: string;
-  category: 'fees' | 'feeding' | 'results' | 'teachers' | 'reports' | 'system';
+  category:
+    | 'fees'
+    | 'feeding'
+    | 'results'
+    | 'teachers'
+    | 'reports'
+    | 'admissions'
+    | 'website'
+    | 'parents'
+    | 'system';
   details: string;
   createdAt: string;
 }
@@ -254,6 +311,7 @@ export interface SchoolStateSnapshot {
   nextSemesterReopening: string;
   staff: StaffProfile[];
   teacherRegistrations: TeacherRegistrationRequest[];
+  admissionApplications: AdmissionApplication[];
   classFeeStructures: ClassFeeStructure[];
   students: StudentRecord[];
   feePayments: FeePaymentRecord[];
@@ -263,3 +321,34 @@ export interface SchoolStateSnapshot {
   auditLogs: AuditLogEntry[];
   gallery: GalleryItem[];
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Admissions                                                                 */
+/* -------------------------------------------------------------------------- */
+
+export const ADMISSION_STATUSES: AdmissionStatus[] = [
+  'new',
+  'contacted',
+  'assessment',
+  'offered',
+  'enrolled',
+  'declined',
+];
+
+export const ADMISSION_STATUS_LABELS: Record<AdmissionStatus, string> = {
+  new: 'New application',
+  contacted: 'Family contacted',
+  assessment: 'Assessment arranged',
+  offered: 'Place offered',
+  enrolled: 'Enrolled',
+  declined: 'Not proceeding',
+};
+
+/** The order an application normally moves through, used for the timeline. */
+export const ADMISSION_STATUS_FLOW: AdmissionStatus[] = [
+  'new',
+  'contacted',
+  'assessment',
+  'offered',
+  'enrolled',
+];

@@ -24,11 +24,16 @@ import { SchoolInformation, SchoolStateSnapshot } from '@/types/school';
 import { formatCurrency, SCHOOL_CLASSES } from '@/lib/grading';
 import { ReportCardGenerator } from './ReportCardGenerator';
 import { PhotoCapture } from '@/components/ui/PhotoCapture';
+import { AdmissionsRegister } from '@/components/portal/AdmissionsRegister';
+import { StaffDirectory } from '@/components/portal/StaffDirectory';
+import { SchoolParticularsEditor } from '@/components/portal/SchoolParticularsEditor';
 
 interface SuperAdminDashboardProps {
   state: SchoolStateSnapshot;
   /** The school's published particulars, forwarded to the report sheet. */
   siteInfo?: SchoolInformation | null;
+  /** True when a Supabase project is connected for publishing the particulars. */
+  websiteConfigured?: boolean;
   onStateChange: (newState: SchoolStateSnapshot) => void;
   onNotify: (msg: string, type?: 'success' | 'info') => void;
 }
@@ -38,6 +43,7 @@ export function SuperAdminDashboard({
   onStateChange,
   onNotify,
   siteInfo,
+  websiteConfigured = false,
 }: SuperAdminDashboardProps) {
   const owner = useMemo(
     () =>
@@ -49,7 +55,13 @@ export function SuperAdminDashboard({
   );
 
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'finances' | 'directory' | 'reports' | 'inquiries'
+    | 'overview'
+    | 'finances'
+    | 'directory'
+    | 'admissions'
+    | 'particulars'
+    | 'reports'
+    | 'inquiries'
   >('overview');
 
   // New Student Enrollment state
@@ -105,24 +117,6 @@ export function SuperAdminDashboard({
     state.academicResults,
     state.teacherRegistrations,
   ]);
-
-  async function handleResetStaffPassword(staffId: string, name: string) {
-    const res = await fetch('/api/staff', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ staffId }),
-    });
-    const data = await res.json();
-
-    if (!res.ok || !data.ok) {
-      onNotify(data.error || 'The password could not be reset.', 'info');
-      return;
-    }
-
-    onNotify(
-      `Temporary password for ${name}: ${data.password} — hand it over in person; it should be changed at the next sign-in.`
-    );
-  }
 
   async function handleEnrollStudent(e: React.FormEvent) {
     e.preventDefault();
@@ -335,6 +329,37 @@ export function SuperAdminDashboard({
           >
             <FileSpreadsheet className="w-4 h-4" />
             Report cards
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('admissions')}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
+              activeTab === 'admissions'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md'
+                : 'bg-white/10 text-white hover:bg-white/20'
+            }`}
+          >
+            <UserPlus className="w-4 h-4" />
+            Admissions
+            {state.admissionApplications.filter((entry) => entry.status === 'new').length > 0 && (
+              <span className="rounded-full bg-rose-500 px-2 py-0.5 text-xs font-extrabold text-white">
+                {state.admissionApplications.filter((entry) => entry.status === 'new').length}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('particulars')}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
+              activeTab === 'particulars'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md'
+                : 'bg-white/10 text-white hover:bg-white/20'
+            }`}
+          >
+            <Database className="w-4 h-4" />
+            School particulars
           </button>
 
           <button
@@ -709,73 +734,12 @@ export function SuperAdminDashboard({
 
           {/* Right 8 cols: Staff directory and teaching applications */}
           <div className="lg:col-span-8 space-y-6">
-            <div className="bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
-              <h3 className="text-xl font-serif font-bold text-theresa-green-950 mb-3">
-                Staff on the roll ({state.staff.length})
-              </h3>
-              <div className="overflow-x-auto rounded-2xl border border-slate-200">
-                <table className="w-full text-left border-collapse text-sm">
-                  <thead>
-                    <tr className="bg-theresa-green-900 text-white text-xs uppercase">
-                      <th className="py-3 px-4">Staff number</th>
-                      <th className="py-3 px-3">Full Name</th>
-                      <th className="py-3 px-3">Role</th>
-                      <th className="py-3 px-3">Class</th>
-                      <th className="py-3 px-3">Qualification</th>
-                      <th className="py-3 px-4 text-right">Sign-in</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {state.staff.map((stf) => (
-                      <tr key={stf.id} className="hover:bg-slate-50">
-                        <td className="py-3 px-4 font-mono font-bold text-theresa-green-900 text-xs">
-                          {stf.staffId}
-                        </td>
-                        <td className="py-3 px-3">
-                          <div className="flex items-center gap-3">
-                            {stf.photo ? (
-                              <img
-                                src={stf.photo}
-                                alt={stf.fullName}
-                                className="h-11 w-11 shrink-0 rounded-xl border border-white object-cover shadow-sm"
-                              />
-                            ) : (
-                              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-theresa-green-50 text-theresa-green-800">
-                                <UserRound className="h-5 w-5" />
-                              </span>
-                            )}
-                            <div>
-                              <div className="font-bold text-slate-900">{stf.fullName}</div>
-                              <div className="text-xs text-slate-500 font-normal">{stf.email}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-3 px-3">
-                          <span className="px-2.5 py-0.5 rounded-full bg-theresa-gold-100 text-theresa-green-950 text-xs font-bold uppercase">
-                            {stf.role.replace('_', ' ')}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 font-semibold text-slate-700">
-                          {stf.assignedClass || 'All-School'}
-                        </td>
-                        <td className="py-3 px-3 text-xs text-slate-600">
-                          {stf.qualification}
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <button
-                            type="button"
-                            onClick={() => handleResetStaffPassword(stf.id, stf.fullName)}
-                            className="rounded-md border border-slate-300 px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
-                          >
-                            Reset password
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <StaffDirectory
+              staff={state.staff}
+              currentUser={{ fullName: owner.fullName, staffId: owner.staffId, role: 'super_admin' }}
+              onStateChange={onStateChange}
+              onNotify={onNotify}
+            />
 
             {/* Teacher Sign-up Requests Queue */}
             <div className="bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
@@ -857,6 +821,23 @@ export function SuperAdminDashboard({
       {/* ===================================================================== */}
       {/* TAB 5: PARENT ENQUIRIES & OUTSTANDING FEES                            */}
       {/* ===================================================================== */}
+      {activeTab === 'admissions' && (
+        <AdmissionsRegister
+          applications={state.admissionApplications}
+          currentUser={{ fullName: owner.fullName, role: 'super_admin' }}
+          onStateChange={onStateChange}
+          onNotify={onNotify}
+        />
+      )}
+
+      {activeTab === 'particulars' && (
+        <SchoolParticularsEditor
+          info={siteInfo ?? null}
+          configured={websiteConfigured}
+          onNotify={onNotify}
+        />
+      )}
+
       {activeTab === 'inquiries' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-7 bg-white rounded-2xl border border-theresa-green-100 p-6 shadow-sm">

@@ -29,11 +29,7 @@ export default function AdministratorLoginPage() {
         </p>
 
         <div className="mt-6">
-          <LoginForm
-            portal="administrator"
-            submitLabel="Sign in as Administrator"
-            previewAccount={{ email: 'headmaster@sttheresa-aubyn.edu.gh', password: 'Campus@1988' }}
-          />
+          <LoginForm portal="administrator" submitLabel="Sign in as Administrator" />
         </div>
       </div>
 
@@ -45,6 +41,10 @@ export default function AdministratorLoginPage() {
           <span className="mx-2 text-slate-400">|</span>
           <Link href="/login/teacher" className="font-semibold text-theresa-green-800 hover:underline">
             Teacher sign-in
+          </Link>
+          <span className="mx-2 text-slate-400">|</span>
+          <Link href="/login/parent" className="font-semibold text-theresa-green-800 hover:underline">
+            Parent sign-in
           </Link>
         </p>
         <p className="text-xs text-slate-500">

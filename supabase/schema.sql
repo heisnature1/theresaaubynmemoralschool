@@ -411,3 +411,107 @@ create policy "Service role writes term dates" on public.term_dates
 --   about_summary = excluded.about_summary,
 --   current_semester = excluded.current_semester,
 --   updated_at = now();
+
+-- =============================================================================
+-- ADMISSIONS, PARENT ACCESS AND SUPABASE AUTH  (v1.3.0)
+--
+-- Families apply for a place on the website; the office searches the
+-- applications, moves them on and enrols the child. Parents then sign in with
+-- the pupil's admission code and either the guardian telephone number or the
+-- access PIN the office issued.
+-- =============================================================================
+
+-- 19. Admission applications (submitted from the website or entered at the office)
+create table if not exists public.admission_applications (
+  id uuid primary key default uuid_generate_v4(),
+  reference text unique not null,
+  child_full_name text not null,
+  child_date_of_birth date,
+  gender text,
+  class_applied text not null,
+  guardian_name text not null,
+  guardian_phone text not null,
+  guardian_email text,
+  previous_school text,
+  notes text,
+  status text not null default 'new', -- new | contacted | assessment | offered | enrolled | declined
+  reviewed_by text,
+  reviewed_at timestamptz,
+  student_code text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.admission_applications enable row level security;
+
+-- The website may file an application; the office reads and works on them.
+create policy "Public insert on admission applications" on public.admission_applications
+  for insert with check (true);
+
+create policy "Service role manages admission applications" on public.admission_applications
+  for all to service_role using (true) with check (true);
+
+-- Searching the register: an index on the fields the office types.
+create index if not exists admission_applications_reference_idx
+  on public.admission_applications (reference);
+create index if not exists admission_applications_status_idx
+  on public.admission_applications (status);
+create index if not exists admission_applications_child_idx
+  on public.admission_applications (child_full_name);
+create index if not exists admission_applications_guardian_phone_idx
+  on public.admission_applications (guardian_phone);
+
+-- -----------------------------------------------------------------------------
+-- Parents' access. The office may issue a six-digit PIN to a family; only its
+-- hash is kept, and a guardian may always sign in with the telephone number
+-- already on the pupil's record.
+-- -----------------------------------------------------------------------------
+alter table public.students add column if not exists guardian_email text;
+alter table public.students add column if not exists access_pin_hash text;
+alter table public.students add column if not exists access_pin_issued_at timestamptz;
+
+-- -----------------------------------------------------------------------------
+-- Supabase Auth for staff accounts.
+--
+-- When a Supabase project is connected, staff sign in through Supabase Auth:
+-- `auth_user_id` links the school's own record to the Supabase user, and the
+-- portal keeps the scrypt password as a fallback for deployments without a
+-- database. Creating an account, resetting a password and suspending an account
+-- are done from the portal with the service-role key.
+--
+-- Turn email/password sign-in on in Supabase (Authentication → Providers) and
+-- keep the service-role key on the server only. The portal confirms staff
+-- addresses itself, so no confirmation email is required for accounts the
+-- office creates.
+-- -----------------------------------------------------------------------------
+alter table public.profiles add column if not exists auth_user_id uuid;
+
+-- Optional: mirror the Supabase Auth user's metadata onto the school record
+-- whenever Supabase creates or updates it. Safe to run more than once.
+create or replace function public.sync_staff_profile_from_auth()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if new.email is null then
+    return new;
+  end if;
+
+  update public.profiles
+     set auth_user_id = new.id,
+         full_name = coalesce(nullif(new.raw_user_meta_data->>'full_name', ''), full_name),
+         staff_id = coalesce(nullif(new.raw_user_meta_data->>'staff_id', ''), staff_id),
+         role = coalesce(nullif(new.raw_user_meta_data->>'role', '')::user_role, role),
+         updated_at = now()
+   where lower(email) = lower(new.email);
+
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_synced on auth.users;
+create trigger on_auth_user_synced
+  after insert or update on auth.users
+  for each row execute function public.sync_staff_profile_from_auth();
