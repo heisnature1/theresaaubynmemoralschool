@@ -1,9 +1,9 @@
 # St. Teresa Aubyn Memorial School — Website & Staff Portal
 
-[![Production Deployment](https://img.shields.io/badge/Production-Live-success)](https://heisnature1-theresaaubynmemoralschool-a24wx9mjb.vercel.app)
+[![Production Deployment](https://img.shields.io/badge/Production-Live-success)](https://theresaaubynmemoralschool.vercel.app)
 [![Version](https://img.shields.io/badge/Version-1.1.0-blue)](https://github.com/heisnature1/theresaaubynmemoralschool)
 
-**Production Website:** [https://heisnature1-theresaaubynmemoralschool-a24wx9mjb.vercel.app](https://heisnature1-theresaaubynmemoralschool-a24wx9mjb.vercel.app)
+**Production Website:** [https://theresaaubynmemoralschool.vercel.app](https://theresaaubynmemoralschool.vercel.app)
 
 The public website and the staff records system for **St. Teresa Aubyn Memorial School**, a day
 school for KG 1 to JHS 3 founded in 1988.
