@@ -13,6 +13,7 @@ import {
   PlusCircle,
   Search,
   Send,
+  UserRound,
   Utensils,
 } from 'lucide-react';
 import {
@@ -333,7 +334,13 @@ export function TeacherDashboard({
   return (
     <div className="space-y-6">
       {/* Signed-in teacher banner */}
-      <div className="bg-gradient-to-r from-teresa-green-900 via-teresa-green-800 to-teresa-green-900 rounded-3xl p-6 text-white shadow-lg border border-teresa-gold-400/30">
+      <div className="animate-fade-up relative overflow-hidden rounded-3xl border border-teresa-gold-400/30 bg-gradient-to-r from-teresa-green-900 via-teresa-green-800 to-teresa-green-900 p-6 text-white shadow-lift">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(217,175,55,0.18),transparent_55%)]" />
+          <div className="hero-blob -right-14 -top-20 h-64 w-64 bg-teresa-gold-600/20 animate-float-slow" />
+          <div className="hero-blob -left-12 bottom-[-6rem] h-56 w-56 bg-teresa-green-500/25 animate-float" />
+          <div className="absolute inset-0 pattern-grid opacity-[0.07]" />
+        </div>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teresa-gold-400/20 border border-teresa-gold-400/40 text-teresa-gold-300 text-xs font-bold uppercase tracking-wider">
@@ -368,7 +375,7 @@ export function TeacherDashboard({
             onClick={() => setActiveTab('results')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'results'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md'
+                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -381,7 +388,7 @@ export function TeacherDashboard({
             onClick={() => setActiveTab('feeding')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'feeding'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md'
+                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -394,7 +401,7 @@ export function TeacherDashboard({
             onClick={() => setActiveTab('reports')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'reports'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md'
+                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -407,7 +414,7 @@ export function TeacherDashboard({
             onClick={() => setActiveTab('profile')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'profile'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md'
+                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -603,13 +610,26 @@ export function TeacherDashboard({
           <div className="lg:col-span-7 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                <div>
+                <div className="flex items-center gap-3">
+                  {currentStudent?.photo ? (
+                    <img
+                      src={currentStudent.photo}
+                      alt={currentStudent.fullName}
+                      className="h-14 w-14 shrink-0 rounded-2xl border-2 border-white object-cover shadow-md"
+                    />
+                  ) : (
+                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-teresa-green-50 text-teresa-green-800">
+                      <UserRound className="h-6 w-6" />
+                    </span>
+                  )}
+                  <div>
                   <span className="text-xs font-bold uppercase tracking-wider text-teresa-green-700">
                     Student Academic Transcript ({currentStudent?.className})
                   </span>
                   <h3 className="text-xl font-serif font-bold text-teresa-green-950">
                     {currentStudent?.fullName} — Recorded Subject Scores
                   </h3>
+                  </div>
                 </div>
                 <button
                   type="button"

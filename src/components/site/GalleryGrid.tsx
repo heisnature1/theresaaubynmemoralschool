@@ -29,10 +29,10 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
             key={option}
             type="button"
             onClick={() => setCategory(option)}
-            className={`rounded-md border px-3.5 py-2 text-sm font-medium transition ${
+            className={`rounded-xl border px-4 py-2 text-sm font-semibold transition-all duration-300 ${
               category === option
-                ? 'border-teresa-green-900 bg-teresa-green-900 text-white'
-                : 'border-slate-300 bg-white text-slate-700 hover:border-teresa-green-700'
+                ? 'border-teresa-green-900 bg-teresa-green-900 text-white shadow-soft scale-[1.03]'
+                : 'border-slate-300 bg-white text-slate-700 hover:border-teresa-green-700 hover:text-teresa-green-800'
             }`}
           >
             {option}
@@ -41,10 +41,20 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
       </div>
 
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((item) => (
-          <figure key={item.id} className="overflow-hidden rounded-md border border-slate-200 bg-white">
+        {visible.map((item, index) => (
+          <figure
+            key={item.id}
+            className="group animate-pop-in overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-soft card-lift"
+            style={{ animationDelay: `${Math.min(index * 70, 420)}ms` }}
+          >
             <button type="button" onClick={() => setPreview(item)} className="block w-full text-left">
-              <img src={item.imageUrl} alt={item.title} className="h-56 w-full object-cover" />
+              <div className="overflow-hidden">
+                <img
+                  src={item.imageUrl}
+                  alt={item.title}
+                  className="h-56 w-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"
+                />
+              </div>
             </button>
             <figcaption className="p-4">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-teresa-gold-700">
@@ -59,11 +69,11 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
 
       {preview && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 p-4"
+          className="fixed inset-0 z-50 flex animate-fade-in items-center justify-center bg-slate-900/85 p-4 backdrop-blur-sm"
           onClick={() => setPreview(null)}
         >
           <div
-            className="w-full max-w-3xl overflow-hidden rounded-md bg-white"
+            className="w-full max-w-3xl animate-pop-in overflow-hidden rounded-3xl bg-white shadow-lift"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="relative">

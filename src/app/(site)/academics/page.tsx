@@ -6,6 +6,8 @@ import {
   DEPARTMENT_SUBJECTS_FULL,
   TERM_DATES,
 } from '@/lib/constants';
+import { PageHero } from '@/components/site/PageHero';
+import { Reveal } from '@/components/site/Reveal';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,29 +39,25 @@ export default function AcademicsPage() {
 
   return (
     <>
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-12 lg:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-teresa-gold-700">
-            Academics and fees
-          </p>
-          <h1 className="mt-3 font-serif text-3xl font-bold text-teresa-green-950 sm:text-4xl">
-            The teaching programme and what it costs
-          </h1>
-          <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-slate-700">
+      <PageHero
+        eyebrow="Academics and fees"
+        title="The teaching programme and what it costs"
+        image="/images/stem-lab.jpg"
+      >
+          <p className="max-w-3xl leading-relaxed">
             {state.currentSemester}. Every department follows a written scheme of work approved by
             the Headmaster at the start of the year. Marks are recorded continuously, so that
             parents are never surprised by a terminal report.
           </p>
-        </div>
-      </section>
+      </PageHero>
 
       {/* Departments */}
-      <section className="border-b border-slate-200 bg-[#FCFBF7]">
+      <Reveal as="section" variant="fade" className="border-b border-slate-200 bg-[#FCFBF7]">
         <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
           <h2 className="font-serif text-2xl font-bold text-teresa-green-950">Departments</h2>
           <div className="mt-8 grid gap-5 sm:grid-cols-2">
             {ACADEMIC_DEPARTMENTS.map((department) => (
-              <article key={department.name} className="rounded-md border border-slate-200 bg-white p-6">
+              <article key={department.name} className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-soft card-lift">
                 <div className="flex items-baseline justify-between gap-4">
                   <h3 className="font-serif text-lg font-bold text-teresa-green-950">
                     {department.name}
@@ -83,7 +81,7 @@ export default function AcademicsPage() {
             ))}
           </div>
 
-          <div className="mt-8 rounded-md border border-slate-200 bg-white p-6">
+          <div className="mt-8 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-soft card-lift">
             <h3 className="font-serif text-lg font-bold text-teresa-green-950">
               Subjects taught across the school
             </h3>
@@ -96,10 +94,10 @@ export default function AcademicsPage() {
             </ul>
           </div>
         </div>
-      </section>
+      </Reveal>
 
       {/* Assessment */}
-      <section className="border-b border-slate-200 bg-white">
+      <Reveal as="section" variant="fade" className="border-b border-slate-200 bg-white">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 lg:grid-cols-12 lg:px-6">
           <div className="lg:col-span-7">
             <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
@@ -148,10 +146,10 @@ export default function AcademicsPage() {
             </table>
           </div>
         </div>
-      </section>
+      </Reveal>
 
       {/* Fees */}
-      <section id="fees" className="scroll-mt-24 border-b border-slate-200 bg-[#FCFBF7]">
+      <Reveal as="section" variant="fade" id="fees" className="scroll-mt-24 border-b border-slate-200 bg-[#FCFBF7]">
         <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
           <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
             Fee schedule, {state.currentSemester}
@@ -212,10 +210,10 @@ export default function AcademicsPage() {
             . A 5% discount on tuition is allowed where a family settles the whole year in advance.
           </p>
         </div>
-      </section>
+      </Reveal>
 
       {/* Extra classes */}
-      <section className="border-b border-slate-200 bg-white">
+      <Reveal as="section" variant="fade" className="border-b border-slate-200 bg-white">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 lg:grid-cols-12 lg:px-6">
           <div className="lg:col-span-6">
             <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
@@ -243,14 +241,14 @@ export default function AcademicsPage() {
               from 12:15 p.m. under the supervision of the class teachers.
             </p>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-md border border-slate-200 bg-[#FCFBF7] p-5">
+              <div className="rounded-2xl border border-slate-200/80 bg-[#FCFBF7] p-5 shadow-soft card-lift">
                 <h3 className="font-serif text-base font-bold text-teresa-green-950">Pay daily</h3>
                 <p className="mt-1 text-sm text-slate-700">
                   {formatCurrency(dailyMeal)} per pupil per day, collected by the class teacher each
                   morning and recorded in the daily feeding register.
                 </p>
               </div>
-              <div className="rounded-md border border-slate-200 bg-[#FCFBF7] p-5">
+              <div className="rounded-2xl border border-slate-200/80 bg-[#FCFBF7] p-5 shadow-soft card-lift">
                 <h3 className="font-serif text-base font-bold text-teresa-green-950">
                   Prepaid meal card
                 </h3>
@@ -266,10 +264,10 @@ export default function AcademicsPage() {
             </p>
           </div>
         </div>
-      </section>
+      </Reveal>
 
       {/* Calendar */}
-      <section className="bg-[#FCFBF7]">
+      <Reveal as="section" variant="fade" className="bg-[#FCFBF7]">
         <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
           <h2 className="font-serif text-2xl font-bold text-teresa-green-950">School calendar</h2>
           <ol className="mt-6 divide-y divide-slate-200 border-y border-slate-200">
@@ -292,7 +290,7 @@ export default function AcademicsPage() {
             .
           </p>
         </div>
-      </section>
+      </Reveal>
     </>
   );
 }

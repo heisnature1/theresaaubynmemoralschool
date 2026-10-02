@@ -437,13 +437,28 @@ export function ReportCardGenerator({
         <div className="p-6 bg-teresa-ivory/80 border-b border-teresa-gold-200">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-sm">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                Pupil / Student Name
+              <div className="flex items-start gap-3">
+                {currentStudent.photo ? (
+                  <img
+                    src={currentStudent.photo}
+                    alt={currentStudent.fullName}
+                    className="h-14 w-14 shrink-0 rounded-lg border border-teresa-gold-300 object-cover"
+                  />
+                ) : (
+                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 text-[8px] font-bold uppercase text-slate-400">
+                    Photo
+                  </span>
+                )}
+                <div className="min-w-0">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                    Pupil / Student Name
+                  </div>
+                  <div className="text-sm font-bold text-teresa-green-950 mt-0.5">
+                    {currentStudent.fullName}
+                  </div>
+                  <div className="text-xs text-slate-500">{currentStudent.gender}</div>
+                </div>
               </div>
-              <div className="text-sm font-bold text-teresa-green-950 mt-0.5">
-                {currentStudent.fullName}
-              </div>
-              <div className="text-xs text-slate-500">{currentStudent.gender}</div>
             </div>
 
             <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-sm">

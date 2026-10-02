@@ -1,15 +1,48 @@
 import React from 'react';
 import Link from 'next/link';
+import { ArrowLeft, GraduationCap, Quote, ShieldCheck, Utensils } from 'lucide-react';
 import { SchoolCrest } from '@/components/SchoolCrest';
 import { OFFICE_CONTACTS } from '@/lib/constants';
 
+const HIGHLIGHTS = [
+  {
+    icon: GraduationCap,
+    title: 'Continuous assessment',
+    body: 'Class scores and exam marks are recorded as they are earned, not at the end of term.',
+  },
+  {
+    icon: Utensils,
+    title: 'Daily feeding register',
+    body: 'Every midday meal is logged per pupil, per day, with the method of payment.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Careful records',
+    body: 'Fee receipts, report endorsements and every change are kept in the school audit trail.',
+  },
+];
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-[#F4F1E8]">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4 lg:px-6">
-          <Link href="/" className="flex items-center gap-3">
-            <SchoolCrest size="sm" />
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#F4F1E8]">
+      {/* Animated campus backdrop */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <img
+          src="/images/campus-hero.jpg"
+          alt=""
+          aria-hidden="true"
+          className="h-full w-full object-cover opacity-[0.14] animate-ken-burns"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#F7F5EE] via-white/80 to-teresa-green-50" />
+        <div className="hero-blob -left-24 top-1/4 h-96 w-96 bg-teresa-green-400/20 animate-float-slow" />
+        <div className="hero-blob -right-24 bottom-0 h-80 w-80 bg-teresa-gold-400/25 animate-float" />
+        <div className="absolute inset-0 pattern-grid opacity-40" />
+      </div>
+
+      <header className="animate-fade-down border-b border-white/60 bg-white/70 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 lg:px-6">
+          <Link href="/" className="group flex items-center gap-3">
+            <SchoolCrest size="sm" className="transition-transform duration-500 group-hover:scale-110" />
             <span className="leading-tight">
               <span className="block font-serif text-base font-bold text-teresa-green-900">
                 St. Teresa Aubyn Memorial School
@@ -19,19 +52,80 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               </span>
             </span>
           </Link>
-          <Link href="/" className="text-sm font-semibold text-slate-600 hover:text-teresa-green-800">
-            &larr; Back to the school website
+          <Link
+            href="/"
+            className="group inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-600 transition hover:border-teresa-green-600 hover:text-teresa-green-800"
+          >
+            <ArrowLeft className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1" />
+            Back to the school website
           </Link>
         </div>
       </header>
 
-      <main className="flex flex-1 items-start justify-center px-4 py-10 lg:py-14">{children}</main>
+      <main className="flex flex-1 items-start justify-center px-4 py-10 lg:py-14">
+        <div className="grid w-full max-w-6xl items-start gap-10 lg:grid-cols-12">
+          {/* Left: the school's own pitch, shown beside every sign-in card */}
+          <aside className="hidden lg:col-span-5 lg:block">
+            <div className="animate-fade-right sticky top-28 space-y-6">
+              <div className="overflow-hidden rounded-3xl border border-teresa-green-900/10 bg-gradient-to-br from-teresa-green-900 to-teresa-green-950 p-8 text-white shadow-lift">
+                <div className="absolute" />
+                <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-teresa-gold-300">
+                  Since 1988 &middot; KG 1 &ndash; JHS 3
+                </p>
+                <h2 className="mt-3 font-serif text-3xl font-bold leading-tight">
+                  A steady, thorough education for the children of our community
+                </h2>
+                <p className="mt-4 text-sm leading-relaxed text-emerald-50/85">
+                  The portal carries the school&apos;s working records: the fee books, the feeding
+                  register, continuous assessment and the terminal report cards.
+                </p>
+                <ul className="mt-7 space-y-4">
+                  {HIGHLIGHTS.map((item, index) => (
+                    <li
+                      key={item.title}
+                      className="flex animate-fade-up gap-3"
+                      style={{ animationDelay: `${index * 120}ms` }}
+                    >
+                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-teresa-gold-300">
+                        <item.icon className="h-4 w-4" />
+                      </span>
+                      <span>
+                        <span className="block text-sm font-bold text-white">{item.title}</span>
+                        <span className="block text-xs leading-relaxed text-emerald-100/75">
+                          {item.body}
+                        </span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4 py-5 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between lg:px-6">
+              <figure className="animate-fade-up anim-delay-4 rounded-3xl border border-teresa-green-900/10 bg-white/80 p-6 backdrop-blur-md">
+                <Quote className="h-6 w-6 text-teresa-gold-500" />
+                <blockquote className="mt-2 font-serif text-sm leading-relaxed text-slate-700">
+                  &ldquo;Your child will be known by name, taught by a qualified teacher who keeps a
+                  careful record of their progress, and fed properly at midday.&rdquo;
+                </blockquote>
+                <figcaption className="mt-3 text-xs font-semibold text-teresa-green-800">
+                  Rev. Fr. Bernard Kweku Arthur, M.Ed. &middot; Headmaster
+                </figcaption>
+              </figure>
+            </div>
+          </aside>
+
+          {/* Right: the sign-in or application card */}
+          <div className="animate-fade-up anim-delay-2 lg:col-span-7">{children}</div>
+        </div>
+      </main>
+
+      <footer className="border-t border-white/60 bg-white/70 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-5 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between lg:px-6">
           <p>
             Trouble signing in? Telephone the school office on{' '}
-            <a href={`tel:${OFFICE_CONTACTS.mainPhone.replace(/\s/g, '')}`} className="font-semibold text-slate-700">
+            <a
+              href={`tel:${OFFICE_CONTACTS.mainPhone.replace(/\s/g, '')}`}
+              className="font-semibold text-teresa-green-800 hover:underline"
+            >
               {OFFICE_CONTACTS.mainPhone}
             </a>
             .

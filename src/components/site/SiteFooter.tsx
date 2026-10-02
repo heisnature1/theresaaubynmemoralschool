@@ -1,15 +1,21 @@
 import Link from 'next/link';
+import { Mail, MapPin, Phone } from 'lucide-react';
 import { SchoolCrest } from '@/components/SchoolCrest';
 import { OFFICE_CONTACTS, TERM_DATES } from '@/lib/constants';
 
 export function SiteFooter() {
   return (
-    <footer className="mt-16 border-t-4 border-teresa-gold-500 bg-teresa-green-950 text-emerald-50">
-      <div className="mx-auto max-w-6xl px-4 lg:px-6 py-12">
+    <footer className="relative mt-16 overflow-hidden border-t-4 border-teresa-gold-500 bg-teresa-green-950 text-emerald-50">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="hero-blob -left-20 -top-24 h-72 w-72 bg-teresa-green-700/30" />
+        <div className="hero-blob -right-16 bottom-0 h-72 w-72 bg-teresa-gold-700/20" />
+        <div className="absolute inset-0 pattern-grid opacity-[0.08]" />
+      </div>
+      <div className="relative mx-auto max-w-6xl px-4 lg:px-6 py-12">
         <div className="grid gap-10 md:grid-cols-4">
           <div className="md:col-span-2">
             <div className="flex items-start gap-3">
-              <SchoolCrest size="sm" />
+              <SchoolCrest size="sm" className="transition-transform duration-500 hover:rotate-6" />
               <div>
                 <p className="font-serif text-lg font-bold text-white">
                   St. Teresa Aubyn Memorial School
@@ -24,17 +30,17 @@ export function SiteFooter() {
               Madam Teresa Aubyn. We keep small classes, a serious academic programme, a hot midday
               meal for every pupil and a firm hand on good manners.
             </p>
-            <dl className="mt-5 space-y-1 text-sm text-emerald-100/85">
-              <div className="flex gap-2">
-                <dt className="font-semibold text-teresa-gold-300">Office:</dt>
+            <dl className="mt-5 space-y-2.5 text-sm text-emerald-100/85">
+              <div className="flex items-center gap-2.5">
+                <Phone className="h-4 w-4 shrink-0 text-teresa-gold-300" />
                 <dd>{OFFICE_CONTACTS.mainPhone}</dd>
               </div>
-              <div className="flex gap-2">
-                <dt className="font-semibold text-teresa-gold-300">Email:</dt>
+              <div className="flex items-center gap-2.5">
+                <Mail className="h-4 w-4 shrink-0 text-teresa-gold-300" />
                 <dd>{OFFICE_CONTACTS.generalEmail}</dd>
               </div>
-              <div className="flex gap-2">
-                <dt className="font-semibold text-teresa-gold-300">Address:</dt>
+              <div className="flex items-start gap-2.5">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-teresa-gold-300" />
                 <dd>{OFFICE_CONTACTS.postalAddress}</dd>
               </div>
             </dl>
@@ -44,8 +50,8 @@ export function SiteFooter() {
             <h2 className="text-xs font-semibold uppercase tracking-widest text-teresa-gold-300">
               The School
             </h2>
-            <ul className="mt-4 space-y-2 text-sm">
-              <li><Link href="/about" className="hover:text-teresa-gold-200">Our history and values</Link></li>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              <li><Link href="/about" className="group inline-flex items-center gap-1.5 transition hover:text-teresa-gold-200"><span className="h-1 w-1 rounded-full bg-teresa-gold-400 transition-all duration-300 group-hover:w-3" />Our history and values</Link></li>
               <li><Link href="/academics" className="hover:text-teresa-gold-200">Academic programme</Link></li>
               <li><Link href="/academics#fees" className="hover:text-teresa-gold-200">Fee schedule</Link></li>
               <li><Link href="/academics#feeding" className="hover:text-teresa-gold-200">Feeding programme</Link></li>

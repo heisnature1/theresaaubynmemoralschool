@@ -1,6 +1,8 @@
 import { Clock, Mail, MapPin, Phone } from 'lucide-react';
 import { EnquiryForm } from '@/components/site/EnquiryForm';
 import { OFFICE_CONTACTS } from '@/lib/constants';
+import { PageHero } from '@/components/site/PageHero';
+import { Reveal } from '@/components/site/Reveal';
 
 export const metadata = {
   title: 'Contact the School | St. Teresa Aubyn Memorial School',
@@ -23,26 +25,22 @@ const EMAILS = [
 export default function ContactPage() {
   return (
     <>
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-12 lg:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-teresa-gold-700">
-            Contact
-          </p>
-          <h1 className="mt-3 font-serif text-3xl font-bold text-teresa-green-950 sm:text-4xl">
-            Speaking to the school
-          </h1>
-          <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-slate-700">
+      <PageHero
+        eyebrow="Contact"
+        title="Speaking to the school"
+        image="/images/library-dining.jpg"
+      >
+          <p className="max-w-3xl leading-relaxed">
             The school office is open on weekdays from 7:00 a.m. to 5:00 p.m. Parents are welcome to
             call in without an appointment, though it helps to telephone ahead if you wish to meet a
             particular teacher.
           </p>
-        </div>
-      </section>
+      </PageHero>
 
-      <section className="bg-[#FCFBF7]">
+      <Reveal as="section" variant="fade" className="bg-[#FCFBF7]">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 lg:grid-cols-12 lg:px-6">
           <div className="lg:col-span-5 space-y-6">
-            <div className="rounded-md border border-slate-200 bg-white p-6">
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-soft card-lift">
               <h2 className="flex items-center gap-2 font-serif text-lg font-bold text-teresa-green-950">
                 <MapPin className="h-4 w-4 text-teresa-gold-600" />
                 Where to find us
@@ -59,7 +57,7 @@ export default function ContactPage() {
               </p>
             </div>
 
-            <div className="rounded-md border border-slate-200 bg-white p-6">
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-soft card-lift">
               <h2 className="flex items-center gap-2 font-serif text-lg font-bold text-teresa-green-950">
                 <Phone className="h-4 w-4 text-teresa-gold-600" />
                 Telephone
@@ -79,7 +77,7 @@ export default function ContactPage() {
               </dl>
             </div>
 
-            <div className="rounded-md border border-slate-200 bg-white p-6">
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-soft card-lift">
               <h2 className="flex items-center gap-2 font-serif text-lg font-bold text-teresa-green-950">
                 <Mail className="h-4 w-4 text-teresa-gold-600" />
                 Email
@@ -98,7 +96,7 @@ export default function ContactPage() {
               </dl>
             </div>
 
-            <div className="rounded-md border border-slate-200 bg-white p-6">
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-soft card-lift">
               <h2 className="flex items-center gap-2 font-serif text-lg font-bold text-teresa-green-950">
                 <Clock className="h-4 w-4 text-teresa-gold-600" />
                 Hours
@@ -125,7 +123,7 @@ export default function ContactPage() {
           </div>
 
           <div className="lg:col-span-7">
-            <div className="rounded-md border border-slate-200 bg-white p-6 sm:p-8">
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-soft card-lift sm:p-8">
               <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
                 Send an enquiry to the school office
               </h2>
@@ -140,7 +138,7 @@ export default function ContactPage() {
             </div>
           </div>
         </div>
-      </section>
+      </Reveal>
     </>
   );
 }

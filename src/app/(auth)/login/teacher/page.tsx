@@ -15,8 +15,8 @@ export default function TeacherLoginPage() {
   if (session) redirect(HOME_FOR_ROLE[session.role]);
 
   return (
-    <div className="w-full max-w-md">
-      <div className="rounded-md border border-slate-200 bg-white p-7 shadow-sm">
+    <div className="mx-auto w-full max-w-md">
+      <div className="animate-pop-in overflow-hidden rounded-3xl border border-white/70 bg-white/90 p-7 shadow-lift backdrop-blur-xl sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teresa-gold-700">
           Class &amp; subject teachers
         </p>

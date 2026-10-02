@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { getSchoolState } from '@/lib/store';
 import { SCHOOL_HISTORY_MILESTONES, SCHOOL_VALUES } from '@/lib/constants';
+import { PageHero } from '@/components/site/PageHero';
+import { Reveal } from '@/components/site/Reveal';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,34 +21,30 @@ export default function AboutPage() {
 
   return (
     <>
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-12 lg:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-teresa-gold-700">
-            About us
-          </p>
-          <h1 className="mt-3 font-serif text-3xl font-bold text-teresa-green-950 sm:text-4xl">
-            Founded in 1988, in memory of Madam Teresa Aubyn
-          </h1>
-          <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-slate-700">
+      <PageHero
+        eyebrow="About us"
+        title="Founded in 1988, in memory of Madam Teresa Aubyn"
+        image="/images/heritage-courtyard.jpg"
+      >
+          <p className="max-w-3xl leading-relaxed">
             The school began on 2 October 1988 with forty-two pupils in four rented classrooms. It
             was opened by the Aubyn family as a working memorial to Madam Teresa Aubyn, a teacher
             for thirty-one years who believed that literacy and good manners were the two gifts a
             school owed every child. Her photograph hangs in the entrance hall, and the courtyard
             between the two teaching blocks is named for her.
           </p>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-slate-700">
+          <p className="mt-4 max-w-3xl leading-relaxed">
             Today the school runs three streams &mdash; Early Childhood, Primary and Junior High
             &mdash; on a single compound. Governance rests with the proprietor and the school
             council; day-to-day academic and financial administration is the responsibility of the
             Headmaster and the Bursary.
           </p>
-        </div>
-      </section>
+      </PageHero>
 
       {/* Founder and courtyard */}
-      <section className="border-b border-slate-200 bg-[#FCFBF7]">
+      <Reveal as="section" variant="fade" className="border-b border-slate-200 bg-[#FCFBF7]">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 lg:grid-cols-12 lg:px-6">
-          <figure className="lg:col-span-6 overflow-hidden rounded-md border border-slate-200 bg-white">
+          <figure className="lg:col-span-6 group overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-soft card-lift">
             <img
               src="/images/heritage-courtyard.jpg"
               alt="The memorial courtyard named for Madam Teresa Aubyn"
@@ -81,10 +79,10 @@ export default function AboutPage() {
             </Link>
           </div>
         </div>
-      </section>
+      </Reveal>
 
       {/* Timeline */}
-      <section className="border-b border-slate-200 bg-white">
+      <Reveal as="section" variant="fade" className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
           <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
             Thirty-eight years on the same compound
@@ -118,10 +116,10 @@ export default function AboutPage() {
             ))}
           </ol>
         </div>
-      </section>
+      </Reveal>
 
       {/* Values */}
-      <section className="border-b border-slate-200 bg-[#FCFBF7]">
+      <Reveal as="section" variant="fade" className="border-b border-slate-200 bg-[#FCFBF7]">
         <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
           <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
             What we ask of our pupils
@@ -132,17 +130,17 @@ export default function AboutPage() {
           </p>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {SCHOOL_VALUES.map((value) => (
-              <article key={value.title} className="rounded-md border border-slate-200 bg-white p-5">
+              <article key={value.title} className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-soft card-lift">
                 <h3 className="font-serif text-lg font-bold text-teresa-green-950">{value.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">{value.body}</p>
               </article>
             ))}
           </div>
         </div>
-      </section>
+      </Reveal>
 
       {/* Leadership and staff */}
-      <section className="bg-white">
+      <Reveal as="section" variant="fade" className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
           <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
             The people who run the school
@@ -150,7 +148,7 @@ export default function AboutPage() {
 
           <div className="mt-8 grid gap-5 md:grid-cols-2">
             {leadership.map((member) => (
-              <article key={member.id} className="rounded-md border border-slate-200 p-5">
+              <article key={member.id} className="rounded-2xl border border-slate-200/80 p-5 shadow-soft card-lift">
                 <p className="text-xs font-semibold uppercase tracking-wider text-teresa-gold-700">
                   {member.role === 'super_admin' ? 'Proprietor' : 'Headmaster'}
                 </p>
@@ -207,7 +205,7 @@ export default function AboutPage() {
             .
           </p>
         </div>
-      </section>
+      </Reveal>
     </>
   );
 }

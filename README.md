@@ -31,18 +31,55 @@ report cards are printed or downloaded as PDFs.
 | Administrator | `/login/administrator` | The Headmaster, Bursary and school office |
 | Teacher | `/login/teacher` | Class and subject teachers |
 
-**Teacher applications** — `/register/teacher`. Applicants choose their own password when applying;
-once the Headmaster approves the application the account becomes active and the applicant signs in
-with that password.
+**Teacher applications** — `/register/teacher`. Applicants choose their own password and add a
+**passport photograph** (taken with the device camera or uploaded). Once the Headmaster approves the
+application the account becomes active and the applicant signs in with that password. The photograph
+follows them onto the staff record, and is shown on the application and in the staff directory.
 
 **Staff portal** (`/portal/...`, requires sign-in)
 
 | Page | Address | What it does |
 | --- | --- | --- |
 | School overview | `/portal/super-admin` | Income by stream, fees outstanding by class, pupils registered, staff, teaching applications, parent enquiries and a record of who changed what |
-| Administration | `/portal/administrator` | Fee schedule by class, fee payments and receipts, teaching applications, report endorsements |
+| Administration | `/portal/administrator` | Fee schedule by class, fee payments and receipts, **admissions (enrol a pupil with a photograph)**, teaching applications, report endorsements |
 | Class teacher | `/portal/teacher` | Continuous assessment and exam marks, the daily feeding register by pupil and date, report cards, password change |
 | Report cards | `/portal/reports` | Report cards for any pupil, with a PDF download and a print view |
+
+---
+
+## Passport photographs
+
+Two forms capture a photograph, both using the same camera field (`src/components/ui/PhotoCapture.tsx`):
+
+- **Teaching applications** (`/register/teacher`) — the applicant's passport photograph is required
+  and is kept with the application. When the Headmaster approves it, the photograph is copied to the
+  staff record and appears in the staff directory.
+- **Admissions** (Administration → **Admissions** tab) — the office takes the pupil's photograph
+  while enrolling them. It is stored on the pupil's record, shown in the pupil register, on the
+  class teacher's mark sheet and on the report card.
+
+Pictures are centre-cropped to a square, scaled down (480 px for staff, 420 px for pupils) and stored
+as a JPEG data URL with the school's own records. Only small inline images are accepted by the API.
+Cameras need a secure connection (https or localhost); where a camera is unavailable the file upload
+works just as well.
+
+---
+
+## Design and motion
+
+- A **welcome gate** plays the first time the site is opened in a session: the crest, the school
+  name, a progress bar and the welcome message, then the site fades in. It does not play again while
+  the tab stays open.
+- The home page puts the **welcome message over the campus photograph**, with a slow zoom on the
+  image, counters that count up when scrolled into view and a marquee of the school's particulars.
+- Shared motion lives in `src/app/globals.css` (keyframes and utilities such as `animate-fade-up`,
+  `animate-ken-burns`, `card-lift`, `shine`). `src/components/site/Reveal.tsx` fades sections in as
+  they scroll into view, and `src/components/site/CountUp.tsx` animates the figures.
+- The portal is laid out with a **sidebar of side tabs** (`src/components/portal/PortalShell.tsx`):
+  collapsible on the desktop, a drawer on a phone, with the semester, pupil count and pending
+  application count beside the signed-in member of staff.
+- Everything respects the browser's *reduce motion* setting: animations are reduced to nothing when
+  the reader has asked for less movement.
 
 ---
 
