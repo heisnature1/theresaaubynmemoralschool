@@ -207,7 +207,7 @@ export function PhotoCapture({
           {label} {required && <span className="text-rose-600">*</span>}
         </label>
         {value && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-teresa-green-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-teresa-green-700">
+          <span className="inline-flex items-center gap-1 rounded-full bg-theresa-green-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-theresa-green-700">
             <ShieldCheck className="h-3 w-3" />
             Saved
           </span>
@@ -218,7 +218,7 @@ export function PhotoCapture({
       {/* Live camera                                                      */}
       {/* ---------------------------------------------------------------- */}
       {mode === 'camera' ? (
-        <div className="overflow-hidden rounded-2xl border-2 border-teresa-green-700 bg-teresa-green-950/95 p-3 shadow-lift animate-pop-in">
+        <div className="overflow-hidden rounded-2xl border-2 border-theresa-green-700 bg-theresa-green-950/95 p-3 shadow-lift animate-pop-in">
           <div className={`relative ${frame} overflow-hidden rounded-xl bg-black`}>
             <video
               ref={videoRef}
@@ -229,9 +229,9 @@ export function PhotoCapture({
             />
             {/* Passport framing guide */}
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className="h-[70%] w-[62%] rounded-[46%_46%_40%_40%] border-2 border-dashed border-teresa-gold-300/80" />
+              <div className="h-[70%] w-[62%] rounded-[46%_46%_40%_40%] border-2 border-dashed border-theresa-gold-300/80" />
             </div>
-            <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-teresa-gold-300">
+            <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-theresa-gold-300">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-rose-500" />
               Live
             </div>
@@ -241,7 +241,7 @@ export function PhotoCapture({
             <button
               type="button"
               onClick={captureFromCamera}
-              className="inline-flex items-center gap-2 rounded-xl bg-teresa-gold-400 px-5 py-2.5 text-sm font-bold text-teresa-green-950 transition hover:bg-teresa-gold-300 magnetic-btn shine"
+              className="inline-flex items-center gap-2 rounded-xl bg-theresa-gold-400 px-5 py-2.5 text-sm font-bold text-theresa-green-950 transition hover:bg-theresa-gold-300 magnetic-btn shine"
             >
               <Camera className="h-4 w-4" />
               Capture photo
@@ -273,7 +273,7 @@ export function PhotoCapture({
         /* ---------------------------------------------------------------- */
         /* Captured preview                                                 */
         /* ---------------------------------------------------------------- */
-        <div className="flex flex-col gap-4 rounded-2xl border border-teresa-green-200 bg-gradient-to-br from-teresa-green-50/70 to-white p-4 sm:flex-row sm:items-center animate-pop-in">
+        <div className="flex flex-col gap-4 rounded-2xl border border-theresa-green-200 bg-gradient-to-br from-theresa-green-50/70 to-white p-4 sm:flex-row sm:items-center animate-pop-in">
           <div
             className={`relative mx-auto w-32 shrink-0 overflow-hidden rounded-xl border-2 border-white bg-slate-100 shadow-md sm:mx-0 ${frame}`}
           >
@@ -282,7 +282,7 @@ export function PhotoCapture({
           </div>
 
           <div className="flex-1 space-y-2 text-center sm:text-left">
-            <p className="text-sm font-semibold text-teresa-green-900">
+            <p className="text-sm font-semibold text-theresa-green-900">
               {caption || 'Photograph attached'}
             </p>
             <p className="text-xs text-slate-500">
@@ -293,7 +293,7 @@ export function PhotoCapture({
                 type="button"
                 onClick={openCamera}
                 disabled={disabled || busy}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-teresa-green-800 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-teresa-green-900 disabled:opacity-60 magnetic-btn"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-theresa-green-800 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-theresa-green-900 disabled:opacity-60 magnetic-btn"
               >
                 <Camera className="h-3.5 w-3.5" />
                 {busy ? 'Opening…' : 'Retake'}
@@ -323,7 +323,7 @@ export function PhotoCapture({
         /* ---------------------------------------------------------------- */
         /* Empty state: camera or upload                                    */
         /* ---------------------------------------------------------------- */
-        <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/70 p-5 transition hover:border-teresa-green-500 hover:bg-teresa-green-50/40">
+        <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/70 p-5 transition hover:border-theresa-green-500 hover:bg-theresa-green-50/40">
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
             <div
               className={`flex h-20 w-20 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400`}
@@ -339,7 +339,7 @@ export function PhotoCapture({
                 type="button"
                 onClick={openCamera}
                 disabled={disabled || busy}
-                className="inline-flex items-center gap-2 rounded-xl bg-teresa-green-800 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-teresa-green-900 disabled:opacity-60 magnetic-btn shine"
+                className="inline-flex items-center gap-2 rounded-xl bg-theresa-green-800 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-theresa-green-900 disabled:opacity-60 magnetic-btn shine"
               >
                 <Camera className="h-4 w-4" />
                 {busy ? 'Opening camera…' : 'Take photo'}
@@ -348,7 +348,7 @@ export function PhotoCapture({
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 disabled={disabled}
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition hover:border-teresa-green-600 hover:text-teresa-green-800 disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition hover:border-theresa-green-600 hover:text-theresa-green-800 disabled:opacity-60"
               >
                 <Upload className="h-4 w-4" />
                 Upload

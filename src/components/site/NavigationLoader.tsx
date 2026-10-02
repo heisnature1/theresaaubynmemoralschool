@@ -24,7 +24,7 @@ export function NavigationLoader() {
 
   return (
     <div className="pointer-events-none fixed left-0 top-0 z-[70] h-[3px] w-full overflow-hidden">
-      <div className="h-full w-1/3 animate-loader-sweep bg-gradient-to-r from-transparent via-teresa-gold-400 to-transparent" />
+      <div className="h-full w-1/3 animate-loader-sweep bg-gradient-to-r from-transparent via-theresa-gold-400 to-transparent" />
     </div>
   );
 }

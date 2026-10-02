@@ -124,7 +124,7 @@ export function PortalShell({
 
   useEffect(() => {
     try {
-      setCollapsed(window.localStorage.getItem('teresa-portal-collapsed') === '1');
+      setCollapsed(window.localStorage.getItem('theresa-portal-collapsed') === '1');
     } catch {
       /* storage unavailable — stay expanded */
     }
@@ -138,7 +138,7 @@ export function PortalShell({
     setCollapsed((current) => {
       const next = !current;
       try {
-        window.localStorage.setItem('teresa-portal-collapsed', next ? '1' : '0');
+        window.localStorage.setItem('theresa-portal-collapsed', next ? '1' : '0');
       } catch {
         /* ignore */
       }
@@ -188,7 +188,7 @@ export function PortalShell({
       {/* Sidebar                                                          */}
       {/* ================================================================ */}
       <aside
-        className={`print:hidden fixed inset-y-0 left-0 z-50 flex flex-col bg-gradient-to-b from-teresa-green-950 via-teresa-green-900 to-[#04251a] text-white transition-[width,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`print:hidden fixed inset-y-0 left-0 z-50 flex flex-col bg-gradient-to-b from-theresa-green-950 via-theresa-green-900 to-[#04251a] text-white transition-[width,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           collapsed ? 'lg:w-[92px]' : 'lg:w-[288px]'
         } w-[288px] ${
           drawerOpen ? 'translate-x-0 shadow-[0_0_80px_rgba(0,0,0,0.5)]' : '-translate-x-full lg:translate-x-0'
@@ -196,8 +196,8 @@ export function PortalShell({
       >
         {/* Decoration */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="hero-blob -left-16 top-10 h-56 w-56 bg-teresa-green-600/30 animate-float-slow" />
-          <div className="hero-blob -right-14 bottom-24 h-52 w-52 bg-teresa-gold-600/20 animate-float" />
+          <div className="hero-blob -left-16 top-10 h-56 w-56 bg-theresa-green-600/30 animate-float-slow" />
+          <div className="hero-blob -right-14 bottom-24 h-52 w-52 bg-theresa-gold-600/20 animate-float" />
           <div className="absolute inset-0 pattern-grid opacity-[0.07]" />
         </div>
 
@@ -207,9 +207,9 @@ export function PortalShell({
           {!collapsed && (
             <div className="min-w-0 animate-fade-in">
               <p className="truncate font-serif text-[15px] font-bold leading-tight text-white">
-                St. Teresa Aubyn
+                St Theresa Aubyn
               </p>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-teresa-gold-300">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-theresa-gold-300">
                 Staff portal
               </p>
             </div>
@@ -242,18 +242,18 @@ export function PortalShell({
                 style={{ animationDelay: `${index * 60}ms` }}
                 className={`group relative flex animate-fade-right items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-300 ${
                   active
-                    ? 'bg-gradient-to-r from-teresa-gold-400 to-teresa-gold-500 text-teresa-green-950 shadow-[0_10px_30px_-14px_rgba(217,175,55,0.9)]'
+                    ? 'bg-gradient-to-r from-theresa-gold-400 to-theresa-gold-500 text-theresa-green-950 shadow-[0_10px_30px_-14px_rgba(217,175,55,0.9)]'
                     : 'text-emerald-50/80 hover:bg-white/10 hover:text-white'
                 }`}
               >
                 <span
-                  className={`absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-teresa-gold-300 transition-all duration-300 ${
+                  className={`absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-theresa-gold-300 transition-all duration-300 ${
                     active ? 'opacity-100' : 'opacity-0 group-hover:opacity-60'
                   }`}
                 />
                 <item.icon
                   className={`h-[18px] w-[18px] shrink-0 transition-transform duration-300 group-hover:scale-110 ${
-                    active ? 'text-teresa-green-950' : 'text-teresa-gold-300'
+                    active ? 'text-theresa-green-950' : 'text-theresa-gold-300'
                   }`}
                 />
                 {!collapsed && (
@@ -262,7 +262,7 @@ export function PortalShell({
                     {item.badge === 'applications' && pendingApplications > 0 && (
                       <span
                         className={`inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-extrabold ${
-                          active ? 'bg-teresa-green-950 text-teresa-gold-300' : 'bg-rose-500 text-white'
+                          active ? 'bg-theresa-green-950 text-theresa-gold-300' : 'bg-rose-500 text-white'
                         }`}
                       >
                         {pendingApplications}
@@ -279,7 +279,7 @@ export function PortalShell({
 
           {!collapsed && (
             <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 animate-fade-in">
-              <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-teresa-gold-300">
+              <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-theresa-gold-300">
                 <CalendarRange className="h-3.5 w-3.5" />
                 {currentSemester || 'Current semester'}
               </p>
@@ -312,10 +312,10 @@ export function PortalShell({
               <img
                 src={user.photo}
                 alt={user.fullName}
-                className="h-10 w-10 shrink-0 rounded-full border-2 border-teresa-gold-400/60 object-cover"
+                className="h-10 w-10 shrink-0 rounded-full border-2 border-theresa-gold-400/60 object-cover"
               />
             ) : (
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-teresa-gold-400/60 bg-teresa-green-800 text-xs font-bold text-teresa-gold-200">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-theresa-gold-400/60 bg-theresa-green-800 text-xs font-bold text-theresa-gold-200">
                 {initials || <UserRound className="h-4 w-4" />}
               </span>
             )}
@@ -369,7 +369,7 @@ export function PortalShell({
           type="button"
           aria-label="Close menu"
           onClick={() => setDrawerOpen(false)}
-          className="print:hidden fixed inset-0 z-40 animate-fade-in bg-teresa-green-950/60 backdrop-blur-sm lg:hidden"
+          className="print:hidden fixed inset-0 z-40 animate-fade-in bg-theresa-green-950/60 backdrop-blur-sm lg:hidden"
         />
       )}
 
@@ -393,17 +393,17 @@ export function PortalShell({
             </button>
 
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-teresa-gold-700">
+              <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-theresa-gold-700">
                 {ROLE_LABEL[user.role]}
               </p>
-              <h1 className="truncate font-serif text-xl font-bold text-teresa-green-950 lg:text-2xl">
+              <h1 className="truncate font-serif text-xl font-bold text-theresa-green-950 lg:text-2xl">
                 {pageMeta.title}
               </h1>
             </div>
 
             <div className="hidden items-center gap-3 md:flex">
               {currentSemester && (
-                <span className="rounded-full border border-teresa-green-200 bg-teresa-green-50 px-3.5 py-1.5 text-[11px] font-bold text-teresa-green-800">
+                <span className="rounded-full border border-theresa-green-200 bg-theresa-green-50 px-3.5 py-1.5 text-[11px] font-bold text-theresa-green-800">
                   {currentSemester}
                 </span>
               )}
@@ -424,7 +424,7 @@ export function PortalShell({
                   className="h-10 w-10 rounded-full border-2 border-white object-cover shadow-soft"
                 />
               ) : (
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-teresa-green-800 to-teresa-green-600 text-xs font-bold text-white shadow-soft">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-theresa-green-800 to-theresa-green-600 text-xs font-bold text-white shadow-soft">
                   {initials}
                 </span>
               )}

@@ -6,7 +6,7 @@ import { PortalShell } from '@/components/portal/PortalShell';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Staff portal | St. Teresa Aubyn Memorial School',
+  title: 'Staff portal | St Theresa Aubyn Memorial School',
 };
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {

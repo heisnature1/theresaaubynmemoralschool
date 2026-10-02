@@ -3,18 +3,18 @@
 @tailwind utilities;
 
 /* ==========================================================================
-   St. Teresa Aubyn Memorial School — motion & design system
+   St Theresa Aubyn Memorial School — motion & design system
    Everything the site animates is declared here so a page only has to add a
    class (e.g. class="animate-fade-up anim-delay-2").
    ========================================================================== */
 
 :root {
-  --teresa-green-950: #052118;
-  --teresa-green-900: #09392a;
-  --teresa-green-800: #0d4734;
-  --teresa-green-700: #115940;
-  --teresa-gold-400: #d9af37;
-  --teresa-gold-300: #e4c45e;
+  --theresa-green-950: #052118;
+  --theresa-green-900: #09392a;
+  --theresa-green-800: #0d4734;
+  --theresa-green-700: #115940;
+  --theresa-gold-400: #d9af37;
+  --theresa-gold-300: #e4c45e;
   --shadow-soft: 0 10px 40px -12px rgba(9, 57, 42, 0.18);
   --shadow-lift: 0 26px 60px -20px rgba(9, 57, 42, 0.32);
 }

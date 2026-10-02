@@ -25,7 +25,7 @@ function readPhoto(value: unknown): string | undefined {
 
 /** Temporary password handed to a teacher when their application is approved. */
 function issuePassword(): string {
-  return `Teresa-${Math.random().toString(36).slice(2, 7).toUpperCase()}${Math.floor(10 + Math.random() * 89)}`;
+  return `Theresa-${Math.random().toString(36).slice(2, 7).toUpperCase()}${Math.floor(10 + Math.random() * 89)}`;
 }
 
 // POST /api/teachers -> new teacher application (open to the public)
@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
       experienceYears: Math.max(0, Number(experienceYears) || 1),
       statement:
         String(statement).trim() ||
-        'Committed to upholding the academic and moral standards of St. Teresa Aubyn Memorial School.',
+        'Committed to upholding the academic and moral standards of St Theresa Aubyn Memorial School.',
       passportPhoto: readPhoto(passportPhoto),
       status: 'pending',
       passwordHash: hashPassword(String(password)),
