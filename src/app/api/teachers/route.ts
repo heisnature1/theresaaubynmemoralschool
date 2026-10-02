@@ -11,6 +11,18 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Accepts a passport photograph sent as a data URL and rejects anything that
+ * is not a small inline image, so the store can never be filled with junk.
+ */
+function readPhoto(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const photo = value.trim();
+  if (!photo.startsWith('data:image/')) return undefined;
+  if (photo.length > 900_000) return undefined; // ~675 KB of image data
+  return photo;
+}
+
 /** Temporary password handed to a teacher when their application is approved. */
 function issuePassword(): string {
   return `Teresa-${Math.random().toString(36).slice(2, 7).toUpperCase()}${Math.floor(10 + Math.random() * 89)}`;
@@ -30,6 +42,7 @@ export async function POST(req: NextRequest) {
       experienceYears = 2,
       statement = '',
       password,
+      passportPhoto,
     } = body;
 
     if (!fullName || !email || !phone || !qualification || !requestedClass) {
@@ -89,6 +102,7 @@ export async function POST(req: NextRequest) {
       statement:
         String(statement).trim() ||
         'Committed to upholding the academic and moral standards of St. Teresa Aubyn Memorial School.',
+      passportPhoto: readPhoto(passportPhoto),
       status: 'pending',
       passwordHash: hashPassword(String(password)),
       createdAt: new Date().toISOString(),
@@ -107,6 +121,7 @@ export async function POST(req: NextRequest) {
         subjects: newRequest.subjects,
         experience_years: newRequest.experienceYears,
         statement: newRequest.statement,
+        passport_photo: newRequest.passportPhoto,
         status: 'pending',
       });
     }
@@ -116,7 +131,9 @@ export async function POST(req: NextRequest) {
       actorRole: 'teacher',
       action: 'Submitted Teacher Application',
       category: 'teachers',
-      details: `${newRequest.fullName} (${newRequest.qualification}) applied for a ${newRequest.requestedClass} teaching post. Awaiting review.`,
+      details: `${newRequest.fullName} (${newRequest.qualification}) applied for a ${newRequest.requestedClass} teaching post${
+        newRequest.passportPhoto ? ' (passport photograph attached)' : ''
+      }. Awaiting review.`,
     });
 
     saveSchoolState(state);
@@ -195,6 +212,7 @@ export async function PATCH(req: NextRequest) {
         existingStaff.isActive = true;
         existingStaff.assignedClass = reg.requestedClass;
         existingStaff.passwordHash = reg.passwordHash;
+        if (reg.passportPhoto) existingStaff.photo = reg.passportPhoto;
       } else {
         const newStaff: StaffProfile = {
           id: `stf-${Date.now()}`,
@@ -209,6 +227,7 @@ export async function PATCH(req: NextRequest) {
           isActive: true,
           joinedDate: new Date().toISOString().split('T')[0],
           passwordHash: reg.passwordHash,
+          photo: reg.passportPhoto,
         };
         state.staff.push(newStaff);
       }

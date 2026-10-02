@@ -78,7 +78,7 @@ export function EnquiryForm() {
         <button
           type="button"
           onClick={() => setSent(false)}
-          className="mt-5 rounded-md border border-teresa-green-800 px-4 py-2 text-sm font-semibold text-teresa-green-900 hover:bg-white"
+          className="mt-5 rounded-xl border border-teresa-green-800 px-4 py-2 text-sm font-semibold text-teresa-green-900 transition hover:bg-white magnetic-btn"
         >
           Send another message
         </button>
@@ -100,7 +100,7 @@ export function EnquiryForm() {
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
             placeholder="e.g. Comfort Mensah"
-            className="w-full rounded-md border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-teresa-green-700 focus:ring-2 focus:ring-teresa-green-100"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
           />
         </div>
         <div>
@@ -113,7 +113,7 @@ export function EnquiryForm() {
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
             placeholder="+233 24 000 0000"
-            className="w-full rounded-md border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-teresa-green-700 focus:ring-2 focus:ring-teresa-green-100"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
           />
         </div>
       </div>
@@ -130,7 +130,7 @@ export function EnquiryForm() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="you@example.com"
-            className="w-full rounded-md border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-teresa-green-700 focus:ring-2 focus:ring-teresa-green-100"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
           />
         </div>
         <div>
@@ -141,7 +141,7 @@ export function EnquiryForm() {
             id="enquiry-class"
             value={childClass}
             onChange={(event) => setChildClass(event.target.value)}
-            className="w-full rounded-md border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-teresa-green-700 focus:ring-2 focus:ring-teresa-green-100"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
           >
             {SCHOOL_CLASSES.map((option) => (
               <option key={option} value={option}>
@@ -160,7 +160,7 @@ export function EnquiryForm() {
           id="enquiry-topic"
           value={subject}
           onChange={(event) => setSubject(event.target.value)}
-          className="w-full rounded-md border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-teresa-green-700 focus:ring-2 focus:ring-teresa-green-100"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
         >
           {TOPICS.map((topic) => (
             <option key={topic} value={topic}>
@@ -181,7 +181,7 @@ export function EnquiryForm() {
           value={message}
           onChange={(event) => setMessage(event.target.value)}
           placeholder="Tell us about your child, or ask your question here."
-          className="w-full rounded-md border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-teresa-green-700 focus:ring-2 focus:ring-teresa-green-100"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
         />
       </div>
 
@@ -195,7 +195,7 @@ export function EnquiryForm() {
         <button
           type="submit"
           disabled={sending}
-          className="inline-flex items-center gap-2 rounded-md bg-teresa-green-800 px-5 py-3 text-sm font-semibold text-white hover:bg-teresa-green-900 disabled:opacity-60"
+          className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 px-5 py-3 text-sm font-bold text-white shadow-soft transition hover:shadow-lift disabled:opacity-60 magnetic-btn shine"
         >
           <Send className="h-4 w-4" />
           {sending ? 'Sending…' : 'Send to the school office'}

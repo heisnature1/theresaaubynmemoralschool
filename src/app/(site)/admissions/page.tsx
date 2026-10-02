@@ -3,6 +3,8 @@ import { getSchoolState } from '@/lib/store';
 import { formatCurrency } from '@/lib/grading';
 import { ADMISSION_STEPS, OFFICE_CONTACTS, TERM_DATES } from '@/lib/constants';
 import { ProspectusDownload } from '@/components/site/ProspectusDownload';
+import { PageHero } from '@/components/site/PageHero';
+import { Reveal } from '@/components/site/Reveal';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,15 +29,12 @@ export default function AdmissionsPage() {
 
   return (
     <>
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-12 lg:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-teresa-gold-700">
-            Admissions
-          </p>
-          <h1 className="mt-3 font-serif text-3xl font-bold text-teresa-green-950 sm:text-4xl">
-            Applying for a place
-          </h1>
-          <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-slate-700">
+      <PageHero
+        eyebrow="Admissions"
+        title="Applying for a place"
+        image="/images/campus-hero.jpg"
+      >
+          <p className="max-w-3xl leading-relaxed">
             Places are offered throughout the year when a class has room, and in good time for the
             semester beginning {TERM_DATES[4].detail}. Applications are considered in the order they
             are received, and brothers and sisters of current pupils are given preference.
@@ -44,22 +43,21 @@ export default function AdmissionsPage() {
             <ProspectusDownload state={state} />
             <Link
               href="/contact"
-              className="inline-flex items-center rounded-md bg-teresa-green-800 px-5 py-3 text-sm font-semibold text-white hover:bg-teresa-green-900"
+              className="inline-flex items-center rounded-xl bg-teresa-green-800 px-5 py-3 text-sm font-semibold text-white hover:bg-teresa-green-900 magnetic-btn shine"
             >
               Book a visit or ask a question
             </Link>
           </div>
-        </div>
-      </section>
+      </PageHero>
 
-      <section className="border-b border-slate-200 bg-[#FCFBF7]">
+      <Reveal as="section" variant="fade" className="border-b border-slate-200 bg-[#FCFBF7]">
         <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
           <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
             Four steps from enquiry to registration
           </h2>
           <ol className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {ADMISSION_STEPS.map((step) => (
-              <li key={step.step} className="rounded-md border border-slate-200 bg-white p-5">
+              <li key={step.step} className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-soft card-lift">
                 <span className="font-serif text-2xl font-bold text-teresa-gold-600">{step.step}</span>
                 <h3 className="mt-2 font-serif text-lg font-bold text-teresa-green-950">{step.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">{step.body}</p>
@@ -67,9 +65,9 @@ export default function AdmissionsPage() {
             ))}
           </ol>
         </div>
-      </section>
+      </Reveal>
 
-      <section className="border-b border-slate-200 bg-white">
+      <Reveal as="section" variant="fade" className="border-b border-slate-200 bg-white">
         <div className="mx-auto grid max-w-6xl gap-12 px-4 py-14 lg:grid-cols-12 lg:px-6">
           <div className="lg:col-span-7">
             <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
@@ -96,7 +94,7 @@ export default function AdmissionsPage() {
           </div>
 
           <aside className="lg:col-span-5">
-            <div className="rounded-md border border-slate-200 bg-[#FCFBF7] p-6">
+            <div className="rounded-2xl border border-slate-200/80 bg-[#FCFBF7] p-6 shadow-soft card-lift">
               <h2 className="font-serif text-lg font-bold text-teresa-green-950">
                 Fees for a few classes
               </h2>
@@ -129,7 +127,7 @@ export default function AdmissionsPage() {
               </Link>
             </div>
 
-            <div className="mt-5 rounded-md border border-slate-200 bg-white p-6">
+            <div className="mt-5 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-soft card-lift">
               <h2 className="font-serif text-lg font-bold text-teresa-green-950">
                 Questions about a place?
               </h2>
@@ -149,9 +147,9 @@ export default function AdmissionsPage() {
             </div>
           </aside>
         </div>
-      </section>
+      </Reveal>
 
-      <section className="bg-[#FCFBF7]">
+      <Reveal as="section" variant="fade" className="bg-[#FCFBF7]">
         <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
           <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
             Frequently asked questions
@@ -182,7 +180,7 @@ export default function AdmissionsPage() {
             ))}
           </div>
         </div>
-      </section>
+      </Reveal>
     </>
   );
 }

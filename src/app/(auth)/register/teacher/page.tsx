@@ -9,8 +9,8 @@ export const metadata = {
 
 export default function TeacherRegisterPage() {
   return (
-    <div className="w-full max-w-3xl">
-      <div className="rounded-md border border-slate-200 bg-white p-7 shadow-sm sm:p-9">
+    <div className="mx-auto w-full max-w-3xl">
+      <div className="animate-pop-in overflow-hidden rounded-3xl border border-white/70 bg-white/90 p-7 shadow-lift backdrop-blur-xl sm:p-9">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teresa-gold-700">
           Teaching appointments
         </p>

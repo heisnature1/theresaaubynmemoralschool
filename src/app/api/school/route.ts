@@ -5,6 +5,15 @@ import { StudentRecord } from '@/types/school';
 
 export const dynamic = 'force-dynamic';
 
+/** Only small inline images are accepted as a pupil's passport photograph. */
+function readPhoto(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const photo = value.trim();
+  if (!photo.startsWith('data:image/')) return undefined;
+  if (photo.length > 900_000) return undefined;
+  return photo;
+}
+
 // GET /api/school -> current school records (staff only)
 export async function GET() {
   const session = getSession();
@@ -27,7 +36,8 @@ export async function POST(req: NextRequest) {
 
     if (action === 'add_student') {
       const state = getSchoolState();
-      const { fullName, gender, dateOfBirth, className, guardianName, guardianPhone } = body;
+      const { fullName, gender, dateOfBirth, className, guardianName, guardianPhone, photo } =
+        body;
 
       if (!fullName || !className || !guardianName) {
         return NextResponse.json(
@@ -37,15 +47,17 @@ export async function POST(req: NextRequest) {
       }
 
       const nextNum = state.students.length + 101;
+      const year = new Date().getFullYear();
       const newStudent: StudentRecord = {
         id: `stu-${Date.now()}`,
-        studentCode: `STA/2026/${nextNum}`,
+        studentCode: `STA/${year}/${String(nextNum).padStart(3, '0')}`,
         fullName: String(fullName).trim(),
         gender: gender === 'Female' ? 'Female' : 'Male',
         dateOfBirth: dateOfBirth || '2015-05-15',
         className,
         guardianName: String(guardianName).trim(),
         guardianPhone: String(guardianPhone || '+233 24 000 0000').trim(),
+        photo: readPhoto(photo),
         tuitionPaid: 0,
         extraClassesPaid: 0,
         mealFeePaid: 0,
@@ -64,7 +76,9 @@ export async function POST(req: NextRequest) {
         actorRole: session.role,
         action: 'Enrolled New Pupil',
         category: 'system',
-        details: `Enrolled ${newStudent.fullName} (${newStudent.studentCode}) into ${newStudent.className}.`,
+        details: `Enrolled ${newStudent.fullName} (${newStudent.studentCode}) into ${newStudent.className}${
+          newStudent.photo ? ' with a passport photograph' : ''
+        }.`,
       });
       saveSchoolState(state);
 

@@ -39,8 +39,8 @@ export function PortalWorkspace({
   return (
     <div className="space-y-6">
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 max-w-md print:hidden">
-          <div className="flex items-start gap-3 rounded-md border border-teresa-green-800 bg-white px-4 py-3 shadow-lg">
+        <div className="fixed bottom-6 right-6 z-50 max-w-md print:hidden animate-toast-in">
+          <div className="flex items-start gap-3 rounded-2xl border border-teresa-green-700/40 bg-white/95 px-4 py-3.5 shadow-lift backdrop-blur-md">
             {toast.type === 'info' ? (
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
             ) : (

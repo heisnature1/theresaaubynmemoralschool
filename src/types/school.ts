@@ -18,6 +18,8 @@ export interface StaffProfile {
   qualification: string;
   isActive: boolean;
   joinedDate: string;
+  /** Passport photograph captured at registration, stored as a data URL */
+  photo?: string;
   /** scrypt hash, never exposed to the browser */
   passwordHash?: string;
   lastLoginAt?: string;
@@ -33,6 +35,8 @@ export interface TeacherRegistrationRequest {
   subjects: string[];
   experienceYears: number;
   statement: string;
+  /** Passport photograph captured with the application, stored as a data URL */
+  passportPhoto?: string;
   status: RegistrationStatus;
   /** scrypt hash captured at application time, never exposed to the browser */
   passwordHash?: string;
@@ -66,6 +70,8 @@ export interface StudentRecord {
   className: string;
   guardianName: string;
   guardianPhone: string;
+  /** Passport photograph taken when the pupil was enrolled, stored as a data URL */
+  photo?: string;
   tuitionPaid: number;
   extraClassesPaid: number;
   mealFeePaid: number;

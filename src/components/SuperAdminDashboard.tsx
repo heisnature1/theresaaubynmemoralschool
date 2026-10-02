@@ -16,12 +16,14 @@ import {
   TrendingUp,
   UserCheck,
   UserPlus,
+  UserRound,
   Users,
   Utensils,
 } from 'lucide-react';
 import { SchoolStateSnapshot } from '@/types/school';
 import { formatCurrency, SCHOOL_CLASSES } from '@/lib/grading';
 import { ReportCardGenerator } from './ReportCardGenerator';
+import { PhotoCapture } from '@/components/ui/PhotoCapture';
 
 interface SuperAdminDashboardProps {
   state: SchoolStateSnapshot;
@@ -53,6 +55,8 @@ export function SuperAdminDashboard({
   const [stuClass, setStuClass] = useState('Basic 4');
   const [stuGuardian, setStuGuardian] = useState('');
   const [stuPhone, setStuPhone] = useState('');
+  const [stuPhoto, setStuPhoto] = useState('');
+  const [stuError, setStuError] = useState<string | null>(null);
   const [enrolling, setEnrolling] = useState(false);
 
   // Executive KPIs across the entire school
@@ -119,7 +123,12 @@ export function SuperAdminDashboard({
 
   async function handleEnrollStudent(e: React.FormEvent) {
     e.preventDefault();
+    setStuError(null);
     if (!stuName.trim() || !stuGuardian.trim()) return;
+    if (!stuPhoto) {
+      setStuError('Please take the pupil\u2019s photograph before adding them to the register.');
+      return;
+    }
     setEnrolling(true);
     try {
       const res = await fetch('/api/school', {
@@ -132,6 +141,7 @@ export function SuperAdminDashboard({
           className: stuClass,
           guardianName: stuGuardian,
           guardianPhone: stuPhone,
+          photo: stuPhoto,
           actorName: owner.fullName,
           actorRole: 'super_admin',
         }),
@@ -142,6 +152,7 @@ export function SuperAdminDashboard({
         setStuName('');
         setStuGuardian('');
         setStuPhone('');
+        setStuPhoto('');
         onNotify(
           `Enrolled ${data.student.fullName} (${data.student.studentCode}) into ${data.student.className}!`
         );
@@ -172,7 +183,13 @@ export function SuperAdminDashboard({
   return (
     <div className="space-y-6">
       {/* Super Admin Executive Header Banner */}
-      <div className="bg-gradient-to-r from-teresa-green-950 via-teresa-green-900 to-teresa-green-950 rounded-3xl p-6 text-white shadow-xl border-2 border-teresa-gold-400/50 relative overflow-hidden">
+      <div className="animate-fade-up relative overflow-hidden rounded-3xl border-2 border-teresa-gold-400/50 bg-gradient-to-r from-teresa-green-950 via-teresa-green-900 to-teresa-green-950 p-6 text-white shadow-lift">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_15%,rgba(217,175,55,0.2),transparent_55%)]" />
+          <div className="hero-blob -left-16 -top-24 h-72 w-72 bg-teresa-gold-600/20 animate-float-slow" />
+          <div className="hero-blob -right-10 bottom-[-7rem] h-64 w-64 bg-teresa-green-500/25 animate-float" />
+          <div className="absolute inset-0 pattern-grid opacity-[0.07]" />
+        </div>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 relative z-10">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teresa-gold-400 text-teresa-green-950 text-xs font-bold uppercase tracking-wider">
@@ -658,10 +675,28 @@ export function SuperAdminDashboard({
                 />
               </div>
 
+              <PhotoCapture
+                value={stuPhoto || undefined}
+                onChange={(dataUrl) => setStuPhoto(dataUrl ?? '')}
+                label="Pupil passport photograph"
+                caption="Pupil photograph"
+                hint="Take the pupil's picture at the office or upload a recent passport photograph."
+                required
+                disabled={enrolling}
+                shape="square"
+                maxDimension={420}
+              />
+
+              {stuError && (
+                <p className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs text-rose-800 animate-fade-in">
+                  {stuError}
+                </p>
+              )}
+
               <button
                 type="submit"
                 disabled={enrolling}
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition"
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition magnetic-btn shine"
               >
                 <PlusCircle className="w-4 h-4 text-teresa-gold-300" />
                 {enrolling ? 'Saving…' : 'Add pupil to the register'}
@@ -693,9 +728,24 @@ export function SuperAdminDashboard({
                         <td className="py-3 px-4 font-mono font-bold text-teresa-green-900 text-xs">
                           {stf.staffId}
                         </td>
-                        <td className="py-3 px-3 font-bold text-slate-900">
-                          {stf.fullName}
-                          <div className="text-xs text-slate-500 font-normal">{stf.email}</div>
+                        <td className="py-3 px-3">
+                          <div className="flex items-center gap-3">
+                            {stf.photo ? (
+                              <img
+                                src={stf.photo}
+                                alt={stf.fullName}
+                                className="h-11 w-11 shrink-0 rounded-xl border border-white object-cover shadow-sm"
+                              />
+                            ) : (
+                              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teresa-green-50 text-teresa-green-800">
+                                <UserRound className="h-5 w-5" />
+                              </span>
+                            )}
+                            <div>
+                              <div className="font-bold text-slate-900">{stf.fullName}</div>
+                              <div className="text-xs text-slate-500 font-normal">{stf.email}</div>
+                            </div>
+                          </div>
                         </td>
                         <td className="py-3 px-3">
                           <span className="px-2.5 py-0.5 rounded-full bg-teresa-gold-100 text-teresa-green-950 text-xs font-bold uppercase">
@@ -733,13 +783,26 @@ export function SuperAdminDashboard({
                 {state.teacherRegistrations.map((reg) => (
                   <div
                     key={reg.id}
-                    className="p-4 rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    className="p-4 rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition hover:border-teresa-green-300 hover:bg-teresa-green-50/40"
                   >
-                    <div>
+                    <div className="flex items-center gap-3">
+                      {reg.passportPhoto ? (
+                        <img
+                          src={reg.passportPhoto}
+                          alt={`Passport photograph of ${reg.fullName}`}
+                          className="h-12 w-10 shrink-0 rounded-lg border border-white object-cover shadow-sm"
+                        />
+                      ) : (
+                        <span className="flex h-12 w-10 shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 text-slate-400">
+                          <UserRound className="h-4 w-4" />
+                        </span>
+                      )}
+                      <div>
                       <div className="font-bold text-slate-900 text-sm">
                         {reg.fullName} — <span className="text-teresa-green-800">{reg.requestedClass}</span>
                       </div>
                       <div className="text-xs text-slate-600">{reg.qualification}</div>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {reg.status === 'pending' ? (

@@ -48,6 +48,7 @@ create table if not exists public.profiles (
   qualification text,
   is_active boolean not null default true,
   password_hash text,
+  photo text, -- passport photograph captured at registration (data URL)
   last_login_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -65,6 +66,7 @@ create table if not exists public.teacher_registrations (
   experience_years integer not null default 1,
   statement text,
   password_hash text,
+  passport_photo text, -- passport photograph sent with the application (data URL)
   status registration_status not null default 'pending',
   reviewed_by text,
   reviewed_at timestamptz,
@@ -99,6 +101,7 @@ create table if not exists public.students (
   class_name text not null references public.class_fee_structures(class_name) on update cascade,
   guardian_name text not null,
   guardian_phone text not null,
+  photo text, -- passport photograph taken at enrolment (data URL)
   tuition_paid numeric(10, 2) not null default 0,
   extra_classes_paid numeric(10, 2) not null default 0,
   meal_fee_paid numeric(10, 2) not null default 0,
@@ -235,3 +238,11 @@ create policy "Allow service and authenticated full access to contact inquiries"
 
 create policy "Allow service and authenticated full access to audit logs" on public.audit_logs
   for all using (true) with check (true);
+
+-- -----------------------------------------------------------------------------
+-- Passport photographs. Added for schools that had already run this file: the
+-- three statements below are safe to run again on an existing database.
+-- -----------------------------------------------------------------------------
+alter table public.profiles add column if not exists photo text;
+alter table public.teacher_registrations add column if not exists passport_photo text;
+alter table public.students add column if not exists photo text;

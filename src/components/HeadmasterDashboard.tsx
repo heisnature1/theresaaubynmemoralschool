@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import {
   Award,
+  Camera,
   CheckCircle2,
   Clock,
   Coins,
@@ -13,9 +14,12 @@ import {
   Layers,
   Receipt,
   Save,
+  Search,
   ShieldCheck,
   UserCheck,
   UserPlus,
+  UserRound,
+  Users,
   Utensils,
   XCircle,
 } from 'lucide-react';
@@ -26,12 +30,13 @@ import {
 } from '@/types/school';
 import { formatCurrency, SCHOOL_CLASSES } from '@/lib/grading';
 import { ReportCardGenerator } from './ReportCardGenerator';
+import { PhotoCapture } from '@/components/ui/PhotoCapture';
 
 interface HeadmasterDashboardProps {
   state: SchoolStateSnapshot;
   onStateChange: (newState: SchoolStateSnapshot) => void;
   onNotify: (msg: string, type?: 'success' | 'info') => void;
-  initialTab?: 'class_fees' | 'student_payments' | 'approvals' | 'reports';
+  initialTab?: 'class_fees' | 'student_payments' | 'admissions' | 'approvals' | 'reports';
 }
 
 export function HeadmasterDashboard({
@@ -50,7 +55,7 @@ export function HeadmasterDashboard({
   );
 
   const [activeTab, setActiveTab] = useState<
-    'class_fees' | 'student_payments' | 'approvals' | 'reports'
+    'class_fees' | 'student_payments' | 'admissions' | 'approvals' | 'reports'
   >(initialTab);
 
   // =========================================================================
@@ -171,6 +176,100 @@ export function HeadmasterDashboard({
   }
 
   // =========================================================================
+  // 2b. ADMISSIONS — ENROL A PUPIL (with a passport photograph)
+  // =========================================================================
+  const [admName, setAdmName] = useState('');
+  const [admGender, setAdmGender] = useState<'Male' | 'Female'>('Female');
+  const [admDob, setAdmDob] = useState('');
+  const [admClass, setAdmClass] = useState('KG 1');
+  const [admGuardian, setAdmGuardian] = useState('');
+  const [admPhone, setAdmPhone] = useState('');
+  const [admPhoto, setAdmPhoto] = useState<string>('');
+  const [admError, setAdmError] = useState<string | null>(null);
+  const [enrolling, setEnrolling] = useState(false);
+  const [pupilSearch, setPupilSearch] = useState('');
+
+  const enrolledByClass = useMemo(() => {
+    const counts = new Map<string, number>();
+    state.students.forEach((pupil) => {
+      counts.set(pupil.className, (counts.get(pupil.className) || 0) + 1);
+    });
+    return SCHOOL_CLASSES.map((className) => ({
+      className,
+      count: counts.get(className) || 0,
+    }));
+  }, [state.students]);
+
+  const filteredPupils = useMemo(() => {
+    const term = pupilSearch.trim().toLowerCase();
+    const rows = [...state.students].sort((a, b) => a.className.localeCompare(b.className));
+    if (!term) return rows.slice(0, 12);
+    return rows
+      .filter(
+        (pupil) =>
+          pupil.fullName.toLowerCase().includes(term) ||
+          pupil.studentCode.toLowerCase().includes(term) ||
+          pupil.className.toLowerCase().includes(term) ||
+          pupil.guardianName.toLowerCase().includes(term)
+      )
+      .slice(0, 24);
+  }, [state.students, pupilSearch]);
+
+  async function handleEnrolPupil(e: React.FormEvent) {
+    e.preventDefault();
+    setAdmError(null);
+
+    if (!admName.trim() || !admGuardian.trim()) {
+      setAdmError('The pupil’s full name and the guardian’s name are required.');
+      return;
+    }
+    if (!admPhoto) {
+      setAdmError('Please take the pupil’s photograph before enrolling them.');
+      return;
+    }
+
+    setEnrolling(true);
+    try {
+      const res = await fetch('/api/school', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'add_student',
+          fullName: admName,
+          gender: admGender,
+          dateOfBirth: admDob || undefined,
+          className: admClass,
+          guardianName: admGuardian,
+          guardianPhone: admPhone,
+          photo: admPhoto,
+          actorName: headmaster.fullName,
+          actorRole: 'headmaster',
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.ok) {
+        setAdmError(data.error || 'The pupil could not be enrolled. Please try again.');
+        return;
+      }
+
+      if (data.state) onStateChange(data.state);
+      onNotify(
+        `Enrolled ${data.student.fullName} (${data.student.studentCode}) into ${data.student.className}.`
+      );
+      setAdmName('');
+      setAdmDob('');
+      setAdmGuardian('');
+      setAdmPhone('');
+      setAdmPhoto('');
+    } catch {
+      setAdmError('The pupil could not be enrolled. Please try again.');
+    } finally {
+      setEnrolling(false);
+    }
+  }
+
+  // =========================================================================
   // 3. TEACHER REGISTRATION APPROVALS STATE
   // =========================================================================
   const [processingRegId, setProcessingRegId] = useState<string | null>(null);
@@ -240,7 +339,13 @@ export function HeadmasterDashboard({
   return (
     <div className="space-y-6">
       {/* Headmaster Header Banner */}
-      <div className="bg-gradient-to-r from-teresa-green-950 via-teresa-green-900 to-teresa-green-800 rounded-3xl p-6 text-white shadow-lg border border-teresa-gold-400/40">
+      <div className="animate-fade-up relative overflow-hidden rounded-3xl border border-teresa-gold-400/40 bg-gradient-to-r from-teresa-green-950 via-teresa-green-900 to-teresa-green-800 p-6 text-white shadow-lift">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(217,175,55,0.18),transparent_55%)]" />
+          <div className="hero-blob -right-16 -top-24 h-64 w-64 bg-teresa-gold-600/20 animate-float-slow" />
+          <div className="hero-blob -left-10 bottom-[-6rem] h-56 w-56 bg-teresa-green-500/25 animate-float" />
+          <div className="absolute inset-0 pattern-grid opacity-[0.07]" />
+        </div>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teresa-gold-400/20 border border-teresa-gold-400/40 text-teresa-gold-300 text-xs font-bold uppercase tracking-wider">
@@ -291,7 +396,7 @@ export function HeadmasterDashboard({
             onClick={() => setActiveTab('class_fees')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'class_fees'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md'
+                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -304,7 +409,7 @@ export function HeadmasterDashboard({
             onClick={() => setActiveTab('student_payments')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'student_payments'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md'
+                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -314,10 +419,23 @@ export function HeadmasterDashboard({
 
           <button
             type="button"
+            onClick={() => setActiveTab('admissions')}
+            className={`group inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
+              activeTab === 'admissions'
+                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
+                : 'bg-white/10 text-white hover:bg-white/20'
+            }`}
+          >
+            <UserPlus className="w-4 h-4" />
+            Admissions
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab('approvals')}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
               activeTab === 'approvals'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md'
+                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -335,7 +453,7 @@ export function HeadmasterDashboard({
             onClick={() => setActiveTab('reports')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'reports'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md'
+                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -833,6 +951,248 @@ export function HeadmasterDashboard({
       {/* ===================================================================== */}
       {/* TAB 3: APPROVE TEACHER REGISTRATIONS                                  */}
       {/* ===================================================================== */}
+      {/* ===================================================================== */}
+      {/* TAB 2b: ADMISSIONS — ENROL A PUPIL WITH A PASSPORT PHOTOGRAPH         */}
+      {/* ===================================================================== */}
+      {activeTab === 'admissions' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Enrolment form */}
+          <section className="lg:col-span-7 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm animate-fade-up">
+            <div className="flex items-start justify-between gap-4 mb-5">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
+                  Admissions
+                </span>
+                <h3 className="text-2xl font-serif font-bold text-teresa-green-950">
+                  Enrol a pupil
+                </h3>
+                <p className="mt-1 text-sm text-slate-600">
+                  Take the pupil&apos;s photograph, complete the register entry and issue a student
+                  number. The photograph is kept with the pupil&apos;s record and printed on the
+                  report card.
+                </p>
+              </div>
+              <span className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-teresa-green-50 border border-teresa-green-200 text-xs font-bold text-teresa-green-800">
+                <Camera className="w-4 h-4" />
+                Photo required
+              </span>
+            </div>
+
+            <form onSubmit={handleEnrolPupil} className="space-y-5">
+              <PhotoCapture
+                value={admPhoto || undefined}
+                onChange={(dataUrl) => setAdmPhoto(dataUrl ?? '')}
+                label="Pupil's passport photograph"
+                caption="Pupil photograph"
+                hint="Use the camera to take the pupil's picture at the office, or upload a recent passport photograph."
+                required
+                disabled={enrolling}
+                shape="square"
+                maxDimension={420}
+              />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
+                  <label htmlFor="admName" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                    Pupil&apos;s full name <span className="text-rose-600">*</span>
+                  </label>
+                  <input
+                    id="admName"
+                    required
+                    value={admName}
+                    onChange={(e) => setAdmName(e.target.value)}
+                    placeholder="e.g. Ama Serwaa Mensah"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="admGender" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                    Gender
+                  </label>
+                  <select
+                    id="admGender"
+                    value={admGender}
+                    onChange={(e) => setAdmGender(e.target.value as 'Male' | 'Female')}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+                  >
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="admDob" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                    Date of birth
+                  </label>
+                  <input
+                    id="admDob"
+                    type="date"
+                    value={admDob}
+                    onChange={(e) => setAdmDob(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="admClass" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                    Class <span className="text-rose-600">*</span>
+                  </label>
+                  <select
+                    id="admClass"
+                    value={admClass}
+                    onChange={(e) => setAdmClass(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+                  >
+                    {SCHOOL_CLASSES.map((cls) => (
+                      <option key={cls} value={cls}>
+                        {cls}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="admGuardian" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                    Guardian&apos;s name <span className="text-rose-600">*</span>
+                  </label>
+                  <input
+                    id="admGuardian"
+                    required
+                    value={admGuardian}
+                    onChange={(e) => setAdmGuardian(e.target.value)}
+                    placeholder="e.g. Mrs. Comfort Aubyn-Hammond"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label htmlFor="admPhone" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                    Guardian&apos;s telephone
+                  </label>
+                  <input
+                    id="admPhone"
+                    type="tel"
+                    value={admPhone}
+                    onChange={(e) => setAdmPhone(e.target.value)}
+                    placeholder="+233 24 000 0000"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+                  />
+                </div>
+              </div>
+
+              {admError && (
+                <p className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm text-rose-800 animate-fade-in">
+                  <XCircle className="mt-0.5 w-4 h-4 shrink-0" />
+                  {admError}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={enrolling}
+                className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 px-6 py-3.5 text-sm font-bold text-white shadow-soft transition hover:shadow-lift disabled:opacity-60 magnetic-btn shine"
+              >
+                {enrolling ? 'Enrolling pupil…' : 'Enrol pupil and issue a student number'}
+                {!enrolling && <UserPlus className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />}
+              </button>
+            </form>
+          </section>
+
+          {/* Roll and recently enrolled */}
+          <aside className="lg:col-span-5 space-y-6">
+            <section className="bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm animate-fade-up anim-delay-2">
+              <h3 className="flex items-center gap-2 text-lg font-serif font-bold text-teresa-green-950">
+                <Users className="w-4 h-4 text-teresa-gold-700" />
+                Pupils on the roll
+              </h3>
+              <p className="mt-1 text-xs text-slate-500">
+                {state.students.length} pupils across {SCHOOL_CLASSES.length} classes.
+              </p>
+
+              <div className="mt-4 space-y-2">
+                {enrolledByClass.map((row) => {
+                  const max = Math.max(1, ...enrolledByClass.map((item) => item.count));
+                  return (
+                    <div key={row.className} className="flex items-center gap-3">
+                      <span className="w-16 shrink-0 text-xs font-bold text-slate-700">
+                        {row.className}
+                      </span>
+                      <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-teresa-green-700 to-teresa-gold-400 transition-[width] duration-700"
+                          style={{ width: `${(row.count / max) * 100}%` }}
+                        />
+                      </div>
+                      <span className="w-8 shrink-0 text-right font-mono text-xs font-bold text-slate-600">
+                        {row.count}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm animate-fade-up anim-delay-3">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="flex items-center gap-2 text-lg font-serif font-bold text-teresa-green-950">
+                  <UserRound className="w-4 h-4 text-teresa-gold-700" />
+                  Pupil register
+                </h3>
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600">
+                  {filteredPupils.length}
+                </span>
+              </div>
+
+              <div className="relative mt-4">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  value={pupilSearch}
+                  onChange={(e) => setPupilSearch(e.target.value)}
+                  placeholder="Search by name, class or guardian"
+                  className="w-full rounded-xl border border-slate-300 py-2.5 pl-9 pr-3 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+                />
+              </div>
+
+              <ul className="mt-4 max-h-[420px] space-y-2 overflow-y-auto pr-1">
+                {filteredPupils.map((pupil) => (
+                  <li
+                    key={pupil.id}
+                    className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-2.5 transition hover:border-teresa-green-300 hover:bg-teresa-green-50/50"
+                  >
+                    {pupil.photo ? (
+                      <img
+                        src={pupil.photo}
+                        alt={pupil.fullName}
+                        className="h-11 w-11 shrink-0 rounded-xl border border-white object-cover shadow-sm"
+                      />
+                    ) : (
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teresa-green-50 text-teresa-green-800">
+                        <UserRound className="h-5 w-5" />
+                      </span>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-bold text-slate-900">{pupil.fullName}</p>
+                      <p className="truncate text-[11px] text-slate-500">
+                        {pupil.className} &middot; {pupil.studentCode}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-teresa-green-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-teresa-green-800">
+                      {pupil.gender === 'Female' ? 'F' : 'M'}
+                    </span>
+                  </li>
+                ))}
+                {filteredPupils.length === 0 && (
+                  <li className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-xs text-slate-500">
+                    No pupil matches that search.
+                  </li>
+                )}
+              </ul>
+            </section>
+          </aside>
+        </div>
+      )}
+
       {activeTab === 'approvals' && (
         <div className="space-y-6">
           <div className="bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
@@ -864,13 +1224,26 @@ export function HeadmasterDashboard({
                 return (
                   <div
                     key={reg.id}
-                    className={`p-5 rounded-2xl border transition ${
+                    className={`p-5 rounded-2xl border transition hover:shadow-md ${
                       isPending
                         ? 'bg-amber-50/40 border-teresa-gold-400 shadow-sm'
                         : 'bg-slate-50 border-slate-200'
                     }`}
                   >
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                      <div className="flex items-start gap-4">
+                        {reg.passportPhoto ? (
+                          <img
+                            src={reg.passportPhoto}
+                            alt={`Passport photograph of ${reg.fullName}`}
+                            className="h-20 w-16 shrink-0 rounded-xl border-2 border-white object-cover shadow-md"
+                          />
+                        ) : (
+                          <span className="flex h-20 w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-slate-300 bg-white text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                            <UserRound className="h-5 w-5" />
+                            No photo
+                          </span>
+                        )}
                       <div className="space-y-1.5">
                         <div className="flex flex-wrap items-center gap-2">
                           <h4 className="text-lg font-serif font-bold text-teresa-green-950">
@@ -918,6 +1291,7 @@ export function HeadmasterDashboard({
                         <p className="text-xs text-slate-600 italic bg-white/80 p-2.5 rounded-xl border border-slate-200/80 mt-2">
                           &ldquo;{reg.statement}&rdquo;
                         </p>
+                      </div>
                       </div>
 
                       {/* Approval Controls */}

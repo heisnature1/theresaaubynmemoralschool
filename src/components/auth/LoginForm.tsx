@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff, LogIn } from 'lucide-react';
 
 interface LoginFormProps {
   portal: 'super_admin' | 'administrator' | 'teacher';
@@ -61,7 +61,7 @@ export function LoginForm({ portal, submitLabel, previewAccount }: LoginFormProp
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="w-full rounded-md border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-teresa-green-700 focus:ring-2 focus:ring-teresa-green-100"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
           placeholder="name@stteresa-aubyn.edu.gh"
         />
       </div>
@@ -79,7 +79,7 @@ export function LoginForm({ portal, submitLabel, previewAccount }: LoginFormProp
             required
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-md border border-slate-300 px-3.5 py-2.5 pr-11 text-sm outline-none focus:border-teresa-green-700 focus:ring-2 focus:ring-teresa-green-100"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 pr-11 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
           />
           <button
             type="button"
@@ -93,7 +93,7 @@ export function LoginForm({ portal, submitLabel, previewAccount }: LoginFormProp
       </div>
 
       {error && (
-        <p className="flex items-start gap-2 rounded-md border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm text-rose-800">
+        <p className="flex animate-fade-in items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm text-rose-800">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
             {error}
@@ -113,13 +113,20 @@ export function LoginForm({ portal, submitLabel, previewAccount }: LoginFormProp
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded-md bg-teresa-green-800 px-5 py-3 text-sm font-semibold text-white hover:bg-teresa-green-900 disabled:opacity-60"
+        className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 px-5 py-3 text-sm font-bold text-white shadow-soft transition hover:shadow-lift disabled:opacity-60 magnetic-btn shine"
       >
-        {busy ? 'Signing in…' : submitLabel}
+        {busy ? (
+          'Signing in…'
+        ) : (
+          <>
+            <LogIn className="h-4 w-4 text-teresa-gold-300" />
+            {submitLabel}
+          </>
+        )}
       </button>
 
       {previewAccount && (
-        <details className="rounded-md border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-xs text-slate-600">
+        <details className="rounded-xl border border-dashed border-slate-300 bg-slate-50/80 px-4 py-3 text-xs text-slate-600 transition hover:border-teresa-green-400">
           <summary className="cursor-pointer font-semibold text-slate-700">
             Preview account for this build
           </summary>
