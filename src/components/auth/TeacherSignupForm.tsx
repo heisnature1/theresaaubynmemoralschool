@@ -53,12 +53,12 @@ function SectionHeading({
 }) {
   return (
     <div className="mb-5 flex items-start gap-3">
-      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teresa-green-800 to-teresa-green-600 font-serif text-sm font-bold text-white shadow-soft">
+      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-theresa-green-800 to-theresa-green-600 font-serif text-sm font-bold text-white shadow-soft">
         {step}
       </span>
       <div>
-        <h2 className="flex items-center gap-2 font-serif text-lg font-bold text-teresa-green-950">
-          <Icon className="h-4 w-4 text-teresa-gold-700" />
+        <h2 className="flex items-center gap-2 font-serif text-lg font-bold text-theresa-green-950">
+          <Icon className="h-4 w-4 text-theresa-gold-700" />
           {title}
         </h2>
         {description && <p className="mt-1 text-sm leading-relaxed text-slate-600">{description}</p>}
@@ -68,7 +68,7 @@ function SectionHeading({
 }
 
 const fieldClass =
-  'w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70';
+  'w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70';
 
 export function TeacherSignupForm() {
   const [form, setForm] = useState<SignupFormState>(INITIAL_STATE);
@@ -141,11 +141,11 @@ export function TeacherSignupForm() {
 
   if (reference) {
     return (
-      <div className="animate-pop-in overflow-hidden rounded-3xl border border-teresa-green-200 bg-gradient-to-br from-teresa-green-50 via-white to-teresa-green-50/60 p-8 text-center shadow-soft sm:p-10">
-        <span className="mx-auto inline-flex h-16 w-16 items-center justify-center rounded-full bg-teresa-green-800 text-white shadow-lift animate-glow-pulse">
+      <div className="animate-pop-in overflow-hidden rounded-3xl border border-theresa-green-200 bg-gradient-to-br from-theresa-green-50 via-white to-theresa-green-50/60 p-8 text-center shadow-soft sm:p-10">
+        <span className="mx-auto inline-flex h-16 w-16 items-center justify-center rounded-full bg-theresa-green-800 text-white shadow-lift animate-glow-pulse">
           <PartyPopper className="h-8 w-8" />
         </span>
-        <h2 className="mt-5 font-serif text-2xl font-bold text-teresa-green-950">
+        <h2 className="mt-5 font-serif text-2xl font-bold text-theresa-green-950">
           Your application has been received
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate-700">
@@ -157,14 +157,14 @@ export function TeacherSignupForm() {
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <Link
             href="/login/teacher"
-            className="group inline-flex items-center gap-2 rounded-xl bg-teresa-green-800 px-5 py-3 text-sm font-bold text-white shadow-soft magnetic-btn shine"
+            className="group inline-flex items-center gap-2 rounded-xl bg-theresa-green-800 px-5 py-3 text-sm font-bold text-white shadow-soft magnetic-btn shine"
           >
             Go to the teacher sign-in page
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
           <Link
             href="/"
-            className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-teresa-green-600 hover:text-teresa-green-800"
+            className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-theresa-green-600 hover:text-theresa-green-800"
           >
             Back to the school website
           </Link>
@@ -233,7 +233,7 @@ export function TeacherSignupForm() {
       {/* ---------------------------------------------------------------- */}
       {/* Passport photograph                                              */}
       {/* ---------------------------------------------------------------- */}
-      <section className="animate-fade-up anim-delay-2 rounded-2xl border border-teresa-green-200 bg-gradient-to-br from-white to-teresa-green-50/50 p-6 shadow-soft">
+      <section className="animate-fade-up anim-delay-2 rounded-2xl border border-theresa-green-200 bg-gradient-to-br from-white to-theresa-green-50/50 p-6 shadow-soft">
         <PhotoCapture
           value={form.passportPhoto || undefined}
           onChange={(dataUrl) => update('passportPhoto', dataUrl ?? '')}
@@ -329,8 +329,8 @@ export function TeacherSignupForm() {
                   aria-pressed={selected}
                   className={`rounded-xl border px-3.5 py-1.5 text-xs font-semibold transition-all duration-300 ${
                     selected
-                      ? 'border-teresa-green-800 bg-teresa-green-800 text-white shadow-soft scale-105'
-                      : 'border-slate-300 bg-white text-slate-700 hover:border-teresa-green-600 hover:text-teresa-green-800'
+                      ? 'border-theresa-green-800 bg-theresa-green-800 text-white shadow-soft scale-105'
+                      : 'border-slate-300 bg-white text-slate-700 hover:border-theresa-green-600 hover:text-theresa-green-800'
                   }`}
                 >
                   {subject}
@@ -407,11 +407,11 @@ export function TeacherSignupForm() {
         </p>
       )}
 
-      <div className="flex flex-wrap items-center gap-4 rounded-2xl bg-teresa-green-900/95 p-5 text-white shadow-lift">
+      <div className="flex flex-wrap items-center gap-4 rounded-2xl bg-theresa-green-900/95 p-5 text-white shadow-lift">
         <button
           type="submit"
           disabled={busy}
-          className="group inline-flex items-center gap-2 rounded-xl bg-teresa-gold-400 px-6 py-3 text-sm font-bold text-teresa-green-950 transition hover:bg-teresa-gold-300 disabled:opacity-60 magnetic-btn shine"
+          className="group inline-flex items-center gap-2 rounded-xl bg-theresa-gold-400 px-6 py-3 text-sm font-bold text-theresa-green-950 transition hover:bg-theresa-gold-300 disabled:opacity-60 magnetic-btn shine"
         >
           {busy ? 'Submitting application…' : 'Submit application'}
           {!busy && (
@@ -422,14 +422,14 @@ export function TeacherSignupForm() {
           Already approved?{' '}
           <Link
             href="/login/teacher"
-            className="font-semibold text-teresa-gold-300 hover:underline"
+            className="font-semibold text-theresa-gold-300 hover:underline"
           >
             Sign in here
           </Link>
           .
         </p>
         <p className="ml-auto hidden items-center gap-1.5 text-xs text-emerald-100/70 sm:flex">
-          <CheckCircle2 className="h-3.5 w-3.5 text-teresa-gold-300" />
+          <CheckCircle2 className="h-3.5 w-3.5 text-theresa-gold-300" />
           Reviewed by the Headmaster within a week
         </p>
       </div>

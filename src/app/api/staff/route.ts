@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 function issuePassword(): string {
   const letters = Math.random().toString(36).slice(2, 7).toUpperCase();
   const digits = Math.floor(100 + Math.random() * 900);
-  return `Teresa-${letters}${digits}`;
+  return `Theresa-${letters}${digits}`;
 }
 
 /**

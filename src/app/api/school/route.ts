@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
         conduct: 'Respectful & Diligent',
         interestTalent: 'Reading & Athletics',
         teacherRemark: 'Newly enrolled pupil settling in well.',
-        headmasterRemark: 'Welcome to St. Teresa Aubyn Memorial School; strive for excellence.',
+        headmasterRemark: 'Welcome to St Theresa Aubyn Memorial School; strive for excellence.',
         reportEndorsed: false,
       };
 

@@ -58,7 +58,7 @@ function sessionSecret(): string {
   return (
     process.env.AUTH_SECRET ||
     process.env.NEXTAUTH_SECRET ||
-    'st-teresa-aubyn-memorial-school-session-secret'
+    'st-theresa-aubyn-memorial-school-session-secret'
   );
 }
 

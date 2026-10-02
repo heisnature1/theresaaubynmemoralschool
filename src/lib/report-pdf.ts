@@ -1,6 +1,7 @@
 import {
   ClassFeeStructure,
   DailyFeedingLog,
+  SchoolInformation,
   SchoolStateSnapshot,
   StudentRecord,
   SubjectResult,
@@ -19,12 +20,58 @@ const PAGE_MARGIN = 46;
 const CONTENT_WIDTH = 595.28 - PAGE_MARGIN * 2;
 const BOTTOM_LIMIT = 780;
 
-export const SCHOOL_PDF_DETAILS = {
-  name: 'ST. TERESA AUBYN MEMORIAL SCHOOL',
-  motto: 'Per Ardua Ad Astra — Through Diligence to the Stars',
-  addressLine: 'No. 18 Teresa Aubyn Heritage Avenue, P.O. Box TA 188, Ghana',
-  contactLine: 'Tel: +233 24 410 0888 / +233 24 855 1920  •  info@stteresa-aubyn.edu.gh',
+export interface PdfSchoolDetails {
+  name: string | null;
+  motto: string | null;
+  addressLine: string | null;
+  contactLine: string | null;
+}
+
+/**
+ * The letterhead lines for a PDF, built from whatever the school has actually
+ * published. A line is omitted rather than invented when its detail is absent.
+ */
+export function pdfSchoolDetails(info: SchoolInformation | null): PdfSchoolDetails {
+  const address = [
+    info?.postalAddress,
+    info?.digitalAddress ? `Digital address: ${info.digitalAddress}` : null,
+    info?.foundedYear ? `Founded ${info.foundedYear}` : null,
+  ]
+    .filter(Boolean)
+    .join('  \u2022  ');
+
+  const contact = [
+    info?.mainPhone,
+    info?.headmasterPhone,
+    info?.bursaryPhone,
+    info?.generalEmail,
+  ]
+    .filter(Boolean)
+    .join('  \u2022  ');
+
+  return {
+    name: info?.schoolName ?? null,
+    motto: info?.motto ?? null,
+    addressLine: address || null,
+    contactLine: contact || null,
+  };
+}
+
+let activeDetails: PdfSchoolDetails = {
+  name: null,
+  motto: null,
+  addressLine: null,
+  contactLine: null,
 };
+
+/** Called by the report routes with the school's published particulars. */
+export function setPdfSchoolDetails(info: SchoolInformation | null): void {
+  activeDetails = pdfSchoolDetails(info);
+}
+
+function schoolDetails(): PdfSchoolDetails {
+  return activeDetails;
+}
 
 /** The cedi sign is outside the standard font encoding, so PDFs use GH¢. */
 export function pdfCurrency(amount: number): string {
@@ -98,33 +145,46 @@ function collectContext(state: SchoolStateSnapshot, student: StudentRecord): Rep
 
 function drawPageFurniture(doc: PdfDocument, title: string): number {
   let y = PAGE_MARGIN;
+  const details = schoolDetails();
 
-  doc.text(SCHOOL_PDF_DETAILS.name, PAGE_MARGIN + CONTENT_WIDTH / 2, y, {
-    font: 'Times-Bold',
-    size: 17,
-    color: GREEN,
-    align: 'center',
-  });
-  y += 22;
-  doc.text(SCHOOL_PDF_DETAILS.motto, PAGE_MARGIN + CONTENT_WIDTH / 2, y, {
-    font: 'Times-Italic',
-    size: 9,
-    color: MUTED,
-    align: 'center',
-  });
-  y += 14;
-  doc.text(SCHOOL_PDF_DETAILS.addressLine, PAGE_MARGIN + CONTENT_WIDTH / 2, y, {
-    size: 8,
-    color: MUTED,
-    align: 'center',
-  });
-  y += 11;
-  doc.text(SCHOOL_PDF_DETAILS.contactLine, PAGE_MARGIN + CONTENT_WIDTH / 2, y, {
-    size: 8,
-    color: MUTED,
-    align: 'center',
-  });
-  y += 12;
+  if (details.name) {
+    doc.text(details.name, PAGE_MARGIN + CONTENT_WIDTH / 2, y, {
+      font: 'Times-Bold',
+      size: 17,
+      color: GREEN,
+      align: 'center',
+    });
+    y += 22;
+  }
+  if (details.motto) {
+    doc.text(details.motto, PAGE_MARGIN + CONTENT_WIDTH / 2, y, {
+      font: 'Times-Italic',
+      size: 9,
+      color: MUTED,
+      align: 'center',
+    });
+    y += 14;
+  }
+  if (details.addressLine) {
+    doc.text(details.addressLine, PAGE_MARGIN + CONTENT_WIDTH / 2, y, {
+      size: 8,
+      color: MUTED,
+      align: 'center',
+      maxWidth: CONTENT_WIDTH,
+      lineHeight: 9.5,
+    });
+    y += 11;
+  }
+  if (details.contactLine) {
+    doc.text(details.contactLine, PAGE_MARGIN + CONTENT_WIDTH / 2, y, {
+      size: 8,
+      color: MUTED,
+      align: 'center',
+      maxWidth: CONTENT_WIDTH,
+      lineHeight: 9.5,
+    });
+    y += 12;
+  }
 
   doc.rect(PAGE_MARGIN, y, CONTENT_WIDTH, 2.4, { fill: GOLD });
   doc.rect(PAGE_MARGIN, y + 2.4, CONTENT_WIDTH, 1, { fill: GREEN });

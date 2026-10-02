@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { getSchoolState } from '@/lib/store';
-import { buildClassReportPdf, buildStudentReportPdf } from '@/lib/report-pdf';
+import { getSiteData } from '@/lib/site-data';
+import {
+  buildClassReportPdf,
+  buildStudentReportPdf,
+  setPdfSchoolDetails,
+} from '@/lib/report-pdf';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +22,9 @@ export async function GET(
   if (!session) {
     return NextResponse.json({ error: 'Sign-in required.' }, { status: 401 });
   }
+
+  const { info } = await getSiteData();
+  setPdfSchoolDetails(info);
 
   const state = getSchoolState();
   const reportType =

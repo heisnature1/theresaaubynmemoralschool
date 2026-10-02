@@ -37,7 +37,7 @@ export function SchoolCrest({ className = '', size = 'md' }: SchoolCrestProps) {
         <path d="M60 28V95" stroke="#D9AF37" strokeWidth="2" />
         <path d="M32 58H88" stroke="#D9AF37" strokeWidth="2" />
 
-        {/* Top-Left: Cross of St. Teresa */}
+        {/* Top-Left: Cross of St Theresa */}
         <path d="M46 35V51M38 43H54" stroke="#F6EECB" strokeWidth="3" strokeLinecap="round" />
 
         {/* Top-Right: Star of Excellence */}

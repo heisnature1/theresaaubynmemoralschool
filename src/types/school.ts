@@ -169,6 +169,86 @@ export interface HistoryMilestone {
   iconName: string;
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Website content, served from the database                                  */
+/* -------------------------------------------------------------------------- */
+
+/** A notice for parents as it appears on the website. */
+export interface SiteNotice {
+  id: string;
+  date: string;
+  title: string;
+  body: string;
+  tag: 'Term' | 'Examinations' | 'Feeding' | 'Event' | 'Notice';
+}
+
+/**
+ * The single row of `school_information`. Every field is optional: the website
+ * shows only what the school has actually published.
+ */
+export interface SchoolInformation {
+  schoolName: string | null;
+  motto: string | null;
+  aboutSummary: string | null;
+  digitalAddress: string | null;
+  foundedYear: number | null;
+  highlights: string[];
+  tourHours: string | null;
+  officeHours: string | null;
+  mainPhone: string | null;
+  headmasterPhone: string | null;
+  bursaryPhone: string | null;
+  generalEmail: string | null;
+  headmasterEmail: string | null;
+  ownerEmail: string | null;
+  postalAddress: string | null;
+  headmasterName: string | null;
+  headmasterTitle: string | null;
+  headmasterMessage: string | null;
+  currentSemester: string | null;
+  nextReopening: string | null;
+}
+
+/** A member of staff as shown in the public directory: no personal contacts. */
+export interface PublicStaffMember {
+  fullName: string;
+  role: UserRole;
+  assignedClass: string | null;
+  subjects: string[];
+  qualification: string | null;
+}
+
+/** A department as published for the academics page. */
+export interface SiteDepartment {
+  id: string;
+  name: string;
+  classes: string;
+  subjects: string[];
+  note: string;
+}
+
+/** One of the school's stated values. */
+export interface SiteValue {
+  id: string;
+  title: string;
+  body: string;
+}
+
+/** One step of the published admissions procedure. */
+export interface SiteAdmissionStep {
+  id: string;
+  step: string;
+  title: string;
+  body: string;
+}
+
+/** A calendar entry shown on the home, academics and footer areas. */
+export interface SiteTermDate {
+  id: string;
+  label: string;
+  detail: string;
+}
+
 export interface SchoolStateSnapshot {
   currentSemester: string;
   nextSemesterReopening: string;

@@ -31,8 +31,8 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
             onClick={() => setCategory(option)}
             className={`rounded-xl border px-4 py-2 text-sm font-semibold transition-all duration-300 ${
               category === option
-                ? 'border-teresa-green-900 bg-teresa-green-900 text-white shadow-soft scale-[1.03]'
-                : 'border-slate-300 bg-white text-slate-700 hover:border-teresa-green-700 hover:text-teresa-green-800'
+                ? 'border-theresa-green-900 bg-theresa-green-900 text-white shadow-soft scale-[1.03]'
+                : 'border-slate-300 bg-white text-slate-700 hover:border-theresa-green-700 hover:text-theresa-green-800'
             }`}
           >
             {option}
@@ -57,7 +57,7 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
               </div>
             </button>
             <figcaption className="p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-teresa-gold-700">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-theresa-gold-700">
                 {item.category} &middot; {item.dateLabel}
               </p>
               <h3 className="mt-1 font-serif text-base font-bold text-slate-900">{item.title}</h3>
@@ -88,7 +88,7 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
               </button>
             </div>
             <div className="p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-teresa-gold-700">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-theresa-gold-700">
                 {preview.category} &middot; {preview.dateLabel}
               </p>
               <h3 className="mt-1 font-serif text-lg font-bold text-slate-900">{preview.title}</h3>

@@ -1,8 +1,8 @@
 {
-  "name": "st-teresa-aubyn-memorial-school",
-  "version": "1.1.0",
+  "name": "st-theresa-aubyn-memorial-school",
+  "version": "1.2.0",
   "private": true,
-  "description": "Complete modern school management website and role-based portal for St. Teresa Aubyn Memorial School, built with Next.js, TypeScript, Tailwind CSS, and Supabase for Vercel deployment.",
+  "description": "Complete modern school management website and role-based portal for St Theresa Aubyn Memorial School, built with Next.js, TypeScript, Tailwind CSS, and Supabase for Vercel deployment.",
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",

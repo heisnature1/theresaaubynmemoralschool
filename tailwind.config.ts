@@ -10,7 +10,7 @@ const config: Config = {
     extend: {
       colors: {
         // The school colours, taken from the crest.
-        teresa: {
+        theresa: {
           green: {
             50: '#eef8f3',
             100: '#d5eee1',

@@ -11,7 +11,7 @@ const TOPICS = [
   'General enquiry',
 ];
 
-export function EnquiryForm() {
+export function EnquiryForm({ phone: contactPhone }: { phone?: string | null }) {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -62,23 +62,30 @@ export function EnquiryForm() {
 
   if (sent) {
     return (
-      <div className="rounded-md border border-teresa-green-200 bg-teresa-green-50 p-8">
-        <CheckCircle2 className="h-7 w-7 text-teresa-green-700" />
-        <h3 className="mt-3 font-serif text-xl font-bold text-teresa-green-950">
+      <div className="rounded-md border border-theresa-green-200 bg-theresa-green-50 p-8">
+        <CheckCircle2 className="h-7 w-7 text-theresa-green-700" />
+        <h3 className="mt-3 font-serif text-xl font-bold text-theresa-green-950">
           Your message has reached the school office
         </h3>
         <p className="mt-2 text-sm leading-relaxed text-slate-700">
-          A member of the office staff will reply to you within two working days. If the matter is
-          urgent, please telephone {''}
-          <a href="tel:+233244100888" className="font-semibold text-teresa-green-800 hover:underline">
-            +233 24 410 0888
-          </a>
-          .
+          A member of the office staff will reply to you within two working days.
+          {contactPhone ? (
+            <>
+              {' '}If the matter is urgent, please telephone{' '}
+              <a
+                href={`tel:${contactPhone.replace(/\s/g, '')}`}
+                className="font-semibold text-theresa-green-800 hover:underline"
+              >
+                {contactPhone}
+              </a>
+              .
+            </>
+          ) : null}
         </p>
         <button
           type="button"
           onClick={() => setSent(false)}
-          className="mt-5 rounded-xl border border-teresa-green-800 px-4 py-2 text-sm font-semibold text-teresa-green-900 transition hover:bg-white magnetic-btn"
+          className="mt-5 rounded-xl border border-theresa-green-800 px-4 py-2 text-sm font-semibold text-theresa-green-900 transition hover:bg-white magnetic-btn"
         >
           Send another message
         </button>
@@ -100,7 +107,7 @@ export function EnquiryForm() {
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
             placeholder="e.g. Comfort Mensah"
-            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70"
           />
         </div>
         <div>
@@ -113,7 +120,7 @@ export function EnquiryForm() {
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
             placeholder="+233 24 000 0000"
-            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70"
           />
         </div>
       </div>
@@ -130,7 +137,7 @@ export function EnquiryForm() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="you@example.com"
-            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70"
           />
         </div>
         <div>
@@ -141,7 +148,7 @@ export function EnquiryForm() {
             id="enquiry-class"
             value={childClass}
             onChange={(event) => setChildClass(event.target.value)}
-            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70"
           >
             {SCHOOL_CLASSES.map((option) => (
               <option key={option} value={option}>
@@ -160,7 +167,7 @@ export function EnquiryForm() {
           id="enquiry-topic"
           value={subject}
           onChange={(event) => setSubject(event.target.value)}
-          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70"
         >
           {TOPICS.map((topic) => (
             <option key={topic} value={topic}>
@@ -181,7 +188,7 @@ export function EnquiryForm() {
           value={message}
           onChange={(event) => setMessage(event.target.value)}
           placeholder="Tell us about your child, or ask your question here."
-          className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70"
         />
       </div>
 
@@ -195,7 +202,7 @@ export function EnquiryForm() {
         <button
           type="submit"
           disabled={sending}
-          className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 px-5 py-3 text-sm font-bold text-white shadow-soft transition hover:shadow-lift disabled:opacity-60 magnetic-btn shine"
+          className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-theresa-green-800 to-theresa-green-700 px-5 py-3 text-sm font-bold text-white shadow-soft transition hover:shadow-lift disabled:opacity-60 magnetic-btn shine"
         >
           <Send className="h-4 w-4" />
           {sending ? 'Sending…' : 'Send to the school office'}

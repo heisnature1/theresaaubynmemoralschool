@@ -61,8 +61,8 @@ export function LoginForm({ portal, submitLabel, previewAccount }: LoginFormProp
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
-          placeholder="name@stteresa-aubyn.edu.gh"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70"
+          placeholder="name@sttheresa-aubyn.edu.gh"
         />
       </div>
 
@@ -79,7 +79,7 @@ export function LoginForm({ portal, submitLabel, previewAccount }: LoginFormProp
             required
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 pr-11 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 pr-11 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70"
           />
           <button
             type="button"
@@ -113,20 +113,20 @@ export function LoginForm({ portal, submitLabel, previewAccount }: LoginFormProp
       <button
         type="submit"
         disabled={busy}
-        className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 px-5 py-3 text-sm font-bold text-white shadow-soft transition hover:shadow-lift disabled:opacity-60 magnetic-btn shine"
+        className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-theresa-green-800 to-theresa-green-700 px-5 py-3 text-sm font-bold text-white shadow-soft transition hover:shadow-lift disabled:opacity-60 magnetic-btn shine"
       >
         {busy ? (
           'Signing in…'
         ) : (
           <>
-            <LogIn className="h-4 w-4 text-teresa-gold-300" />
+            <LogIn className="h-4 w-4 text-theresa-gold-300" />
             {submitLabel}
           </>
         )}
       </button>
 
       {previewAccount && (
-        <details className="rounded-xl border border-dashed border-slate-300 bg-slate-50/80 px-4 py-3 text-xs text-slate-600 transition hover:border-teresa-green-400">
+        <details className="rounded-xl border border-dashed border-slate-300 bg-slate-50/80 px-4 py-3 text-xs text-slate-600 transition hover:border-theresa-green-400">
           <summary className="cursor-pointer font-semibold text-slate-700">
             Preview account for this build
           </summary>
