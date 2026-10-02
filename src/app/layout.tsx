@@ -1,19 +1,18 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { SCHOOL_NAME } from '@/lib/constants';
 
 export const metadata: Metadata = {
   title: {
-    default: 'St. Teresa Aubyn Memorial School',
-    template: '%s | St. Teresa Aubyn Memorial School',
+    default: SCHOOL_NAME,
+    template: `%s | ${SCHOOL_NAME}`,
   },
-  description:
-    'St. Teresa Aubyn Memorial School, founded in 1988: a day school for KG 1 to JHS 3 with a strong academic programme, a daily midday meal and a staff portal for teachers and administrators.',
-  applicationName: 'St. Teresa Aubyn Memorial School',
-  authors: [{ name: 'St. Teresa Aubyn Memorial School' }],
+  description: `Website and staff portal for ${SCHOOL_NAME}.`,
+  applicationName: SCHOOL_NAME,
+  authors: [{ name: SCHOOL_NAME }],
   openGraph: {
-    title: 'St. Teresa Aubyn Memorial School',
-    description:
-      'News, term dates, fees, admissions and the staff portal for St. Teresa Aubyn Memorial School.',
+    title: SCHOOL_NAME,
+    description: `Website and staff portal for ${SCHOOL_NAME}.`,
     type: 'website',
   },
 };

@@ -20,13 +20,15 @@ import {
   Users,
   Utensils,
 } from 'lucide-react';
-import { SchoolStateSnapshot } from '@/types/school';
+import { SchoolInformation, SchoolStateSnapshot } from '@/types/school';
 import { formatCurrency, SCHOOL_CLASSES } from '@/lib/grading';
 import { ReportCardGenerator } from './ReportCardGenerator';
 import { PhotoCapture } from '@/components/ui/PhotoCapture';
 
 interface SuperAdminDashboardProps {
   state: SchoolStateSnapshot;
+  /** The school's published particulars, forwarded to the report sheet. */
+  siteInfo?: SchoolInformation | null;
   onStateChange: (newState: SchoolStateSnapshot) => void;
   onNotify: (msg: string, type?: 'success' | 'info') => void;
 }
@@ -35,6 +37,7 @@ export function SuperAdminDashboard({
   state,
   onStateChange,
   onNotify,
+  siteInfo,
 }: SuperAdminDashboardProps) {
   const owner = useMemo(
     () =>
@@ -183,16 +186,16 @@ export function SuperAdminDashboard({
   return (
     <div className="space-y-6">
       {/* Super Admin Executive Header Banner */}
-      <div className="animate-fade-up relative overflow-hidden rounded-3xl border-2 border-teresa-gold-400/50 bg-gradient-to-r from-teresa-green-950 via-teresa-green-900 to-teresa-green-950 p-6 text-white shadow-lift">
+      <div className="animate-fade-up relative overflow-hidden rounded-3xl border-2 border-theresa-gold-400/50 bg-gradient-to-r from-theresa-green-950 via-theresa-green-900 to-theresa-green-950 p-6 text-white shadow-lift">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_15%,rgba(217,175,55,0.2),transparent_55%)]" />
-          <div className="hero-blob -left-16 -top-24 h-72 w-72 bg-teresa-gold-600/20 animate-float-slow" />
-          <div className="hero-blob -right-10 bottom-[-7rem] h-64 w-64 bg-teresa-green-500/25 animate-float" />
+          <div className="hero-blob -left-16 -top-24 h-72 w-72 bg-theresa-gold-600/20 animate-float-slow" />
+          <div className="hero-blob -right-10 bottom-[-7rem] h-64 w-64 bg-theresa-green-500/25 animate-float" />
           <div className="absolute inset-0 pattern-grid opacity-[0.07]" />
         </div>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 relative z-10">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teresa-gold-400 text-teresa-green-950 text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-theresa-gold-400 text-theresa-green-950 text-xs font-bold uppercase tracking-wider">
               Proprietor &middot; governing council
             </div>
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-white">
@@ -213,8 +216,8 @@ export function SuperAdminDashboard({
 
         {/* KPI cards */}
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 border border-teresa-gold-400/30">
-            <div className="text-[10px] uppercase tracking-wider text-teresa-gold-300 font-bold">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 border border-theresa-gold-400/30">
+            <div className="text-[10px] uppercase tracking-wider text-theresa-gold-300 font-bold">
               Total fee income
             </div>
             <div className="text-lg font-mono font-extrabold text-white mt-0.5">
@@ -237,7 +240,7 @@ export function SuperAdminDashboard({
             <div className="text-[10px] uppercase tracking-wider text-emerald-200 font-bold">
               Extra classes received
             </div>
-            <div className="text-lg font-mono font-extrabold text-teresa-gold-300 mt-0.5">
+            <div className="text-lg font-mono font-extrabold text-theresa-gold-300 mt-0.5">
               {formatCurrency(metrics.totalExtraPaid)}
             </div>
             <div className="text-[11px] text-emerald-200/80">Afternoon Prep</div>
@@ -250,7 +253,7 @@ export function SuperAdminDashboard({
             <div className="text-lg font-mono font-extrabold text-white mt-0.5">
               {formatCurrency(metrics.totalMealPrepaid + metrics.totalDailyFeedingCash)}
             </div>
-            <div className="text-[11px] text-teresa-gold-300">
+            <div className="text-[11px] text-theresa-gold-300">
               Daily Logs: {formatCurrency(metrics.totalDailyFeedingCash)}
             </div>
           </div>
@@ -274,7 +277,7 @@ export function SuperAdminDashboard({
             <div className="text-lg font-mono font-extrabold text-white mt-0.5">
               {state.staff.length} Active Staff
             </div>
-            <div className="text-[11px] text-teresa-gold-300">
+            <div className="text-[11px] text-theresa-gold-300">
               {metrics.pendingTeachers} applications pending
             </div>
           </div>
@@ -287,7 +290,7 @@ export function SuperAdminDashboard({
             onClick={() => setActiveTab('overview')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'overview'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -300,7 +303,7 @@ export function SuperAdminDashboard({
             onClick={() => setActiveTab('finances')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'finances'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -313,7 +316,7 @@ export function SuperAdminDashboard({
             onClick={() => setActiveTab('directory')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'directory'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -326,7 +329,7 @@ export function SuperAdminDashboard({
             onClick={() => setActiveTab('reports')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'reports'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -339,7 +342,7 @@ export function SuperAdminDashboard({
             onClick={() => setActiveTab('inquiries')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'inquiries'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -355,17 +358,17 @@ export function SuperAdminDashboard({
       {activeTab === 'overview' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left 8 cols: class-by-class position */}
-          <div className="lg:col-span-8 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
+          <div className="lg:col-span-8 bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
+                <span className="text-xs font-bold uppercase tracking-wider text-theresa-gold-700">
                   Fees and marks by class
                 </span>
-                <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+                <h3 className="text-xl font-serif font-bold text-theresa-green-950">
                   Class fee rates, feeding rate and average marks
                 </h3>
               </div>
-              <span className="px-3 py-1 rounded-full bg-teresa-green-50 text-teresa-green-900 text-xs font-bold">
+              <span className="px-3 py-1 rounded-full bg-theresa-green-50 text-theresa-green-900 text-xs font-bold">
                 {state.classFeeStructures.length} classes
               </span>
             </div>
@@ -373,7 +376,7 @@ export function SuperAdminDashboard({
             <div className="overflow-x-auto rounded-2xl border border-slate-200">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr className="bg-teresa-green-900 text-white text-xs uppercase">
+                  <tr className="bg-theresa-green-900 text-white text-xs uppercase">
                     <th className="py-3 px-4">Class</th>
                     <th className="py-3 px-3">Class Teacher</th>
                     <th className="py-3 px-3 text-right">Tuition Rate</th>
@@ -397,8 +400,8 @@ export function SuperAdminDashboard({
                         : null;
 
                     return (
-                      <tr key={cf.id} className="hover:bg-teresa-ivory/60">
-                        <td className="py-3 px-4 font-bold text-teresa-green-950">
+                      <tr key={cf.id} className="hover:bg-theresa-ivory/60">
+                        <td className="py-3 px-4 font-bold text-theresa-green-950">
                           {cf.className}
                           <div className="text-[11px] text-slate-500 font-normal">
                             {cf.department}
@@ -410,7 +413,7 @@ export function SuperAdminDashboard({
                         <td className="py-3 px-3 text-right font-mono font-bold text-slate-900">
                           {formatCurrency(cf.tuitionFee)}
                         </td>
-                        <td className="py-3 px-3 text-right font-mono font-bold text-teresa-gold-800">
+                        <td className="py-3 px-3 text-right font-mono font-bold text-theresa-gold-800">
                           {formatCurrency(cf.extraClassesFee)}
                         </td>
                         <td className="py-3 px-3 text-right font-mono font-bold text-emerald-700">
@@ -434,18 +437,18 @@ export function SuperAdminDashboard({
           </div>
 
           {/* Right 4 cols: activity record */}
-          <div className="lg:col-span-4 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm flex flex-col justify-between">
+          <div className="lg:col-span-4 bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-teresa-green-700">
+                  <span className="text-xs font-bold uppercase tracking-wider text-theresa-green-700">
                     Activity record
                   </span>
-                  <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+                  <h3 className="text-xl font-serif font-bold text-theresa-green-950">
                     Who changed what, and when
                   </h3>
                 </div>
-                <div className="w-9 h-9 rounded-xl bg-teresa-gold-100 flex items-center justify-center text-teresa-gold-800">
+                <div className="w-9 h-9 rounded-xl bg-theresa-gold-100 flex items-center justify-center text-theresa-gold-800">
                   <Activity className="w-5 h-5" />
                 </div>
               </div>
@@ -454,13 +457,13 @@ export function SuperAdminDashboard({
                 {state.auditLogs.map((log) => (
                   <div
                     key={log.id}
-                    className="p-3.5 rounded-2xl border border-slate-200/90 bg-teresa-ivory/50 space-y-1"
+                    className="p-3.5 rounded-2xl border border-slate-200/90 bg-theresa-ivory/50 space-y-1"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-teresa-green-950">
+                      <span className="text-xs font-bold text-theresa-green-950">
                         {log.action}
                       </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-teresa-green-900 text-teresa-gold-300">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-theresa-green-900 text-theresa-gold-300">
                         {log.actorRole.replace('_', ' ')}
                       </span>
                     </div>
@@ -485,13 +488,13 @@ export function SuperAdminDashboard({
       {activeTab === 'finances' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left 6 cols: All Daily Feeding Fee Collections Logged by Teachers */}
-          <div className="lg:col-span-6 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
+          <div className="lg:col-span-6 bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
+                <span className="text-xs font-bold uppercase tracking-wider text-theresa-gold-700">
                   Recorded by the class teachers
                 </span>
-                <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+                <h3 className="text-xl font-serif font-bold text-theresa-green-950">
                   Daily feeding register
                 </h3>
               </div>
@@ -502,7 +505,7 @@ export function SuperAdminDashboard({
 
             <div className="overflow-x-auto rounded-2xl border border-slate-200 max-h-96">
               <table className="w-full text-left border-collapse text-xs">
-                <thead className="sticky top-0 bg-teresa-green-900 text-white uppercase">
+                <thead className="sticky top-0 bg-theresa-green-900 text-white uppercase">
                   <tr>
                     <th className="py-3 px-3">Date</th>
                     <th className="py-3 px-3">Student Name</th>
@@ -533,24 +536,24 @@ export function SuperAdminDashboard({
           </div>
 
           {/* Right 6 cols: All Tuition, Extra Classes & Meal Plan Receipts */}
-          <div className="lg:col-span-6 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
+          <div className="lg:col-span-6 bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-teresa-green-700">
+                <span className="text-xs font-bold uppercase tracking-wider text-theresa-green-700">
                   Headmaster & Bursary Ledger
                 </span>
-                <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+                <h3 className="text-xl font-serif font-bold text-theresa-green-950">
                   Tuition, Extra Classes & Meal Plan Receipts
                 </h3>
               </div>
-              <span className="px-3 py-1 rounded-full bg-teresa-gold-100 text-teresa-green-950 font-mono text-xs font-bold">
+              <span className="px-3 py-1 rounded-full bg-theresa-gold-100 text-theresa-green-950 font-mono text-xs font-bold">
                 {state.feePayments.length} Receipts
               </span>
             </div>
 
             <div className="overflow-x-auto rounded-2xl border border-slate-200 max-h-96">
               <table className="w-full text-left border-collapse text-xs">
-                <thead className="sticky top-0 bg-teresa-green-900 text-white uppercase">
+                <thead className="sticky top-0 bg-theresa-green-900 text-white uppercase">
                   <tr>
                     <th className="py-3 px-3">Receipt</th>
                     <th className="py-3 px-3">Student</th>
@@ -562,13 +565,13 @@ export function SuperAdminDashboard({
                 <tbody className="divide-y divide-slate-200">
                   {state.feePayments.map((pay) => (
                     <tr key={pay.id} className="hover:bg-slate-50">
-                      <td className="py-2.5 px-3 font-mono font-bold text-teresa-green-900">
+                      <td className="py-2.5 px-3 font-mono font-bold text-theresa-green-900">
                         {pay.receiptNo}
                       </td>
                       <td className="py-2.5 px-3 font-bold text-slate-900">
                         {pay.studentName} ({pay.className})
                       </td>
-                      <td className="py-2.5 px-3 uppercase font-semibold text-teresa-gold-800">
+                      <td className="py-2.5 px-3 uppercase font-semibold text-theresa-gold-800">
                         {pay.category.replace('_', ' ')}
                       </td>
                       <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-800">
@@ -590,12 +593,12 @@ export function SuperAdminDashboard({
       {activeTab === 'directory' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left 4 cols: pupil registration */}
-          <div className="lg:col-span-4 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
+          <div className="lg:col-span-4 bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
             <div className="mb-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
+              <span className="text-xs font-bold uppercase tracking-wider text-theresa-gold-700">
                 Admissions register
               </span>
-              <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+              <h3 className="text-xl font-serif font-bold text-theresa-green-950">
                 Register a new pupil
               </h3>
             </div>
@@ -696,9 +699,9 @@ export function SuperAdminDashboard({
               <button
                 type="submit"
                 disabled={enrolling}
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition magnetic-btn shine"
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-theresa-green-800 to-theresa-green-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition magnetic-btn shine"
               >
-                <PlusCircle className="w-4 h-4 text-teresa-gold-300" />
+                <PlusCircle className="w-4 h-4 text-theresa-gold-300" />
                 {enrolling ? 'Saving…' : 'Add pupil to the register'}
               </button>
             </form>
@@ -706,14 +709,14 @@ export function SuperAdminDashboard({
 
           {/* Right 8 cols: Staff directory and teaching applications */}
           <div className="lg:col-span-8 space-y-6">
-            <div className="bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
-              <h3 className="text-xl font-serif font-bold text-teresa-green-950 mb-3">
+            <div className="bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
+              <h3 className="text-xl font-serif font-bold text-theresa-green-950 mb-3">
                 Staff on the roll ({state.staff.length})
               </h3>
               <div className="overflow-x-auto rounded-2xl border border-slate-200">
                 <table className="w-full text-left border-collapse text-sm">
                   <thead>
-                    <tr className="bg-teresa-green-900 text-white text-xs uppercase">
+                    <tr className="bg-theresa-green-900 text-white text-xs uppercase">
                       <th className="py-3 px-4">Staff number</th>
                       <th className="py-3 px-3">Full Name</th>
                       <th className="py-3 px-3">Role</th>
@@ -725,7 +728,7 @@ export function SuperAdminDashboard({
                   <tbody className="divide-y divide-slate-200">
                     {state.staff.map((stf) => (
                       <tr key={stf.id} className="hover:bg-slate-50">
-                        <td className="py-3 px-4 font-mono font-bold text-teresa-green-900 text-xs">
+                        <td className="py-3 px-4 font-mono font-bold text-theresa-green-900 text-xs">
                           {stf.staffId}
                         </td>
                         <td className="py-3 px-3">
@@ -737,7 +740,7 @@ export function SuperAdminDashboard({
                                 className="h-11 w-11 shrink-0 rounded-xl border border-white object-cover shadow-sm"
                               />
                             ) : (
-                              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teresa-green-50 text-teresa-green-800">
+                              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-theresa-green-50 text-theresa-green-800">
                                 <UserRound className="h-5 w-5" />
                               </span>
                             )}
@@ -748,7 +751,7 @@ export function SuperAdminDashboard({
                           </div>
                         </td>
                         <td className="py-3 px-3">
-                          <span className="px-2.5 py-0.5 rounded-full bg-teresa-gold-100 text-teresa-green-950 text-xs font-bold uppercase">
+                          <span className="px-2.5 py-0.5 rounded-full bg-theresa-gold-100 text-theresa-green-950 text-xs font-bold uppercase">
                             {stf.role.replace('_', ' ')}
                           </span>
                         </td>
@@ -775,15 +778,15 @@ export function SuperAdminDashboard({
             </div>
 
             {/* Teacher Sign-up Requests Queue */}
-            <div className="bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
-              <h3 className="text-lg font-serif font-bold text-teresa-green-950 mb-3">
+            <div className="bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
+              <h3 className="text-lg font-serif font-bold text-theresa-green-950 mb-3">
                 Teaching applications
               </h3>
               <div className="space-y-3">
                 {state.teacherRegistrations.map((reg) => (
                   <div
                     key={reg.id}
-                    className="p-4 rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition hover:border-teresa-green-300 hover:bg-teresa-green-50/40"
+                    className="p-4 rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition hover:border-theresa-green-300 hover:bg-theresa-green-50/40"
                   >
                     <div className="flex items-center gap-3">
                       {reg.passportPhoto ? (
@@ -799,7 +802,7 @@ export function SuperAdminDashboard({
                       )}
                       <div>
                       <div className="font-bold text-slate-900 text-sm">
-                        {reg.fullName} — <span className="text-teresa-green-800">{reg.requestedClass}</span>
+                        {reg.fullName} — <span className="text-theresa-green-800">{reg.requestedClass}</span>
                       </div>
                       <div className="text-xs text-slate-600">{reg.qualification}</div>
                       </div>
@@ -842,6 +845,7 @@ export function SuperAdminDashboard({
       {activeTab === 'reports' && (
         <ReportCardGenerator
           state={state}
+          siteInfo={siteInfo}
           activeRole="super_admin"
           actorName={owner.fullName}
           onStateChange={onStateChange}
@@ -855,17 +859,17 @@ export function SuperAdminDashboard({
       {/* ===================================================================== */}
       {activeTab === 'inquiries' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-7 bg-white rounded-2xl border border-teresa-green-100 p-6 shadow-sm">
+          <div className="lg:col-span-7 bg-white rounded-2xl border border-theresa-green-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
+                <span className="text-xs font-bold uppercase tracking-wider text-theresa-gold-700">
                   Messages from the website
                 </span>
-                <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+                <h3 className="text-xl font-serif font-bold text-theresa-green-950">
                   Enquiries received ({state.contactInquiries.length})
                 </h3>
               </div>
-              <Mail className="w-5 h-5 text-teresa-green-800" />
+              <Mail className="w-5 h-5 text-theresa-green-800" />
             </div>
 
             {state.contactInquiries.length === 0 && (
@@ -876,10 +880,10 @@ export function SuperAdminDashboard({
 
             <div className="space-y-3">
               {state.contactInquiries.map((inquiry) => (
-                <article key={inquiry.id} className="rounded-xl border border-slate-200 bg-teresa-ivory/50 p-4">
+                <article key={inquiry.id} className="rounded-xl border border-slate-200 bg-theresa-ivory/50 p-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="text-sm font-bold text-slate-900">{inquiry.subject}</span>
-                    <span className="rounded-sm bg-teresa-green-100 px-2 py-0.5 text-[11px] font-bold uppercase text-teresa-green-900">
+                    <span className="rounded-sm bg-theresa-green-100 px-2 py-0.5 text-[11px] font-bold uppercase text-theresa-green-900">
                       {inquiry.status}
                     </span>
                   </div>
@@ -903,11 +907,11 @@ export function SuperAdminDashboard({
             </div>
           </div>
 
-          <div className="lg:col-span-5 bg-white rounded-2xl border border-teresa-green-100 p-6 shadow-sm">
-            <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
+          <div className="lg:col-span-5 bg-white rounded-2xl border border-theresa-green-100 p-6 shadow-sm">
+            <span className="text-xs font-bold uppercase tracking-wider text-theresa-gold-700">
               Bursary follow-up
             </span>
-            <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+            <h3 className="text-xl font-serif font-bold text-theresa-green-950">
               Fees still outstanding by class
             </h3>
             <p className="mt-1 text-xs text-slate-500">

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { CheckCircle2, Info, X } from 'lucide-react';
-import { SchoolStateSnapshot, UserRole } from '@/types/school';
+import { SchoolInformation, SchoolStateSnapshot, UserRole } from '@/types/school';
 import { SuperAdminDashboard } from '@/components/SuperAdminDashboard';
 import { HeadmasterDashboard } from '@/components/HeadmasterDashboard';
 import { TeacherDashboard } from '@/components/TeacherDashboard';
@@ -15,6 +15,8 @@ interface PortalWorkspaceProps {
   workspace: Workspace;
   user: { fullName: string; role: UserRole; staffId: string; email: string };
   initialTab?: string;
+  /** The school's published particulars, shown on the report sheets. */
+  siteInfo?: SchoolInformation | null;
 }
 
 export function PortalWorkspace({
@@ -22,6 +24,7 @@ export function PortalWorkspace({
   workspace,
   user,
   initialTab,
+  siteInfo,
 }: PortalWorkspaceProps) {
   const [state, setState] = useState<SchoolStateSnapshot>(initialState);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
@@ -40,11 +43,11 @@ export function PortalWorkspace({
     <div className="space-y-6">
       {toast && (
         <div className="fixed bottom-6 right-6 z-50 max-w-md print:hidden animate-toast-in">
-          <div className="flex items-start gap-3 rounded-2xl border border-teresa-green-700/40 bg-white/95 px-4 py-3.5 shadow-lift backdrop-blur-md">
+          <div className="flex items-start gap-3 rounded-2xl border border-theresa-green-700/40 bg-white/95 px-4 py-3.5 shadow-lift backdrop-blur-md">
             {toast.type === 'info' ? (
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
             ) : (
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teresa-green-700" />
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-theresa-green-700" />
             )}
             <p className="text-sm leading-snug text-slate-800">{toast.message}</p>
             <button
@@ -60,12 +63,18 @@ export function PortalWorkspace({
       )}
 
       {workspace === 'super_admin' && (
-        <SuperAdminDashboard state={state} onStateChange={setState} onNotify={notify} />
+        <SuperAdminDashboard
+          state={state}
+          siteInfo={siteInfo}
+          onStateChange={setState}
+          onNotify={notify}
+        />
       )}
 
       {workspace === 'headmaster' && (
         <HeadmasterDashboard
           state={state}
+          siteInfo={siteInfo}
           onStateChange={setState}
           onNotify={notify}
           initialTab={
@@ -77,6 +86,7 @@ export function PortalWorkspace({
       {workspace === 'teacher' && (
         <TeacherDashboard
           state={state}
+          siteInfo={siteInfo}
           onStateChange={setState}
           onNotify={notify}
           currentUser={{ fullName: user.fullName, staffId: user.staffId, email: user.email }}
@@ -89,6 +99,7 @@ export function PortalWorkspace({
       {workspace === 'reports' && (
         <ReportCardGenerator
           state={state}
+          siteInfo={siteInfo}
           activeRole={user.role}
           actorName={user.fullName}
           onStateChange={setState}

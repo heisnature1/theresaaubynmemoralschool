@@ -1,11 +1,11 @@
-# St. Teresa Aubyn Memorial School — Website & Staff Portal
+# St Theresa Aubyn Memorial School — Website & Staff Portal
 
 [![Production Deployment](https://img.shields.io/badge/Production-Live-success)](https://theresaaubynmemoralschool.vercel.app)
-[![Version](https://img.shields.io/badge/Version-1.1.0-blue)](https://github.com/heisnature1/theresaaubynmemoralschool)
+[![Version](https://img.shields.io/badge/Version-1.2.0-blue)](https://github.com/heisnature1/theresaaubynmemoralschool)
 
 **Production Website:** [https://theresaaubynmemoralschool.vercel.app](https://theresaaubynmemoralschool.vercel.app)
 
-The public website and the staff records system for **St. Teresa Aubyn Memorial School**, a day
+The public website and the staff records system for **St Theresa Aubyn Memorial School**, a day
 school for KG 1 to JHS 3 founded in 1988.
 
 The website carries the school's notices, term dates, academic programme, fee schedule, admissions
@@ -49,6 +49,36 @@ follows them onto the staff record, and is shown on the application and in the s
 | Administration | `/portal/administrator` | Fee schedule by class, fee payments and receipts, **admissions (enrol a pupil with a photograph)**, teaching applications, report endorsements |
 | Class teacher | `/portal/teacher` | Continuous assessment and exam marks, the daily feeding register by pupil and date, report cards, password change |
 | Report cards | `/portal/reports` | Report cards for any pupil, with a PDF download and a print view |
+
+---
+
+## Website content
+
+Nothing about the school is written into the code. The public website reads every school
+particular from the database at request time, so the office can publish changes without a
+deployment. Where a table is empty or missing, the page shows a short "nothing published yet"
+note instead of inventing copy.
+
+| Content | Table | Where it appears |
+| --- | --- | --- |
+| School name, motto, welcome summary, highlights, digital and postal address, phone numbers, email addresses, office and tour hours, headmaster name/title/message, current semester, next reopening | `school_information` (one row) | Header, footer, home hero, visit card, contact, admissions, academics, sign-in pages |
+| Notices for parents | `site_notices` (with a `published` flag) | Home — notices for parents |
+| History milestones | `history_milestones` | About — the timeline |
+| Gallery photographs | `gallery_items` | Home preview and Gallery |
+| Departments and their subjects | `departments` | Home and Academics |
+| Values | `school_values` | About |
+| Admission steps | `admission_steps` | Admissions |
+| Term dates and calendar | `term_dates` | Home, Academics, footer |
+| Class fee schedule | `class_fee_structures` | Home (first four classes), Academics, Admissions, prospectus PDF |
+| Pupil and staff figures | `students`, `profiles` (counts only) | Home counters and closing line |
+| Staff directory | `profiles` (name, role, class, subjects, qualification) | About |
+| Report letterheads | `school_information` | Report cards and the prospectus PDF |
+
+Run [`supabase/schema.sql`](./supabase/schema.sql) once to create these tables (and the portal
+tables) with their row-level security policies: the website reads with the anon key, and only the
+service role writes. Rows are inserted by the school, either in the Supabase table editor or with
+the example `insert` at the foot of the schema file. Until the `school_information` row and the
+content tables are filled, the live site will show empty states.
 
 ---
 
@@ -112,19 +142,19 @@ A prospectus for parents is generated the same way from `/admissions`.
 Passwords are stored as scrypt hashes in the school records and are never sent to the browser.
 Sessions are signed cookies that expire after eight hours of use.
 
-The accounts created with the school, printed here for the office to change after the first
-sign-in:
+The school is issued with two bootstrap accounts and no other staff records. Change both
+passwords after the first sign-in:
 
 | Role | Email | First password |
 | --- | --- | --- |
-| Super Administrator | `owner@stteresa-aubyn.edu.gh` | `Teresa@1988` |
-| Administrator (Headmaster) | `headmaster@stteresa-aubyn.edu.gh` | `Campus@1988` |
-| Teacher | `e.oseitutu@stteresa-aubyn.edu.gh` | `Teacher@2026` |
+| Super Administrator (proprietor) | `owner@sttheresa-aubyn.edu.gh` | `Theresa@1988` |
+| Administrator (Headmaster) | `headmaster@sttheresa-aubyn.edu.gh` | `Campus@1988` |
 
-Every other teacher on the seeded staff list may sign in with `Staff@2026` and should change it at
-once from **My account**. Five failed sign-in attempts from one address hold further attempts for
-ten minutes. Anyone may change their own password; a forgotten password is reset by the Super
-Administrator from the staff directory.
+The rest of the staff are added by the office: teachers apply through `/register/teacher` and the
+Headmaster approves the application, after which the applicant signs in with the password they
+chose. Five failed sign-in attempts from one address hold further attempts for ten minutes. Anyone
+may change their own password; a forgotten password is reset by the Super Administrator from the
+staff directory.
 
 Set a long random `AUTH_SECRET` in production so that session cookies cannot be forged.
 
@@ -139,9 +169,11 @@ an activity record.
 - **Default (no setup):** records are held on the server, so the school can start work at once.
 - **Hosted database (optional):** set the Supabase variables below, then run
   [`supabase/schema.sql`](./supabase/schema.sql) in the database's SQL editor to create the tables
-  and row-level security policies. The portal writes to both.
+  and row-level security policies. The portal writes to both, and the public website reads its
+  published content from the `school_information`, `site_notices`, `history_milestones`,
+  `gallery_items`, `departments`, `school_values`, `admission_steps` and `term_dates` tables.
 
-The store lives at `/tmp/st-teresa-aubyn-state-v2.json` when no database is configured, which is
+The store lives at `/tmp/st-theresa-aubyn-state-v2.json` when no database is configured, which is
 suitable for a single server but not for a fleet of them.
 
 ---
@@ -179,7 +211,8 @@ AUTH_SECRET=
 - `src/lib/auth.ts` — password hashing, session cookies, role guards
 - `src/lib/pdf.ts` — the PDF writer
 - `src/lib/report-pdf.ts` and `src/lib/prospectus-pdf.ts` — the printed documents
-- `src/lib/store.ts` — school records and the seeded first-run data
+- `src/lib/store.ts` — school records and the two bootstrap staff accounts
+- `src/lib/site-data.ts` — reads the website's published content from the database
 
 ### Layout
 
@@ -196,7 +229,7 @@ src/
     portal/           portal shell and workspace
     *Dashboard.tsx    the three role workspaces
     ReportCardGenerator.tsx
-  lib/                auth, store, grading, PDF writers
+  lib/                auth, store, site-data, grading, PDF writers
 supabase/schema.sql   optional hosted database schema
 ```
 

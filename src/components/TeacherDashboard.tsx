@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import {
   FeedingStatus,
+  SchoolInformation,
   SchoolStateSnapshot,
 } from '@/types/school';
 import {
@@ -30,6 +31,8 @@ import { ReportCardGenerator } from './ReportCardGenerator';
 
 interface TeacherDashboardProps {
   state: SchoolStateSnapshot;
+  /** The school's published particulars, forwarded to the report sheet. */
+  siteInfo?: SchoolInformation | null;
   onStateChange: (newState: SchoolStateSnapshot) => void;
   onNotify: (msg: string, type?: 'success' | 'info') => void;
   initialTab?: 'results' | 'feeding' | 'reports' | 'profile';
@@ -43,6 +46,7 @@ export function TeacherDashboard({
   onNotify,
   initialTab = 'results',
   currentUser,
+  siteInfo,
 }: TeacherDashboardProps) {
   const teachers = useMemo(
     () => state.staff.filter((s) => s.role === 'teacher'),
@@ -334,16 +338,16 @@ export function TeacherDashboard({
   return (
     <div className="space-y-6">
       {/* Signed-in teacher banner */}
-      <div className="animate-fade-up relative overflow-hidden rounded-3xl border border-teresa-gold-400/30 bg-gradient-to-r from-teresa-green-900 via-teresa-green-800 to-teresa-green-900 p-6 text-white shadow-lift">
+      <div className="animate-fade-up relative overflow-hidden rounded-3xl border border-theresa-gold-400/30 bg-gradient-to-r from-theresa-green-900 via-theresa-green-800 to-theresa-green-900 p-6 text-white shadow-lift">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(217,175,55,0.18),transparent_55%)]" />
-          <div className="hero-blob -right-14 -top-20 h-64 w-64 bg-teresa-gold-600/20 animate-float-slow" />
-          <div className="hero-blob -left-12 bottom-[-6rem] h-56 w-56 bg-teresa-green-500/25 animate-float" />
+          <div className="hero-blob -right-14 -top-20 h-64 w-64 bg-theresa-gold-600/20 animate-float-slow" />
+          <div className="hero-blob -left-12 bottom-[-6rem] h-56 w-56 bg-theresa-green-500/25 animate-float" />
           <div className="absolute inset-0 pattern-grid opacity-[0.07]" />
         </div>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teresa-gold-400/20 border border-teresa-gold-400/40 text-teresa-gold-300 text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-theresa-gold-400/20 border border-theresa-gold-400/40 text-theresa-gold-300 text-xs font-bold uppercase tracking-wider">
               <BookOpen className="w-3.5 h-3.5" />
               Class teacher&apos;s desk
             </div>
@@ -351,14 +355,14 @@ export function TeacherDashboard({
               Welcome, {activeTeacher?.fullName || 'Class Teacher'}
             </h2>
             <p className="text-sm text-emerald-100/85">
-              Staff ID: <span className="font-mono font-bold text-teresa-gold-300">{activeTeacher?.staffId}</span> • Primary Class:{' '}
+              Staff ID: <span className="font-mono font-bold text-theresa-gold-300">{activeTeacher?.staffId}</span> • Primary Class:{' '}
               <span className="font-bold text-white">{activeTeacher?.assignedClass || 'All Classes'}</span> • Subjects:{' '}
               {activeTeacher?.subjects.join(', ')}
             </p>
           </div>
 
           <div className="rounded-2xl border border-white/15 bg-white/10 p-3.5 text-xs text-emerald-50">
-            <p className="font-bold uppercase tracking-wider text-teresa-gold-300">Signed in</p>
+            <p className="font-bold uppercase tracking-wider text-theresa-gold-300">Signed in</p>
             <p className="mt-1 font-semibold text-white">
               {currentUser?.fullName || activeTeacher?.fullName}
             </p>
@@ -375,7 +379,7 @@ export function TeacherDashboard({
             onClick={() => setActiveTab('results')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'results'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -388,7 +392,7 @@ export function TeacherDashboard({
             onClick={() => setActiveTab('feeding')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'feeding'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -401,7 +405,7 @@ export function TeacherDashboard({
             onClick={() => setActiveTab('reports')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'reports'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -414,7 +418,7 @@ export function TeacherDashboard({
             onClick={() => setActiveTab('profile')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'profile'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -430,17 +434,17 @@ export function TeacherDashboard({
       {activeTab === 'results' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left 5 cols: Score Entry Form */}
-          <div className="lg:col-span-5 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
+          <div className="lg:col-span-5 bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
+                <span className="text-xs font-bold uppercase tracking-wider text-theresa-gold-700">
                   Continuous assessment and examination
                 </span>
-                <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+                <h3 className="text-xl font-serif font-bold text-theresa-green-950">
                   Enter a subject mark
                 </h3>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-teresa-green-50 flex items-center justify-center text-teresa-green-800">
+              <div className="w-10 h-10 rounded-xl bg-theresa-green-50 flex items-center justify-center text-theresa-green-800">
                 <ClipboardCheck className="w-5 h-5" />
               </div>
             </div>
@@ -493,7 +497,7 @@ export function TeacherDashboard({
                 <select
                   value={currentStudent?.id || ''}
                   onChange={(e) => setSelectedStudentId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-teresa-green-300 bg-teresa-green-50/50 text-sm font-bold text-teresa-green-950 focus:ring-2 focus:ring-teresa-green-600 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-theresa-green-300 bg-theresa-green-50/50 text-sm font-bold text-theresa-green-950 focus:ring-2 focus:ring-theresa-green-600 focus:outline-none"
                 >
                   {filteredResultStudents.map((stu) => (
                     <option key={stu.id} value={stu.id}>
@@ -518,7 +522,7 @@ export function TeacherDashboard({
                       setExamScore(existing.examScore);
                     }
                   }}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-teresa-green-600 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-theresa-green-600 focus:outline-none"
                 >
                   {SCHOOL_SUBJECTS.map((subj) => (
                     <option key={subj} value={subj}>
@@ -541,7 +545,7 @@ export function TeacherDashboard({
                     required
                     value={classScore}
                     onChange={(e) => setClassScore(Math.min(30, Math.max(0, Number(e.target.value))))}
-                    className="mt-1.5 w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-lg font-bold text-teresa-green-950 focus:ring-2 focus:ring-teresa-green-600 focus:outline-none"
+                    className="mt-1.5 w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-lg font-bold text-theresa-green-950 focus:ring-2 focus:ring-theresa-green-600 focus:outline-none"
                   />
                   <span className="text-[11px] text-slate-500 mt-1 block">
                     Homework, tests & project (30%)
@@ -560,7 +564,7 @@ export function TeacherDashboard({
                     required
                     value={examScore}
                     onChange={(e) => setExamScore(Math.min(70, Math.max(0, Number(e.target.value))))}
-                    className="mt-1.5 w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-lg font-bold text-teresa-green-950 focus:ring-2 focus:ring-teresa-green-600 focus:outline-none"
+                    className="mt-1.5 w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-lg font-bold text-theresa-green-950 focus:ring-2 focus:ring-theresa-green-600 focus:outline-none"
                   />
                   <span className="text-[11px] text-slate-500 mt-1 block">
                     End-of-Semester Exam (70%)
@@ -569,18 +573,18 @@ export function TeacherDashboard({
               </div>
 
               {/* Grade preview as marks are typed */}
-              <div className="p-4 rounded-2xl bg-teresa-ivory border border-teresa-gold-300 flex items-center justify-between">
+              <div className="p-4 rounded-2xl bg-theresa-ivory border border-theresa-gold-300 flex items-center justify-between">
                 <div>
                   <div className="text-xs font-bold uppercase text-slate-500">
                     Computed Total & Grade
                   </div>
                   <div className="text-sm font-semibold text-slate-800 mt-0.5">
-                    Remark: <span className="font-bold text-teresa-green-900">{liveGradePreview.remark}</span>
+                    Remark: <span className="font-bold text-theresa-green-900">{liveGradePreview.remark}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="text-right">
-                    <div className="text-2xl font-mono font-extrabold text-teresa-green-950">
+                    <div className="text-2xl font-mono font-extrabold text-theresa-green-950">
                       {liveGradePreview.totalScore}%
                     </div>
                     <div className="text-[10px] uppercase text-slate-500">Out of 100</div>
@@ -596,9 +600,9 @@ export function TeacherDashboard({
               <button
                 type="submit"
                 disabled={submittingResult}
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 hover:from-teresa-green-900 hover:to-teresa-green-800 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition"
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-theresa-green-800 to-theresa-green-700 hover:from-theresa-green-900 hover:to-theresa-green-800 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition"
               >
-                <PlusCircle className="w-4 h-4 text-teresa-gold-300" />
+                <PlusCircle className="w-4 h-4 text-theresa-gold-300" />
                 {submittingResult
                   ? 'Saving Score...'
                   : `Save ${selectedSubject} Result for ${currentStudent?.fullName.split(' ')[0]}`}
@@ -607,7 +611,7 @@ export function TeacherDashboard({
           </div>
 
           {/* Right 7 cols: Current Student's Entered Results & Quick Report Preview */}
-          <div className="lg:col-span-7 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm flex flex-col justify-between">
+          <div className="lg:col-span-7 bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div className="flex items-center gap-3">
@@ -618,15 +622,15 @@ export function TeacherDashboard({
                       className="h-14 w-14 shrink-0 rounded-2xl border-2 border-white object-cover shadow-md"
                     />
                   ) : (
-                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-teresa-green-50 text-teresa-green-800">
+                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-theresa-green-50 text-theresa-green-800">
                       <UserRound className="h-6 w-6" />
                     </span>
                   )}
                   <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-teresa-green-700">
+                  <span className="text-xs font-bold uppercase tracking-wider text-theresa-green-700">
                     Student Academic Transcript ({currentStudent?.className})
                   </span>
-                  <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+                  <h3 className="text-xl font-serif font-bold text-theresa-green-950">
                     {currentStudent?.fullName} — Recorded Subject Scores
                   </h3>
                   </div>
@@ -634,9 +638,9 @@ export function TeacherDashboard({
                 <button
                   type="button"
                   onClick={() => setActiveTab('reports')}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-teresa-gold-100 hover:bg-teresa-gold-200 text-teresa-green-950 text-xs font-bold transition"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-theresa-gold-100 hover:bg-theresa-gold-200 text-theresa-green-950 text-xs font-bold transition"
                 >
-                  <FileSpreadsheet className="w-4 h-4 text-teresa-gold-700" />
+                  <FileSpreadsheet className="w-4 h-4 text-theresa-gold-700" />
                   Open Full Semester Report Card
                 </button>
               </div>
@@ -664,13 +668,13 @@ export function TeacherDashboard({
                             setClassScore(r.classScore);
                             setExamScore(r.examScore);
                           }}
-                          className="hover:bg-teresa-green-50/60 cursor-pointer transition"
+                          className="hover:bg-theresa-green-50/60 cursor-pointer transition"
                           title="Click to load this subject into the score editor"
                         >
                           <td className="py-3 px-4 font-bold text-slate-900">{r.subject}</td>
                           <td className="py-3 px-3 text-center font-mono">{r.classScore}</td>
                           <td className="py-3 px-3 text-center font-mono">{r.examScore}</td>
-                          <td className="py-3 px-3 text-center font-mono font-extrabold text-teresa-green-900">
+                          <td className="py-3 px-3 text-center font-mono font-extrabold text-theresa-green-900">
                             {r.totalScore}
                           </td>
                           <td className="py-3 px-3 text-center">
@@ -691,7 +695,7 @@ export function TeacherDashboard({
               </div>
             </div>
 
-            <div className="mt-4 p-4 rounded-2xl bg-teresa-green-50/70 border border-teresa-green-200 flex items-center justify-between text-xs text-teresa-green-900">
+            <div className="mt-4 p-4 rounded-2xl bg-theresa-green-50/70 border border-theresa-green-200 flex items-center justify-between text-xs text-theresa-green-900">
               <span>
                 <strong>Tip:</strong> Select a subject row to load its marks in the editor on the left.
               </span>
@@ -710,46 +714,46 @@ export function TeacherDashboard({
         <div className="space-y-6">
           {/* Top KPI Summary Bar for Selected Date */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-white rounded-2xl p-5 border border-teresa-green-100 shadow-sm flex items-center justify-between">
+            <div className="bg-white rounded-2xl p-5 border border-theresa-green-100 shadow-sm flex items-center justify-between">
               <div>
                 <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
                   Selected Collection Date
                 </div>
-                <div className="text-xl font-mono font-extrabold text-teresa-green-950 mt-1">
+                <div className="text-xl font-mono font-extrabold text-theresa-green-950 mt-1">
                   {feedingDate}
                 </div>
-                <div className="text-xs text-teresa-green-700 font-medium mt-0.5">
+                <div className="text-xs text-theresa-green-700 font-medium mt-0.5">
                   Logged by {activeTeacher?.fullName}
                 </div>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-teresa-green-50 flex items-center justify-center text-teresa-green-800">
+              <div className="w-12 h-12 rounded-2xl bg-theresa-green-50 flex items-center justify-center text-theresa-green-800">
                 <Calendar className="w-6 h-6" />
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-5 border border-teresa-green-100 shadow-sm flex items-center justify-between">
+            <div className="bg-white rounded-2xl p-5 border border-theresa-green-100 shadow-sm flex items-center justify-between">
               <div>
                 <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
                   Students Fed / Logged ({feedingDate})
                 </div>
-                <div className="text-2xl font-mono font-extrabold text-teresa-green-900 mt-1">
+                <div className="text-2xl font-mono font-extrabold text-theresa-green-900 mt-1">
                   {filteredFeedingLogs.filter((l) => l.status === 'paid').length} Pupils
                 </div>
                 <div className="text-xs text-slate-500 mt-0.5">
                   Out of {state.students.length} enrolled pupils
                 </div>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-teresa-gold-100 flex items-center justify-center text-teresa-gold-800">
+              <div className="w-12 h-12 rounded-2xl bg-theresa-gold-100 flex items-center justify-center text-theresa-gold-800">
                 <Utensils className="w-6 h-6" />
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-5 border border-teresa-gold-300 shadow-sm flex items-center justify-between">
+            <div className="bg-white rounded-2xl p-5 border border-theresa-gold-300 shadow-sm flex items-center justify-between">
               <div>
-                <div className="text-xs font-bold uppercase tracking-wider text-teresa-gold-800">
+                <div className="text-xs font-bold uppercase tracking-wider text-theresa-gold-800">
                   Feeding Cash Collected ({feedingDate})
                 </div>
-                <div className="text-2xl font-mono font-extrabold text-teresa-green-950 mt-1">
+                <div className="text-2xl font-mono font-extrabold text-theresa-green-950 mt-1">
                   {formatCurrency(totalCollectedOnSelectedDate)}
                 </div>
                 <div className="text-xs text-emerald-700 font-semibold mt-0.5">
@@ -764,12 +768,12 @@ export function TeacherDashboard({
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Left 5 cols: Log Daily Feeding Fee by Student Name & Date Form */}
-            <div className="lg:col-span-5 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
+            <div className="lg:col-span-5 bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
               <div className="mb-4">
-                <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
+                <span className="text-xs font-bold uppercase tracking-wider text-theresa-gold-700">
                   Daily feeding register
                 </span>
-                <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+                <h3 className="text-xl font-serif font-bold text-theresa-green-950">
                   Feeding fee by pupil and date
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
@@ -787,7 +791,7 @@ export function TeacherDashboard({
                     required
                     value={feedingDate}
                     onChange={(e) => setFeedingDate(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-mono text-sm font-bold text-teresa-green-950 focus:ring-2 focus:ring-teresa-green-600 focus:outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-mono text-sm font-bold text-theresa-green-950 focus:ring-2 focus:ring-theresa-green-600 focus:outline-none"
                   />
                 </div>
 
@@ -833,7 +837,7 @@ export function TeacherDashboard({
                     placeholder="e.g. Kwame Boateng Mensah"
                     value={feedingStudentNameInput}
                     onChange={(e) => handleSelectFeedingStudentName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-teresa-green-300 bg-teresa-green-50/40 text-sm font-bold text-teresa-green-950 focus:ring-2 focus:ring-teresa-green-600 focus:outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-theresa-green-300 bg-theresa-green-50/40 text-sm font-bold text-theresa-green-950 focus:ring-2 focus:ring-theresa-green-600 focus:outline-none"
                   />
                 </div>
 
@@ -906,9 +910,9 @@ export function TeacherDashboard({
                 <button
                   type="submit"
                   disabled={submittingFeeding}
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 hover:from-teresa-green-900 hover:to-teresa-green-800 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition"
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-theresa-green-800 to-theresa-green-700 hover:from-theresa-green-900 hover:to-theresa-green-800 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition"
                 >
-                  <Utensils className="w-4 h-4 text-teresa-gold-300" />
+                  <Utensils className="w-4 h-4 text-theresa-gold-300" />
                   {submittingFeeding
                     ? 'Recording Collection...'
                     : `Log Feeding Fee for ${feedingDate}`}
@@ -919,13 +923,13 @@ export function TeacherDashboard({
             {/* Right 7 cols: Interactive Class Roll-Call & Daily Feeding Log Table */}
             <div className="lg:col-span-7 space-y-6">
               {/* Quick Class Roll-Call Card */}
-              <div className="bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
+              <div className="bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-wider text-teresa-green-700">
+                    <span className="text-xs font-bold uppercase tracking-wider text-theresa-green-700">
                       1-Click Class Feeding Register ({feedingDate})
                     </span>
-                    <h3 className="text-lg font-serif font-bold text-teresa-green-950">
+                    <h3 className="text-lg font-serif font-bold text-theresa-green-950">
                       Class roll-call for the day
                     </h3>
                   </div>
@@ -948,7 +952,7 @@ export function TeacherDashboard({
                       <button
                         type="button"
                         onClick={() => handleBatchMarkClassPaid(feedingClassFilter)}
-                        className="px-3 py-2 rounded-xl bg-teresa-gold-400 hover:bg-teresa-gold-500 text-teresa-green-950 text-xs font-bold transition"
+                        className="px-3 py-2 rounded-xl bg-theresa-gold-400 hover:bg-theresa-gold-500 text-theresa-green-950 text-xs font-bold transition"
                       >
                         Mark the whole of {feedingClassFilter} as paid
                       </button>
@@ -964,7 +968,7 @@ export function TeacherDashboard({
                     placeholder="Search the register by name or class…"
                     value={feedingSearchQuery}
                     onChange={(e) => setFeedingSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-teresa-green-600 focus:outline-none"
+                    className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-theresa-green-600 focus:outline-none"
                   />
                 </div>
 
@@ -1014,7 +1018,7 @@ export function TeacherDashboard({
                               <td className="py-2.5 px-3 text-center font-mono text-xs text-slate-500">
                                 {feedingDate}
                               </td>
-                              <td className="py-2.5 px-3 text-right font-mono font-bold text-teresa-green-900">
+                              <td className="py-2.5 px-3 text-right font-mono font-bold text-theresa-green-900">
                                 GH₵ {dailyRate}
                               </td>
                               <td className="py-2.5 px-3 text-center">
@@ -1077,13 +1081,13 @@ export function TeacherDashboard({
               </div>
 
               {/* Historical Daily Feeding Collection Log Table */}
-              <div className="bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
-                <h4 className="text-sm font-bold uppercase tracking-wider text-teresa-green-900 mb-3">
+              <div className="bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
+                <h4 className="text-sm font-bold uppercase tracking-wider text-theresa-green-900 mb-3">
                   Recorded Feeding Fee Collections for {feedingDate} ({filteredFeedingLogs.length} Entries)
                 </h4>
                 <div className="overflow-x-auto rounded-2xl border border-slate-200 max-h-60">
                   <table className="w-full text-left border-collapse text-xs">
-                    <thead className="bg-teresa-green-900 text-white uppercase">
+                    <thead className="bg-theresa-green-900 text-white uppercase">
                       <tr>
                         <th className="py-2.5 px-3">Student Name</th>
                         <th className="py-2.5 px-3">Class</th>
@@ -1123,6 +1127,7 @@ export function TeacherDashboard({
       {activeTab === 'reports' && (
         <ReportCardGenerator
           state={state}
+          siteInfo={siteInfo}
           activeRole="teacher"
           actorName={activeTeacher?.fullName || 'Mr. Emmanuel Osei-Tutu'}
           initialStudentId={selectedStudentId}
@@ -1136,8 +1141,8 @@ export function TeacherDashboard({
       {/* ===================================================================== */}
       {activeTab === 'profile' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-5 bg-white rounded-2xl border border-teresa-green-100 p-6 shadow-sm">
-            <h3 className="font-serif text-xl font-bold text-teresa-green-950">My staff record</h3>
+          <div className="lg:col-span-5 bg-white rounded-2xl border border-theresa-green-100 p-6 shadow-sm">
+            <h3 className="font-serif text-xl font-bold text-theresa-green-950">My staff record</h3>
             <dl className="mt-4 space-y-3 text-sm">
               <div>
                 <dt className="text-xs uppercase tracking-wider text-slate-500">Name</dt>
@@ -1174,8 +1179,8 @@ export function TeacherDashboard({
             </p>
           </div>
 
-          <div className="lg:col-span-7 bg-white rounded-2xl border border-teresa-green-100 p-6 shadow-sm">
-            <h3 className="font-serif text-xl font-bold text-teresa-green-950">Change my password</h3>
+          <div className="lg:col-span-7 bg-white rounded-2xl border border-theresa-green-100 p-6 shadow-sm">
+            <h3 className="font-serif text-xl font-bold text-theresa-green-950">Change my password</h3>
             <p className="mt-1 text-sm text-slate-600">
               Passwords must be at least eight characters long and contain a letter and a number.
             </p>
@@ -1190,7 +1195,7 @@ export function TeacherDashboard({
                   required
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full rounded-md border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-teresa-green-700 focus:ring-2 focus:ring-teresa-green-100"
+                  className="w-full rounded-md border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-theresa-green-700 focus:ring-2 focus:ring-theresa-green-100"
                 />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -1204,7 +1209,7 @@ export function TeacherDashboard({
                     minLength={8}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full rounded-md border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-teresa-green-700 focus:ring-2 focus:ring-teresa-green-100"
+                    className="w-full rounded-md border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-theresa-green-700 focus:ring-2 focus:ring-theresa-green-100"
                   />
                 </div>
                 <div>
@@ -1217,7 +1222,7 @@ export function TeacherDashboard({
                     minLength={8}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full rounded-md border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-teresa-green-700 focus:ring-2 focus:ring-teresa-green-100"
+                    className="w-full rounded-md border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-theresa-green-700 focus:ring-2 focus:ring-theresa-green-100"
                   />
                 </div>
               </div>
@@ -1226,7 +1231,7 @@ export function TeacherDashboard({
                 <p
                   className={`rounded-md border px-3.5 py-2.5 text-sm ${
                     passwordMessage.kind === 'ok'
-                      ? 'border-teresa-green-200 bg-teresa-green-50 text-teresa-green-900'
+                      ? 'border-theresa-green-200 bg-theresa-green-50 text-theresa-green-900'
                       : 'border-rose-200 bg-rose-50 text-rose-800'
                   }`}
                 >
@@ -1237,7 +1242,7 @@ export function TeacherDashboard({
               <button
                 type="submit"
                 disabled={changingPassword}
-                className="rounded-md bg-teresa-green-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teresa-green-900 disabled:opacity-60"
+                className="rounded-md bg-theresa-green-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-theresa-green-900 disabled:opacity-60"
               >
                 {changingPassword ? 'Saving…' : 'Change password'}
               </button>

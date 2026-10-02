@@ -24,6 +24,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import {
+  SchoolInformation,
   ClassFeeStructure,
   FeeCategory,
   SchoolStateSnapshot,
@@ -34,6 +35,8 @@ import { PhotoCapture } from '@/components/ui/PhotoCapture';
 
 interface HeadmasterDashboardProps {
   state: SchoolStateSnapshot;
+  /** The school's published particulars, forwarded to the report sheet. */
+  siteInfo?: SchoolInformation | null;
   onStateChange: (newState: SchoolStateSnapshot) => void;
   onNotify: (msg: string, type?: 'success' | 'info') => void;
   initialTab?: 'class_fees' | 'student_payments' | 'admissions' | 'approvals' | 'reports';
@@ -44,6 +47,7 @@ export function HeadmasterDashboard({
   onStateChange,
   onNotify,
   initialTab = 'class_fees',
+  siteInfo,
 }: HeadmasterDashboardProps) {
   const headmaster = useMemo(
     () =>
@@ -339,16 +343,16 @@ export function HeadmasterDashboard({
   return (
     <div className="space-y-6">
       {/* Headmaster Header Banner */}
-      <div className="animate-fade-up relative overflow-hidden rounded-3xl border border-teresa-gold-400/40 bg-gradient-to-r from-teresa-green-950 via-teresa-green-900 to-teresa-green-800 p-6 text-white shadow-lift">
+      <div className="animate-fade-up relative overflow-hidden rounded-3xl border border-theresa-gold-400/40 bg-gradient-to-r from-theresa-green-950 via-theresa-green-900 to-theresa-green-800 p-6 text-white shadow-lift">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(217,175,55,0.18),transparent_55%)]" />
-          <div className="hero-blob -right-16 -top-24 h-64 w-64 bg-teresa-gold-600/20 animate-float-slow" />
-          <div className="hero-blob -left-10 bottom-[-6rem] h-56 w-56 bg-teresa-green-500/25 animate-float" />
+          <div className="hero-blob -right-16 -top-24 h-64 w-64 bg-theresa-gold-600/20 animate-float-slow" />
+          <div className="hero-blob -left-10 bottom-[-6rem] h-56 w-56 bg-theresa-green-500/25 animate-float" />
           <div className="absolute inset-0 pattern-grid opacity-[0.07]" />
         </div>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teresa-gold-400/20 border border-teresa-gold-400/40 text-teresa-gold-300 text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-theresa-gold-400/20 border border-theresa-gold-400/40 text-theresa-gold-300 text-xs font-bold uppercase tracking-wider">
               <ShieldCheck className="w-3.5 h-3.5" />
               Office of the Headmaster &middot; administration and bursary
             </div>
@@ -356,14 +360,14 @@ export function HeadmasterDashboard({
               {headmaster.fullName}
             </h2>
             <p className="text-sm text-emerald-100/85">
-              Staff number <span className="font-mono font-bold text-teresa-gold-300">{headmaster.staffId}</span> &middot; fee schedules, extra classes, meals, staff appointments and terminal reports
+              Staff number <span className="font-mono font-bold text-theresa-gold-300">{headmaster.staffId}</span> &middot; fee schedules, extra classes, meals, staff appointments and terminal reports
             </p>
           </div>
 
           {/* Quick Summary KPIs */}
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-white/15">
-              <div className="text-[10px] uppercase tracking-wider text-teresa-gold-300 font-bold">
+              <div className="text-[10px] uppercase tracking-wider text-theresa-gold-300 font-bold">
                 Tuition received
               </div>
               <div className="text-base font-mono font-extrabold text-white">
@@ -371,7 +375,7 @@ export function HeadmasterDashboard({
               </div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-white/15">
-              <div className="text-[10px] uppercase tracking-wider text-teresa-gold-300 font-bold">
+              <div className="text-[10px] uppercase tracking-wider text-theresa-gold-300 font-bold">
                 Extra Classes
               </div>
               <div className="text-base font-mono font-extrabold text-white">
@@ -379,10 +383,10 @@ export function HeadmasterDashboard({
               </div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-white/15">
-              <div className="text-[10px] uppercase tracking-wider text-teresa-gold-300 font-bold">
+              <div className="text-[10px] uppercase tracking-wider text-theresa-gold-300 font-bold">
                 Applications
               </div>
-              <div className="text-base font-mono font-extrabold text-teresa-gold-300">
+              <div className="text-base font-mono font-extrabold text-theresa-gold-300">
                 {pendingRegistrations.length} awaiting
               </div>
             </div>
@@ -396,7 +400,7 @@ export function HeadmasterDashboard({
             onClick={() => setActiveTab('class_fees')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'class_fees'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -409,7 +413,7 @@ export function HeadmasterDashboard({
             onClick={() => setActiveTab('student_payments')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'student_payments'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -422,7 +426,7 @@ export function HeadmasterDashboard({
             onClick={() => setActiveTab('admissions')}
             className={`group inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
               activeTab === 'admissions'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -435,7 +439,7 @@ export function HeadmasterDashboard({
             onClick={() => setActiveTab('approvals')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
               activeTab === 'approvals'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -453,7 +457,7 @@ export function HeadmasterDashboard({
             onClick={() => setActiveTab('reports')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
               activeTab === 'reports'
-                ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md scale-[1.03]'
+                ? 'bg-theresa-gold-400 text-theresa-green-950 shadow-md scale-[1.03]'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -469,17 +473,17 @@ export function HeadmasterDashboard({
       {activeTab === 'class_fees' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left 4 cols: Interactive Class Fee Rate Editor */}
-          <div className="lg:col-span-4 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
+          <div className="lg:col-span-4 bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
+                <span className="text-xs font-bold uppercase tracking-wider text-theresa-gold-700">
                   Fee rates by class
                 </span>
-                <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+                <h3 className="text-xl font-serif font-bold text-theresa-green-950">
                   Configure {editingClass?.className} Rates
                 </h3>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-teresa-gold-100 flex items-center justify-center text-teresa-gold-800">
+              <div className="w-10 h-10 rounded-xl bg-theresa-gold-100 flex items-center justify-center text-theresa-gold-800">
                 <Edit3 className="w-5 h-5" />
               </div>
             </div>
@@ -497,7 +501,7 @@ export function HeadmasterDashboard({
                     );
                     if (found) selectClassForEditing(found);
                   }}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-teresa-green-300 bg-teresa-green-50/50 text-sm font-bold text-teresa-green-950"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-theresa-green-300 bg-theresa-green-50/50 text-sm font-bold text-theresa-green-950"
                 >
                   {state.classFeeStructures.map((cf) => (
                     <option key={cf.id} value={cf.className}>
@@ -518,7 +522,7 @@ export function HeadmasterDashboard({
                     required
                     value={tuitionDraft}
                     onChange={(e) => setTuitionDraft(Number(e.target.value))}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-300 font-mono text-sm font-bold text-teresa-green-950"
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-300 font-mono text-sm font-bold text-theresa-green-950"
                   />
                 </div>
 
@@ -532,7 +536,7 @@ export function HeadmasterDashboard({
                     required
                     value={extraDraft}
                     onChange={(e) => setExtraDraft(Number(e.target.value))}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-300 font-mono text-sm font-bold text-teresa-gold-800"
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-300 font-mono text-sm font-bold text-theresa-gold-800"
                   />
                 </div>
               </div>
@@ -598,11 +602,11 @@ export function HeadmasterDashboard({
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-teresa-ivory border border-teresa-gold-300 flex items-center justify-between">
+              <div className="p-3.5 rounded-2xl bg-theresa-ivory border border-theresa-gold-300 flex items-center justify-between">
                 <span className="text-xs font-bold uppercase text-slate-600">
                   Full Package ({editingClass?.className}):
                 </span>
-                <span className="font-mono text-base font-extrabold text-teresa-green-950">
+                <span className="font-mono text-base font-extrabold text-theresa-green-950">
                   {formatCurrency(
                     tuitionDraft + extraDraft + semesterMealDraft + ictDraft
                   )}
@@ -612,9 +616,9 @@ export function HeadmasterDashboard({
               <button
                 type="submit"
                 disabled={savingClassFee}
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 hover:from-teresa-green-900 hover:to-teresa-green-800 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition"
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-theresa-green-800 to-theresa-green-700 hover:from-theresa-green-900 hover:to-theresa-green-800 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition"
               >
-                <Save className="w-4 h-4 text-teresa-gold-300" />
+                <Save className="w-4 h-4 text-theresa-gold-300" />
                 {savingClassFee
                   ? 'Updating Schedule...'
                   : `Save ${editingClass?.className} Fee Schedule`}
@@ -623,13 +627,13 @@ export function HeadmasterDashboard({
           </div>
 
           {/* Right 8 cols: Master Class Fee Schedule Table (All Classes) */}
-          <div className="lg:col-span-8 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
+          <div className="lg:col-span-8 bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-teresa-green-700">
+                <span className="text-xs font-bold uppercase tracking-wider text-theresa-green-700">
                   {state.currentSemester} • Master Fee Schedule
                 </span>
-                <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+                <h3 className="text-xl font-serif font-bold text-theresa-green-950">
                   Fee schedule for every class
                 </h3>
               </div>
@@ -641,7 +645,7 @@ export function HeadmasterDashboard({
             <div className="overflow-x-auto rounded-2xl border border-slate-200">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr className="bg-teresa-green-900 text-white text-xs uppercase tracking-wider">
+                  <tr className="bg-theresa-green-900 text-white text-xs uppercase tracking-wider">
                     <th className="py-3.5 px-4 font-bold">Class</th>
                     <th className="py-3.5 px-3 font-bold">Department</th>
                     <th className="py-3.5 px-3 font-bold text-right">Tuition Fee</th>
@@ -660,18 +664,18 @@ export function HeadmasterDashboard({
                         onClick={() => selectClassForEditing(cf)}
                         className={`cursor-pointer transition ${
                           isSelected
-                            ? 'bg-teresa-gold-100/70 font-semibold'
-                            : 'hover:bg-teresa-green-50/50'
+                            ? 'bg-theresa-gold-100/70 font-semibold'
+                            : 'hover:bg-theresa-green-50/50'
                         }`}
                       >
-                        <td className="py-3 px-4 font-bold text-teresa-green-950">
+                        <td className="py-3 px-4 font-bold text-theresa-green-950">
                           {cf.className}
                         </td>
                         <td className="py-3 px-3 text-xs text-slate-600">{cf.department}</td>
                         <td className="py-3 px-3 text-right font-mono font-bold text-slate-900">
                           {formatCurrency(cf.tuitionFee)}
                         </td>
-                        <td className="py-3 px-3 text-right font-mono font-bold text-teresa-gold-800">
+                        <td className="py-3 px-3 text-right font-mono font-bold text-theresa-gold-800">
                           {formatCurrency(cf.extraClassesFee)}
                         </td>
                         <td className="py-3 px-3 text-right font-mono font-bold text-emerald-700">
@@ -697,12 +701,12 @@ export function HeadmasterDashboard({
       {activeTab === 'student_payments' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left 4 cols: Record a fee payment Form */}
-          <div className="lg:col-span-4 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
+          <div className="lg:col-span-4 bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
             <div className="mb-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
+              <span className="text-xs font-bold uppercase tracking-wider text-theresa-gold-700">
                 Bursary desk
               </span>
-              <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+              <h3 className="text-xl font-serif font-bold text-theresa-green-950">
                 Record a fee payment
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -718,7 +722,7 @@ export function HeadmasterDashboard({
                 <select
                   value={paymentStudentId}
                   onChange={(e) => setPaymentStudentId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-teresa-green-300 bg-teresa-green-50/50 text-sm font-bold text-teresa-green-950"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-theresa-green-300 bg-theresa-green-50/50 text-sm font-bold text-theresa-green-950"
                 >
                   {state.students.map((stu) => (
                     <option key={stu.id} value={stu.id}>
@@ -795,9 +799,9 @@ export function HeadmasterDashboard({
               <button
                 type="submit"
                 disabled={submittingPayment}
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 hover:from-teresa-green-900 hover:to-teresa-green-800 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition"
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-theresa-green-800 to-theresa-green-700 hover:from-theresa-green-900 hover:to-theresa-green-800 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition"
               >
-                <Receipt className="w-4 h-4 text-teresa-gold-300" />
+                <Receipt className="w-4 h-4 text-theresa-gold-300" />
                 {submittingPayment
                   ? 'Issuing Official Receipt...'
                   : 'Record Payment & Generate Receipt'}
@@ -807,13 +811,13 @@ export function HeadmasterDashboard({
 
           {/* Right 8 cols: Student Fee Balances by Class & Recent Receipts */}
           <div className="lg:col-span-8 space-y-6">
-            <div className="bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
+            <div className="bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-teresa-green-700">
+                  <span className="text-xs font-bold uppercase tracking-wider text-theresa-green-700">
                     Pupil accounts by class
                   </span>
-                  <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+                  <h3 className="text-xl font-serif font-bold text-theresa-green-950">
                     Tuition, extra classes and meals
                   </h3>
                 </div>
@@ -835,7 +839,7 @@ export function HeadmasterDashboard({
               <div className="overflow-x-auto rounded-2xl border border-slate-200">
                 <table className="w-full text-left border-collapse text-sm">
                   <thead>
-                    <tr className="bg-teresa-green-900 text-white text-xs uppercase">
+                    <tr className="bg-theresa-green-900 text-white text-xs uppercase">
                       <th className="py-3 px-4">Student</th>
                       <th className="py-3 px-3">Class</th>
                       <th className="py-3 px-3 text-right">Tuition Paid / Bill</th>
@@ -866,7 +870,7 @@ export function HeadmasterDashboard({
                                 {stu.studentCode}
                               </div>
                             </td>
-                            <td className="py-3 px-3 font-semibold text-teresa-green-900">
+                            <td className="py-3 px-3 font-semibold text-theresa-green-900">
                               {stu.className}
                             </td>
                             <td className="py-3 px-3 text-right font-mono text-xs">
@@ -876,7 +880,7 @@ export function HeadmasterDashboard({
                               / {formatCurrency(tBill)}
                             </td>
                             <td className="py-3 px-3 text-right font-mono text-xs">
-                              <span className="font-bold text-teresa-gold-800">
+                              <span className="font-bold text-theresa-gold-800">
                                 {formatCurrency(stu.extraClassesPaid)}
                               </span>{' '}
                               / {formatCurrency(eBill)}
@@ -905,8 +909,8 @@ export function HeadmasterDashboard({
             </div>
 
             {/* Recent Official Receipts */}
-            <div className="bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-teresa-green-900 mb-3">
+            <div className="bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
+              <h4 className="text-sm font-bold uppercase tracking-wider text-theresa-green-900 mb-3">
                 Recent Official Fee Receipts Issued ({state.feePayments.length})
               </h4>
               <div className="overflow-x-auto rounded-2xl border border-slate-200 max-h-56">
@@ -924,13 +928,13 @@ export function HeadmasterDashboard({
                   <tbody className="divide-y divide-slate-200">
                     {state.feePayments.map((pay) => (
                       <tr key={pay.id}>
-                        <td className="py-2.5 px-3 font-mono font-bold text-teresa-green-900">
+                        <td className="py-2.5 px-3 font-mono font-bold text-theresa-green-900">
                           {pay.receiptNo}
                         </td>
                         <td className="py-2.5 px-3 font-bold text-slate-800">
                           {pay.studentName} ({pay.className})
                         </td>
-                        <td className="py-2.5 px-3 uppercase font-semibold text-teresa-gold-800">
+                        <td className="py-2.5 px-3 uppercase font-semibold text-theresa-gold-800">
                           {pay.category.replace('_', ' ')}
                         </td>
                         <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-800">
@@ -957,13 +961,13 @@ export function HeadmasterDashboard({
       {activeTab === 'admissions' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Enrolment form */}
-          <section className="lg:col-span-7 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm animate-fade-up">
+          <section className="lg:col-span-7 bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm animate-fade-up">
             <div className="flex items-start justify-between gap-4 mb-5">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
+                <span className="text-xs font-bold uppercase tracking-wider text-theresa-gold-700">
                   Admissions
                 </span>
-                <h3 className="text-2xl font-serif font-bold text-teresa-green-950">
+                <h3 className="text-2xl font-serif font-bold text-theresa-green-950">
                   Enrol a pupil
                 </h3>
                 <p className="mt-1 text-sm text-slate-600">
@@ -972,7 +976,7 @@ export function HeadmasterDashboard({
                   report card.
                 </p>
               </div>
-              <span className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-teresa-green-50 border border-teresa-green-200 text-xs font-bold text-teresa-green-800">
+              <span className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-theresa-green-50 border border-theresa-green-200 text-xs font-bold text-theresa-green-800">
                 <Camera className="w-4 h-4" />
                 Photo required
               </span>
@@ -1002,7 +1006,7 @@ export function HeadmasterDashboard({
                     value={admName}
                     onChange={(e) => setAdmName(e.target.value)}
                     placeholder="e.g. Ama Serwaa Mensah"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70"
                   />
                 </div>
 
@@ -1014,7 +1018,7 @@ export function HeadmasterDashboard({
                     id="admGender"
                     value={admGender}
                     onChange={(e) => setAdmGender(e.target.value as 'Male' | 'Female')}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70"
                   >
                     <option value="Female">Female</option>
                     <option value="Male">Male</option>
@@ -1030,7 +1034,7 @@ export function HeadmasterDashboard({
                     type="date"
                     value={admDob}
                     onChange={(e) => setAdmDob(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70"
                   />
                 </div>
 
@@ -1042,7 +1046,7 @@ export function HeadmasterDashboard({
                     id="admClass"
                     value={admClass}
                     onChange={(e) => setAdmClass(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70"
                   >
                     {SCHOOL_CLASSES.map((cls) => (
                       <option key={cls} value={cls}>
@@ -1062,7 +1066,7 @@ export function HeadmasterDashboard({
                     value={admGuardian}
                     onChange={(e) => setAdmGuardian(e.target.value)}
                     placeholder="e.g. Mrs. Comfort Aubyn-Hammond"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70"
                   />
                 </div>
 
@@ -1076,7 +1080,7 @@ export function HeadmasterDashboard({
                     value={admPhone}
                     onChange={(e) => setAdmPhone(e.target.value)}
                     placeholder="+233 24 000 0000"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70"
                   />
                 </div>
               </div>
@@ -1091,7 +1095,7 @@ export function HeadmasterDashboard({
               <button
                 type="submit"
                 disabled={enrolling}
-                className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 px-6 py-3.5 text-sm font-bold text-white shadow-soft transition hover:shadow-lift disabled:opacity-60 magnetic-btn shine"
+                className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-theresa-green-800 to-theresa-green-700 px-6 py-3.5 text-sm font-bold text-white shadow-soft transition hover:shadow-lift disabled:opacity-60 magnetic-btn shine"
               >
                 {enrolling ? 'Enrolling pupil…' : 'Enrol pupil and issue a student number'}
                 {!enrolling && <UserPlus className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />}
@@ -1101,9 +1105,9 @@ export function HeadmasterDashboard({
 
           {/* Roll and recently enrolled */}
           <aside className="lg:col-span-5 space-y-6">
-            <section className="bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm animate-fade-up anim-delay-2">
-              <h3 className="flex items-center gap-2 text-lg font-serif font-bold text-teresa-green-950">
-                <Users className="w-4 h-4 text-teresa-gold-700" />
+            <section className="bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm animate-fade-up anim-delay-2">
+              <h3 className="flex items-center gap-2 text-lg font-serif font-bold text-theresa-green-950">
+                <Users className="w-4 h-4 text-theresa-gold-700" />
                 Pupils on the roll
               </h3>
               <p className="mt-1 text-xs text-slate-500">
@@ -1120,7 +1124,7 @@ export function HeadmasterDashboard({
                       </span>
                       <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-100">
                         <div
-                          className="h-full rounded-full bg-gradient-to-r from-teresa-green-700 to-teresa-gold-400 transition-[width] duration-700"
+                          className="h-full rounded-full bg-gradient-to-r from-theresa-green-700 to-theresa-gold-400 transition-[width] duration-700"
                           style={{ width: `${(row.count / max) * 100}%` }}
                         />
                       </div>
@@ -1133,10 +1137,10 @@ export function HeadmasterDashboard({
               </div>
             </section>
 
-            <section className="bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm animate-fade-up anim-delay-3">
+            <section className="bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm animate-fade-up anim-delay-3">
               <div className="flex items-center justify-between gap-3">
-                <h3 className="flex items-center gap-2 text-lg font-serif font-bold text-teresa-green-950">
-                  <UserRound className="w-4 h-4 text-teresa-gold-700" />
+                <h3 className="flex items-center gap-2 text-lg font-serif font-bold text-theresa-green-950">
+                  <UserRound className="w-4 h-4 text-theresa-gold-700" />
                   Pupil register
                 </h3>
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600">
@@ -1150,7 +1154,7 @@ export function HeadmasterDashboard({
                   value={pupilSearch}
                   onChange={(e) => setPupilSearch(e.target.value)}
                   placeholder="Search by name, class or guardian"
-                  className="w-full rounded-xl border border-slate-300 py-2.5 pl-9 pr-3 text-sm outline-none transition focus:border-teresa-green-700 focus:ring-4 focus:ring-teresa-green-100/70"
+                  className="w-full rounded-xl border border-slate-300 py-2.5 pl-9 pr-3 text-sm outline-none transition focus:border-theresa-green-700 focus:ring-4 focus:ring-theresa-green-100/70"
                 />
               </div>
 
@@ -1158,7 +1162,7 @@ export function HeadmasterDashboard({
                 {filteredPupils.map((pupil) => (
                   <li
                     key={pupil.id}
-                    className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-2.5 transition hover:border-teresa-green-300 hover:bg-teresa-green-50/50"
+                    className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-2.5 transition hover:border-theresa-green-300 hover:bg-theresa-green-50/50"
                   >
                     {pupil.photo ? (
                       <img
@@ -1167,7 +1171,7 @@ export function HeadmasterDashboard({
                         className="h-11 w-11 shrink-0 rounded-xl border border-white object-cover shadow-sm"
                       />
                     ) : (
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teresa-green-50 text-teresa-green-800">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-theresa-green-50 text-theresa-green-800">
                         <UserRound className="h-5 w-5" />
                       </span>
                     )}
@@ -1177,7 +1181,7 @@ export function HeadmasterDashboard({
                         {pupil.className} &middot; {pupil.studentCode}
                       </p>
                     </div>
-                    <span className="shrink-0 rounded-full bg-teresa-green-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-teresa-green-800">
+                    <span className="shrink-0 rounded-full bg-theresa-green-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-theresa-green-800">
                       {pupil.gender === 'Female' ? 'F' : 'M'}
                     </span>
                   </li>
@@ -1195,20 +1199,20 @@ export function HeadmasterDashboard({
 
       {activeTab === 'approvals' && (
         <div className="space-y-6">
-          <div className="bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
+          <div className="bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
+                <span className="text-xs font-bold uppercase tracking-wider text-theresa-gold-700">
                   Teaching applications
                 </span>
-                <h3 className="text-2xl font-serif font-bold text-teresa-green-950">
+                <h3 className="text-2xl font-serif font-bold text-theresa-green-950">
                   Teaching applications waiting for a decision
                 </h3>
                 <p className="text-sm text-slate-600">
                   Applications submitted through the school website. Approving a teacher issues their staff number and opens access to the teacher portal; applicants sign in with the password they chose when applying.
                 </p>
               </div>
-              <div className="px-4 py-2 rounded-2xl bg-teresa-ivory border border-teresa-gold-300 text-sm font-bold text-teresa-green-950">
+              <div className="px-4 py-2 rounded-2xl bg-theresa-ivory border border-theresa-gold-300 text-sm font-bold text-theresa-green-950">
                 {pendingRegistrations.length} Pending Approval •{' '}
                 {state.teacherRegistrations.filter((r) => r.status === 'approved').length}{' '}
                 Approved
@@ -1226,7 +1230,7 @@ export function HeadmasterDashboard({
                     key={reg.id}
                     className={`p-5 rounded-2xl border transition hover:shadow-md ${
                       isPending
-                        ? 'bg-amber-50/40 border-teresa-gold-400 shadow-sm'
+                        ? 'bg-amber-50/40 border-theresa-gold-400 shadow-sm'
                         : 'bg-slate-50 border-slate-200'
                     }`}
                   >
@@ -1246,7 +1250,7 @@ export function HeadmasterDashboard({
                         )}
                       <div className="space-y-1.5">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h4 className="text-lg font-serif font-bold text-teresa-green-950">
+                          <h4 className="text-lg font-serif font-bold text-theresa-green-950">
                             {reg.fullName}
                           </h4>
                           {reg.status === 'pending' && (
@@ -1270,7 +1274,7 @@ export function HeadmasterDashboard({
                         </div>
 
                         <div className="text-sm font-medium text-slate-700">
-                          <span className="font-bold text-teresa-green-900">
+                          <span className="font-bold text-theresa-green-900">
                             Qualification:
                           </span>{' '}
                           {reg.qualification} ({reg.experienceYears} yrs experience)
@@ -1309,7 +1313,7 @@ export function HeadmasterDashboard({
                                 [reg.id]: e.target.value,
                               }))
                             }
-                            className="px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold text-teresa-green-950"
+                            className="px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold text-theresa-green-950"
                           >
                             {SCHOOL_CLASSES.map((cls) => (
                               <option key={cls} value={cls}>
@@ -1374,6 +1378,7 @@ export function HeadmasterDashboard({
       {activeTab === 'reports' && (
         <ReportCardGenerator
           state={state}
+          siteInfo={siteInfo}
           activeRole="headmaster"
           actorName={headmaster.fullName}
           onStateChange={onStateChange}

@@ -1,5 +1,5 @@
 -- =============================================================================
--- ST. TERESA AUBYN MEMORIAL SCHOOL - SCHOOL RECORDS DATABASE (POSTGRESQL)
+-- ST THERESA AUBYN MEMORIAL SCHOOL - SCHOOL RECORDS DATABASE (POSTGRESQL)
 --
 -- Optional. The portal runs on the server's own store out of the box; run this
 -- file only if the school wants its records held in a hosted PostgreSQL
@@ -246,3 +246,168 @@ create policy "Allow service and authenticated full access to audit logs" on pub
 alter table public.profiles add column if not exists photo text;
 alter table public.teacher_registrations add column if not exists passport_photo text;
 alter table public.students add column if not exists photo text;
+
+-- =============================================================================
+-- WEBSITE CONTENT
+--
+-- The public website reads these tables with the anon key and writes nothing.
+-- The school's own staff publish through the portal (service role) only.
+-- Every table is optional: where a table is missing or empty the website shows
+-- its "nothing published yet" placeholder instead of inventing particulars.
+-- =============================================================================
+
+-- 11. School Information (one row; the website's masthead, contacts and welcome)
+create table if not exists public.school_information (
+  id integer primary key default 1 check (id = 1),
+  school_name text,
+  motto text,
+  about_summary text,
+  digital_address text,
+  founded_year integer,
+  highlights text[] not null default '{}',
+  tour_hours text,
+  office_hours text,
+  main_phone text,
+  headmaster_phone text,
+  bursary_phone text,
+  general_email text,
+  headmaster_email text,
+  owner_email text,
+  postal_address text,
+  headmaster_name text,
+  headmaster_title text,
+  headmaster_message text,
+  current_semester text,
+  next_reopening text,
+  updated_at timestamptz not null default now()
+);
+
+-- 12. Notices for parents (published flag controls what the website shows)
+create table if not exists public.site_notices (
+  id uuid primary key default uuid_generate_v4(),
+  date_label text not null,
+  title text not null,
+  body text not null default '',
+  tag text not null default 'Notice',
+  published boolean not null default true,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+-- 13. History milestones (About → the school's timeline)
+create table if not exists public.history_milestones (
+  id uuid primary key default uuid_generate_v4(),
+  year text not null,
+  era_title text,
+  headline text not null default '',
+  description text not null default '',
+  highlight_metric text,
+  icon_name text,
+  sort_order integer not null default 0
+);
+
+-- 14. Gallery photographs (ordered on the site as each was added)
+create table if not exists public.gallery_items (
+  id uuid primary key default uuid_generate_v4(),
+  title text not null,
+  category text not null default 'Campus & Heritage',
+  image_url text not null,
+  caption text not null default '',
+  date_label text,
+  featured boolean not null default false,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+-- 15. Academic departments (About and Academics pages)
+create table if not exists public.departments (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  classes text,
+  subjects text[] not null default '{}',
+  note text,
+  sort_order integer not null default 0
+);
+
+-- 16. The school's values (About page)
+create table if not exists public.school_values (
+  id uuid primary key default uuid_generate_v4(),
+  title text not null,
+  body text not null default '',
+  sort_order integer not null default 0
+);
+
+-- 17. Admission steps (Admissions page)
+create table if not exists public.admission_steps (
+  id uuid primary key default uuid_generate_v4(),
+  step text not null,
+  title text not null,
+  body text not null default '',
+  sort_order integer not null default 0
+);
+
+-- 18. Term dates and school calendar (Home, Academics and the footer)
+create table if not exists public.term_dates (
+  id uuid primary key default uuid_generate_v4(),
+  label text not null,
+  detail text not null,
+  sort_order integer not null default 0
+);
+
+-- -----------------------------------------------------------------------------
+-- Row level security: the website (anon) may read; only the service role writes.
+-- -----------------------------------------------------------------------------
+alter table public.school_information enable row level security;
+alter table public.site_notices enable row level security;
+alter table public.history_milestones enable row level security;
+alter table public.gallery_items enable row level security;
+alter table public.departments enable row level security;
+alter table public.school_values enable row level security;
+alter table public.admission_steps enable row level security;
+alter table public.term_dates enable row level security;
+
+create policy "Public read school information" on public.school_information
+  for select using (true);
+create policy "Public read site notices" on public.site_notices
+  for select using (true);
+create policy "Public read history milestones" on public.history_milestones
+  for select using (true);
+create policy "Public read gallery items" on public.gallery_items
+  for select using (true);
+create policy "Public read departments" on public.departments
+  for select using (true);
+create policy "Public read school values" on public.school_values
+  for select using (true);
+create policy "Public read admission steps" on public.admission_steps
+  for select using (true);
+create policy "Public read term dates" on public.term_dates
+  for select using (true);
+
+create policy "Service role writes school information" on public.school_information
+  for all to service_role using (true) with check (true);
+create policy "Service role writes site notices" on public.site_notices
+  for all to service_role using (true) with check (true);
+create policy "Service role writes history milestones" on public.history_milestones
+  for all to service_role using (true) with check (true);
+create policy "Service role writes gallery items" on public.gallery_items
+  for all to service_role using (true) with check (true);
+create policy "Service role writes departments" on public.departments
+  for all to service_role using (true) with check (true);
+create policy "Service role writes school values" on public.school_values
+  for all to service_role using (true) with check (true);
+create policy "Service role writes admission steps" on public.admission_steps
+  for all to service_role using (true) with check (true);
+create policy "Service role writes term dates" on public.term_dates
+  for all to service_role using (true) with check (true);
+
+-- -----------------------------------------------------------------------------
+-- Publishing content. Replace the values with the school's own particulars and
+-- run the insert once; the website picks it up on the next request.
+-- -----------------------------------------------------------------------------
+-- insert into public.school_information (id, school_name, about_summary, current_semester)
+-- values (1, 'St Theresa Aubyn Memorial School', 'A short welcome to parents.', '2026/2027 - First Semester')
+-- on conflict (id) do update set
+--   school_name = excluded.school_name,
+--   about_summary = excluded.about_summary,
+--   current_semester = excluded.current_semester,
+--   updated_at = now();

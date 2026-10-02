@@ -5,7 +5,15 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, Mail, Menu, Phone, Sparkles, X } from 'lucide-react';
 import { SchoolCrest } from '@/components/SchoolCrest';
-import { OFFICE_CONTACTS } from '@/lib/constants';
+import { SCHOOL_NAME } from '@/lib/constants';
+
+/** The contact details the office has published; anything absent is not shown. */
+export interface HeaderContacts {
+  mainPhone: string | null;
+  generalEmail: string | null;
+  postalAddress: string | null;
+  digitalAddress: string | null;
+}
 
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
@@ -22,7 +30,17 @@ const PORTAL_LINKS = [
   { href: '/login/teacher', label: 'Teacher', hint: 'Class and subject teachers' },
 ];
 
-export function SiteHeader() {
+export function SiteHeader({ contacts }: { contacts?: HeaderContacts }) {
+  const office = {
+    mainPhone: contacts?.mainPhone ?? null,
+    generalEmail: contacts?.generalEmail ?? null,
+    postalAddress: contacts?.postalAddress ?? null,
+    digitalAddress: contacts?.digitalAddress ?? null,
+  };
+  const hasOfficeDetails = Boolean(
+    office.mainPhone || office.generalEmail || office.postalAddress || office.digitalAddress
+  );
+
   const pathname = usePathname();
   const [portalOpen, setPortalOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -65,34 +83,42 @@ export function SiteHeader() {
       }`}
     >
       {/* Office contact strip — slides away once the reader scrolls */}
-      <div
-        className={`overflow-hidden bg-gradient-to-r from-teresa-green-950 via-teresa-green-900 to-teresa-green-950 text-[12px] text-emerald-50 transition-all duration-500 ${
-          scrolled ? 'max-h-0 opacity-0' : 'max-h-12 opacity-100'
-        }`}
-      >
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 lg:px-6">
-          <p className="hidden items-center gap-2 text-emerald-100/90 sm:flex">
-            <span className="inline-flex h-1.5 w-1.5 animate-pulse rounded-full bg-teresa-gold-400" />
-            P.O. Box TA 188 &middot; No. 18 Teresa Aubyn Heritage Avenue &middot; {OFFICE_CONTACTS.digitalAddress}
-          </p>
-          <div className="flex items-center gap-5">
-            <a
-              href={`tel:${OFFICE_CONTACTS.mainPhone.replace(/\s/g, '')}`}
-              className="flex items-center gap-1.5 transition hover:text-teresa-gold-300"
-            >
-              <Phone className="h-3.5 w-3.5" />
-              {OFFICE_CONTACTS.mainPhone}
-            </a>
-            <a
-              href={`mailto:${OFFICE_CONTACTS.generalEmail}`}
-              className="hidden items-center gap-1.5 transition hover:text-teresa-gold-300 sm:flex"
-            >
-              <Mail className="h-3.5 w-3.5" />
-              {OFFICE_CONTACTS.generalEmail}
-            </a>
+      {hasOfficeDetails && (
+        <div
+          className={`overflow-hidden bg-gradient-to-r from-theresa-green-950 via-theresa-green-900 to-theresa-green-950 text-[12px] text-emerald-50 transition-all duration-500 ${
+            scrolled ? 'max-h-0 opacity-0' : 'max-h-12 opacity-100'
+          }`}
+        >
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 lg:px-6">
+            {(office.postalAddress || office.digitalAddress) && (
+              <p className="hidden items-center gap-2 text-emerald-100/90 sm:flex">
+                <span className="inline-flex h-1.5 w-1.5 animate-pulse rounded-full bg-theresa-gold-400" />
+                {[office.postalAddress, office.digitalAddress].filter(Boolean).join(' \u00b7 ')}
+              </p>
+            )}
+            <div className="flex items-center gap-5">
+              {office.mainPhone && (
+                <a
+                  href={`tel:${office.mainPhone.replace(/\s/g, '')}`}
+                  className="flex items-center gap-1.5 transition hover:text-theresa-gold-300"
+                >
+                  <Phone className="h-3.5 w-3.5" />
+                  {office.mainPhone}
+                </a>
+              )}
+              {office.generalEmail && (
+                <a
+                  href={`mailto:${office.generalEmail}`}
+                  className="hidden items-center gap-1.5 transition hover:text-theresa-gold-300 sm:flex"
+                >
+                  <Mail className="h-3.5 w-3.5" />
+                  {office.generalEmail}
+                </a>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Crest, name, navigation */}
       <div className="mx-auto max-w-6xl px-4 lg:px-6">
@@ -104,14 +130,14 @@ export function SiteHeader() {
           <Link href="/" className="group flex items-center gap-3">
             <span className="relative">
               <SchoolCrest size="md" className="transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6" />
-              <span className="absolute inset-0 -z-10 rounded-full bg-teresa-gold-400/30 opacity-0 blur-md transition-opacity duration-500 group-hover:opacity-100" />
+              <span className="absolute inset-0 -z-10 rounded-full bg-theresa-gold-400/30 opacity-0 blur-md transition-opacity duration-500 group-hover:opacity-100" />
             </span>
             <span className="leading-tight">
-              <span className="block font-serif text-[17px] font-bold text-teresa-green-900 sm:text-[21px]">
-                St. Teresa Aubyn Memorial School
+              <span className="block font-serif text-[17px] font-bold text-theresa-green-900 sm:text-[21px]">
+                {SCHOOL_NAME}
               </span>
-              <span className="block text-[10px] uppercase tracking-[0.18em] text-teresa-gold-700 sm:text-[11px]">
-                Nursery, Primary &amp; Junior High &middot; Est. 1988
+              <span className="block text-[10px] uppercase tracking-[0.18em] text-theresa-gold-700 sm:text-[11px]">
+                Nursery, Primary &amp; Junior High
               </span>
             </span>
           </Link>
@@ -119,9 +145,9 @@ export function SiteHeader() {
           <div className="hidden items-center gap-3 lg:flex">
             <Link
               href="/admissions"
-              className="group relative overflow-hidden rounded-xl border border-teresa-green-800 px-4 py-2 text-sm font-semibold text-teresa-green-900 transition hover:text-white"
+              className="group relative overflow-hidden rounded-xl border border-theresa-green-800 px-4 py-2 text-sm font-semibold text-theresa-green-900 transition hover:text-white"
             >
-              <span className="absolute inset-0 -translate-y-full bg-teresa-green-800 transition-transform duration-400 group-hover:translate-y-0 ease-[cubic-bezier(0.16,1,0.3,1)]" />
+              <span className="absolute inset-0 -translate-y-full bg-theresa-green-800 transition-transform duration-400 group-hover:translate-y-0 ease-[cubic-bezier(0.16,1,0.3,1)]" />
               <span className="relative">Apply for admission</span>
             </Link>
 
@@ -130,9 +156,9 @@ export function SiteHeader() {
                 type="button"
                 onClick={() => setPortalOpen((open) => !open)}
                 aria-expanded={portalOpen}
-                className="group inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:shadow-lift magnetic-btn shine"
+                className="group inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-theresa-green-800 to-theresa-green-700 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:shadow-lift magnetic-btn shine"
               >
-                <Sparkles className="h-4 w-4 text-teresa-gold-300" />
+                <Sparkles className="h-4 w-4 text-theresa-gold-300" />
                 Staff sign-in
                 <ChevronDown
                   className={`h-4 w-4 transition-transform duration-300 ${portalOpen ? 'rotate-180' : ''}`}
@@ -150,7 +176,7 @@ export function SiteHeader() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="block rounded-xl px-3 py-2 transition hover:bg-teresa-green-50"
+                    className="block rounded-xl px-3 py-2 transition hover:bg-theresa-green-50"
                   >
                     <span className="block text-sm font-semibold text-slate-800">{link.label}</span>
                     <span className="block text-xs text-slate-500">{link.hint}</span>
@@ -159,7 +185,7 @@ export function SiteHeader() {
                 <div className="mt-1 border-t border-slate-100 pt-1">
                   <Link
                     href="/register/teacher"
-                    className="block rounded-xl px-3 py-2 text-sm font-semibold text-teresa-green-800 transition hover:bg-teresa-green-50"
+                    className="block rounded-xl px-3 py-2 text-sm font-semibold text-theresa-green-800 transition hover:bg-theresa-green-50"
                   >
                     Apply for a teaching post
                   </Link>
@@ -186,7 +212,7 @@ export function SiteHeader() {
               href={link.href}
               data-active={isActive(link.href)}
               className={`underline-grow transition-colors ${
-                isActive(link.href) ? 'font-semibold text-teresa-green-900' : 'hover:text-teresa-green-800'
+                isActive(link.href) ? 'font-semibold text-theresa-green-900' : 'hover:text-theresa-green-800'
               }`}
             >
               {link.label}
@@ -194,9 +220,9 @@ export function SiteHeader() {
           ))}
           <Link
             href="/register/teacher"
-            className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-teresa-gold-100 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-teresa-gold-800 transition hover:bg-teresa-gold-200"
+            className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-theresa-gold-100 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-theresa-gold-800 transition hover:bg-theresa-gold-200"
           >
-            <span className="inline-flex h-1.5 w-1.5 animate-pulse rounded-full bg-teresa-gold-600" />
+            <span className="inline-flex h-1.5 w-1.5 animate-pulse rounded-full bg-theresa-gold-600" />
             Teaching vacancies
           </Link>
         </nav>
@@ -216,7 +242,7 @@ export function SiteHeader() {
                   style={{ animationDelay: `${index * 40}ms` }}
                   className={`animate-fade-right rounded-xl px-3 py-2 ${
                     isActive(link.href)
-                      ? 'bg-teresa-green-50 font-semibold text-teresa-green-900'
+                      ? 'bg-theresa-green-50 font-semibold text-theresa-green-900'
                       : 'text-slate-700 hover:bg-slate-50'
                   }`}
                 >
@@ -239,7 +265,7 @@ export function SiteHeader() {
               ))}
               <Link
                 href="/register/teacher"
-                className="rounded-xl px-3 py-2 text-sm font-semibold text-teresa-green-800 hover:bg-teresa-green-50"
+                className="rounded-xl px-3 py-2 text-sm font-semibold text-theresa-green-800 hover:bg-theresa-green-50"
               >
                 Apply for a teaching post
               </Link>

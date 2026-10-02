@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import { getSchoolState } from '@/lib/store';
+import { Clock, Mail, Phone } from 'lucide-react';
 import { formatCurrency } from '@/lib/grading';
-import { ADMISSION_STEPS, OFFICE_CONTACTS, TERM_DATES } from '@/lib/constants';
+import { getSiteData } from '@/lib/site-data';
+import { getSchoolState } from '@/lib/store';
 import { ProspectusDownload } from '@/components/site/ProspectusDownload';
 import { PageHero } from '@/components/site/PageHero';
 import { Reveal } from '@/components/site/Reveal';
@@ -9,23 +10,20 @@ import { Reveal } from '@/components/site/Reveal';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Admissions | St. Teresa Aubyn Memorial School',
-  description:
-    'How to apply for a place at St. Teresa Aubyn Memorial School, the documents required, assessment arrangements and the current fee schedule.',
+  title: 'Admissions',
+  description: 'How to apply for a place, the steps in the process and the current fee schedule.',
 };
 
-const REQUIREMENTS = [
-  ['KG 1 – KG 2', 'Birth certificate, immunisation card, two passport photographs. The pupil must be four years old by the start of the semester.'],
-  ['Basic 1 – Basic 3', 'Birth certificate, most recent school report, transfer letter where applicable. A short reading and number assessment is given.'],
-  ['Basic 4 – Basic 6', 'Birth certificate, two years of school reports, transfer letter. Assessment in English and Mathematics.'],
-  ['JHS 1 – JHS 3', 'Transfer letter, BECE registration details where applicable, and the last two terminal reports. Interview with the Headmaster.'],
-];
+const SAMPLE_CLASSES = ['KG 1', 'Basic 4', 'JHS 1'];
 
-export default function AdmissionsPage() {
+export default async function AdmissionsPage() {
+  const content = await getSiteData();
   const state = getSchoolState();
-  const sampleFees = state.classFeeStructures.filter((row) =>
-    ['KG 1', 'Basic 4', 'JHS 1'].includes(row.className)
-  );
+
+  const { info, admissionSteps, feeRows } = content;
+  const requested = feeRows.filter((row) => SAMPLE_CLASSES.includes(row.className));
+  const sampleFees = requested.length > 0 ? requested : feeRows.slice(0, 3);
+  const hasContactDetails = Boolean(info?.tourHours || info?.officeHours || info?.mainPhone || info?.generalEmail);
 
   return (
     <>
@@ -34,151 +32,158 @@ export default function AdmissionsPage() {
         title="Applying for a place"
         image="/images/campus-hero.jpg"
       >
-          <p className="max-w-3xl leading-relaxed">
-            Places are offered throughout the year when a class has room, and in good time for the
-            semester beginning {TERM_DATES[4].detail}. Applications are considered in the order they
-            are received, and brothers and sisters of current pupils are given preference.
-          </p>
-          <div className="mt-7 flex flex-wrap items-center gap-3">
-            <ProspectusDownload state={state} />
-            <Link
-              href="/contact"
-              className="inline-flex items-center rounded-xl bg-teresa-green-800 px-5 py-3 text-sm font-semibold text-white hover:bg-teresa-green-900 magnetic-btn shine"
-            >
-              Book a visit or ask a question
-            </Link>
-          </div>
+        <p className="max-w-3xl leading-relaxed">
+          Places are offered throughout the year when a class has room.
+          {info?.nextReopening ? ` The next semester begins ${info.nextReopening}.` : ''} Applications
+          are considered in the order they are received.
+        </p>
+        <div className="mt-7 flex flex-wrap items-center gap-3">
+          <ProspectusDownload state={state} content={content} />
+          <Link
+            href="/contact"
+            className="inline-flex items-center rounded-xl bg-theresa-green-800 px-5 py-3 text-sm font-semibold text-white hover:bg-theresa-green-900 magnetic-btn shine"
+          >
+            Book a visit or ask a question
+          </Link>
+        </div>
       </PageHero>
 
       <Reveal as="section" variant="fade" className="border-b border-slate-200 bg-[#FCFBF7]">
         <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
-          <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
-            Four steps from enquiry to registration
+          <h2 className="font-serif text-2xl font-bold text-theresa-green-950">
+            From enquiry to registration
           </h2>
-          <ol className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {ADMISSION_STEPS.map((step) => (
-              <li key={step.step} className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-soft card-lift">
-                <span className="font-serif text-2xl font-bold text-teresa-gold-600">{step.step}</span>
-                <h3 className="mt-2 font-serif text-lg font-bold text-teresa-green-950">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">{step.body}</p>
-              </li>
-            ))}
-          </ol>
+          {admissionSteps.length > 0 ? (
+            <ol className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {admissionSteps.map((step) => (
+                <li key={step.id} className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-soft card-lift">
+                  {step.step && (
+                    <span className="font-serif text-2xl font-bold text-theresa-gold-600">{step.step}</span>
+                  )}
+                  <h3 className="mt-2 font-serif text-lg font-bold text-theresa-green-950">{step.title}</h3>
+                  {step.body && (
+                    <p className="mt-2 text-sm leading-relaxed text-slate-600">{step.body}</p>
+                  )}
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white/70 p-6 text-sm text-slate-600">
+              Nothing published yet.
+            </p>
+          )}
         </div>
       </Reveal>
 
       <Reveal as="section" variant="fade" className="border-b border-slate-200 bg-white">
         <div className="mx-auto grid max-w-6xl gap-12 px-4 py-14 lg:grid-cols-12 lg:px-6">
           <div className="lg:col-span-7">
-            <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
-              What to bring with the application
+            <h2 className="font-serif text-2xl font-bold text-theresa-green-950">
+              Visiting the school
             </h2>
-            <dl className="mt-6 divide-y divide-slate-200 border-y border-slate-200">
-              {REQUIREMENTS.map(([level, detail]) => (
-                <div key={level} className="py-4">
-                  <dt className="font-semibold text-slate-900">{level}</dt>
-                  <dd className="mt-1 text-sm leading-relaxed text-slate-600">{detail}</dd>
-                </div>
-              ))}
-            </dl>
+            {info?.tourHours || info?.officeHours ? (
+              <dl className="mt-6 divide-y divide-slate-200 border-y border-slate-200 text-sm">
+                {info?.tourHours && (
+                  <div className="flex flex-col gap-1 py-4 sm:flex-row sm:items-baseline sm:gap-6">
+                    <dt className="flex w-48 shrink-0 items-center gap-2 font-semibold text-slate-900">
+                      <Clock className="h-4 w-4 text-theresa-gold-600" />
+                      Parent tours
+                    </dt>
+                    <dd className="text-slate-600">{info.tourHours}</dd>
+                  </div>
+                )}
+                {info?.officeHours && (
+                  <div className="flex flex-col gap-1 py-4 sm:flex-row sm:items-baseline sm:gap-6">
+                    <dt className="flex w-48 shrink-0 items-center gap-2 font-semibold text-slate-900">
+                      <Clock className="h-4 w-4 text-theresa-gold-600" />
+                      Office hours
+                    </dt>
+                    <dd className="text-slate-600">{info.officeHours}</dd>
+                  </div>
+                )}
+              </dl>
+            ) : (
+              <p className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-[#FCFBF7] p-6 text-sm text-slate-600">
+                Nothing published yet. Please use the contact page to reach the school office.
+              </p>
+            )}
 
-            <h2 className="mt-12 font-serif text-2xl font-bold text-teresa-green-950">
-              Assessment for older applicants
-            </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-700">
-              Applicants to Basic 2 and above sit a forty-five minute assessment in English and
-              Mathematics, set from the previous year&apos;s syllabus. There is nothing to prepare
-              beyond the work the child has already done at their present school. Results are given
-              to parents by telephone within three working days.
+            <p className="mt-6 text-sm leading-relaxed text-slate-700">
+              The school office answers admission enquiries directly. Applicants may be invited to a
+              short assessment or a meeting with the Headmaster before a place is offered.
             </p>
           </div>
 
           <aside className="lg:col-span-5">
             <div className="rounded-2xl border border-slate-200/80 bg-[#FCFBF7] p-6 shadow-soft card-lift">
-              <h2 className="font-serif text-lg font-bold text-teresa-green-950">
+              <h2 className="font-serif text-lg font-bold text-theresa-green-950">
                 Fees for a few classes
               </h2>
-              <p className="mt-1 text-xs text-slate-500">{state.currentSemester}</p>
-              <table className="mt-4 w-full border-collapse text-sm">
-                <thead>
-                  <tr className="text-left text-xs uppercase tracking-wider text-slate-500">
-                    <th className="py-2 font-semibold">Class</th>
-                    <th className="py-2 font-semibold">Tuition</th>
-                    <th className="py-2 font-semibold">Meal / day</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {sampleFees.map((row) => (
-                    <tr key={row.id}>
-                      <th scope="row" className="py-2.5 text-left font-semibold text-slate-900">
-                        {row.className}
-                      </th>
-                      <td className="py-2.5 text-slate-700">{formatCurrency(row.tuitionFee)}</td>
-                      <td className="py-2.5 text-slate-700">{formatCurrency(row.dailyMealFee)}</td>
+              {info?.currentSemester && (
+                <p className="mt-1 text-xs text-slate-500">{info.currentSemester}</p>
+              )}
+              {sampleFees.length > 0 ? (
+                <table className="mt-4 w-full border-collapse text-sm">
+                  <thead>
+                    <tr className="text-left text-xs uppercase tracking-wider text-slate-500">
+                      <th className="py-2 font-semibold">Class</th>
+                      <th className="py-2 font-semibold">Tuition</th>
+                      <th className="py-2 font-semibold">Meal / day</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {sampleFees.map((row) => (
+                      <tr key={row.id}>
+                        <th scope="row" className="py-2.5 text-left font-semibold text-slate-900">
+                          {row.className}
+                        </th>
+                        <td className="py-2.5 text-slate-700">{formatCurrency(row.tuitionFee)}</td>
+                        <td className="py-2.5 text-slate-700">{formatCurrency(row.dailyMealFee)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="mt-4 text-sm text-slate-600">Nothing published yet.</p>
+              )}
               <Link
                 href="/academics#fees"
-                className="mt-4 inline-block text-sm font-semibold text-teresa-green-800 hover:underline"
+                className="mt-4 inline-block text-sm font-semibold text-theresa-green-800 hover:underline"
               >
                 Full fee schedule for all classes
               </Link>
             </div>
 
             <div className="mt-5 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-soft card-lift">
-              <h2 className="font-serif text-lg font-bold text-teresa-green-950">
+              <h2 className="font-serif text-lg font-bold text-theresa-green-950">
                 Questions about a place?
               </h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                The school office answers admission enquiries on weekdays from 7:00 a.m. to 5:00 p.m.
-              </p>
-              <dl className="mt-4 space-y-2 text-sm">
-                <div>
-                  <dt className="text-xs uppercase tracking-wider text-slate-500">Office</dt>
-                  <dd className="font-semibold text-slate-800">{OFFICE_CONTACTS.mainPhone}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs uppercase tracking-wider text-slate-500">Email</dt>
-                  <dd className="font-semibold text-slate-800">{OFFICE_CONTACTS.generalEmail}</dd>
-                </div>
-              </dl>
+              {hasContactDetails ? (
+                <dl className="mt-4 space-y-3 text-sm">
+                  {info?.mainPhone && (
+                    <div>
+                      <dt className="flex items-center gap-2 text-xs uppercase tracking-wider text-slate-500">
+                        <Phone className="h-3.5 w-3.5" /> Office
+                      </dt>
+                      <dd className="font-semibold text-slate-800">{info.mainPhone}</dd>
+                    </div>
+                  )}
+                  {info?.generalEmail && (
+                    <div>
+                      <dt className="flex items-center gap-2 text-xs uppercase tracking-wider text-slate-500">
+                        <Mail className="h-3.5 w-3.5" /> Email
+                      </dt>
+                      <dd className="font-semibold text-slate-800">{info.generalEmail}</dd>
+                    </div>
+                  )}
+                </dl>
+              ) : (
+                <p className="mt-3 text-sm text-slate-600">
+                  Please use the contact page and the school office will respond.
+                </p>
+              )}
             </div>
           </aside>
-        </div>
-      </Reveal>
-
-      <Reveal as="section" variant="fade" className="bg-[#FCFBF7]">
-        <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
-          <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
-            Frequently asked questions
-          </h2>
-          <div className="mt-6 grid gap-6 md:grid-cols-2">
-            {[
-              [
-                'Is there a school bus?',
-                'No. The school does not operate a bus service, though parents in several neighbourhoods arrange a shared taxi. The office can put new families in touch with them.',
-              ],
-              [
-                'What is the school uniform?',
-                'Green and gold checked shirts with dark green shorts or skirts, bought from the school shop. Wednesday is the sports kit and Friday is the Friday wear agreed by the PTA.',
-              ],
-              [
-                'Do you accept pupils mid-term?',
-                'Yes, where the class has room and the pupil can be assessed before joining. The fees for the semester are not reduced for late entry after the fourth week.',
-              ],
-              [
-                'How are reports issued?',
-                'Terminal report cards are printed and signed by the class teacher and the Headmaster, and issued to parents at the end of the semester. A digital copy can be requested from the office.',
-              ],
-            ].map(([question, answer]) => (
-              <article key={question}>
-                <h3 className="font-serif text-base font-bold text-slate-900">{question}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{answer}</p>
-              </article>
-            ))}
-          </div>
         </div>
       </Reveal>
     </>

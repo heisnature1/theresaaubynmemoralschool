@@ -1,20 +1,14 @@
 import Link from 'next/link';
-import { getSchoolState } from '@/lib/store';
 import { formatCurrency } from '@/lib/grading';
-import {
-  ACADEMIC_DEPARTMENTS,
-  DEPARTMENT_SUBJECTS_FULL,
-  TERM_DATES,
-} from '@/lib/constants';
+import { getSiteData } from '@/lib/site-data';
 import { PageHero } from '@/components/site/PageHero';
 import { Reveal } from '@/components/site/Reveal';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Academics & Fees | St. Teresa Aubyn Memorial School',
-  description:
-    'The academic programme, assessment methods, feeding arrangements and the current semester fee schedule.',
+  title: 'Academics & Fees',
+  description: 'The academic programme, assessment, the fee schedule and the school calendar.',
 };
 
 const DEPARTMENTS = ['Early Childhood', 'Lower Primary', 'Upper Primary', 'Junior High'] as const;
@@ -31,11 +25,13 @@ const GRADING_KEY = [
   ['F9', 'Below 45', 'Needs improvement'],
 ];
 
-export default function AcademicsPage() {
-  const state = getSchoolState();
-  const mealPlans = state.classFeeStructures.filter((row) => row.department === 'Junior High');
-  const semesterMealFee = mealPlans[0]?.semesterMealFee ?? 1625;
-  const dailyMeal = mealPlans[0]?.dailyMealFee ?? 25;
+export default async function AcademicsPage() {
+  const { info, departments, feeRows, termDates } = await getSiteData();
+
+  const mealPlan = feeRows[0];
+  const dailyMeal = mealPlan?.dailyMealFee ?? 0;
+  const semesterMealFee = mealPlan?.semesterMealFee ?? 0;
+  const subjects = Array.from(new Set(departments.flatMap((department) => department.subjects)));
 
   return (
     <>
@@ -44,55 +40,70 @@ export default function AcademicsPage() {
         title="The teaching programme and what it costs"
         image="/images/stem-lab.jpg"
       >
-          <p className="max-w-3xl leading-relaxed">
-            {state.currentSemester}. Every department follows a written scheme of work approved by
-            the Headmaster at the start of the year. Marks are recorded continuously, so that
-            parents are never surprised by a terminal report.
-          </p>
+        <p className="max-w-3xl leading-relaxed">
+          {info?.currentSemester
+            ? `${info.currentSemester}. Marks are recorded continuously, so that parents are never surprised by a terminal report.`
+            : 'The school publishes its departments, fee schedule and calendar here as they are issued.'}
+        </p>
       </PageHero>
 
       {/* Departments */}
       <Reveal as="section" variant="fade" className="border-b border-slate-200 bg-[#FCFBF7]">
         <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
-          <h2 className="font-serif text-2xl font-bold text-teresa-green-950">Departments</h2>
-          <div className="mt-8 grid gap-5 sm:grid-cols-2">
-            {ACADEMIC_DEPARTMENTS.map((department) => (
-              <article key={department.name} className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-soft card-lift">
-                <div className="flex items-baseline justify-between gap-4">
-                  <h3 className="font-serif text-lg font-bold text-teresa-green-950">
-                    {department.name}
-                  </h3>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-teresa-gold-700">
-                    {department.classes}
-                  </span>
-                </div>
-                <ul className="mt-4 space-y-1.5 text-sm text-slate-700">
-                  {department.subjects.map((subject) => (
-                    <li key={subject} className="flex gap-2">
-                      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-teresa-green-700" />
-                      {subject}
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-4 border-t border-slate-100 pt-3 text-xs leading-relaxed text-slate-500">
-                  {department.note}
-                </p>
-              </article>
-            ))}
-          </div>
+          <h2 className="font-serif text-2xl font-bold text-theresa-green-950">Departments</h2>
 
-          <div className="mt-8 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-soft card-lift">
-            <h3 className="font-serif text-lg font-bold text-teresa-green-950">
-              Subjects taught across the school
-            </h3>
-            <ul className="mt-4 grid gap-2 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-4">
-              {DEPARTMENT_SUBJECTS_FULL.map((subject) => (
-                <li key={subject} className="rounded-sm bg-[#FCFBF7] px-3 py-2">
-                  {subject}
-                </li>
-              ))}
-            </ul>
-          </div>
+          {departments.length > 0 ? (
+            <>
+              <div className="mt-8 grid gap-5 sm:grid-cols-2">
+                {departments.map((department) => (
+                  <article key={department.id} className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-soft card-lift">
+                    <div className="flex items-baseline justify-between gap-4">
+                      <h3 className="font-serif text-lg font-bold text-theresa-green-950">
+                        {department.name}
+                      </h3>
+                      {department.classes && (
+                        <span className="text-xs font-semibold uppercase tracking-wider text-theresa-gold-700">
+                          {department.classes}
+                        </span>
+                      )}
+                    </div>
+                    <ul className="mt-4 space-y-1.5 text-sm text-slate-700">
+                      {department.subjects.map((subject) => (
+                        <li key={subject} className="flex gap-2">
+                          <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-theresa-green-700" />
+                          {subject}
+                        </li>
+                      ))}
+                    </ul>
+                    {department.note && (
+                      <p className="mt-4 border-t border-slate-100 pt-3 text-xs leading-relaxed text-slate-500">
+                        {department.note}
+                      </p>
+                    )}
+                  </article>
+                ))}
+              </div>
+
+              {subjects.length > 0 && (
+                <div className="mt-8 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-soft card-lift">
+                  <h3 className="font-serif text-lg font-bold text-theresa-green-950">
+                    Subjects taught across the school
+                  </h3>
+                  <ul className="mt-4 grid gap-2 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-4">
+                    {subjects.map((subject) => (
+                      <li key={subject} className="rounded-sm bg-[#FCFBF7] px-3 py-2">
+                        {subject}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          ) : (
+            <p className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white/70 p-6 text-sm text-slate-600">
+              Nothing published yet.
+            </p>
+          )}
         </div>
       </Reveal>
 
@@ -100,19 +111,14 @@ export default function AcademicsPage() {
       <Reveal as="section" variant="fade" className="border-b border-slate-200 bg-white">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 lg:grid-cols-12 lg:px-6">
           <div className="lg:col-span-7">
-            <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
+            <h2 className="font-serif text-2xl font-bold text-theresa-green-950">
               How pupils are assessed
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-slate-700">
               Each subject mark is made up of continuous assessment out of 30 and the end-of-semester
               examination out of 70. Continuous assessment is built from class exercises, homework,
-              projects and at least two written tests per subject. Subject teachers enter marks
-              through the staff portal as they are marked, and the class teacher reviews them before
-              reports are printed.
-            </p>
-            <p className="mt-4 text-sm leading-relaxed text-slate-700">
-              Junior High pupils in Basic 6 and JHS 3 also sit weekly timed papers in Mathematics and
-              English during the second half of the semester.
+              projects and written tests. Subject teachers enter marks through the staff portal as
+              they are marked, and the class teacher reviews them before reports are printed.
             </p>
             <div className="mt-6 inline-flex flex-col gap-2 rounded-md border border-slate-200 bg-[#FCFBF7] px-5 py-4 text-sm">
               <span className="font-semibold text-slate-800">Continuous assessment</span>
@@ -124,11 +130,11 @@ export default function AcademicsPage() {
 
           <div className="lg:col-span-5">
             <table className="w-full border-collapse text-sm">
-              <caption className="pb-3 text-left font-serif text-lg font-bold text-teresa-green-950">
+              <caption className="pb-3 text-left font-serif text-lg font-bold text-theresa-green-950">
                 Grading key
               </caption>
               <thead>
-                <tr className="bg-teresa-green-900 text-left text-xs uppercase tracking-wider text-emerald-50">
+                <tr className="bg-theresa-green-900 text-left text-xs uppercase tracking-wider text-emerald-50">
                   <th className="px-3 py-2.5 font-semibold">Grade</th>
                   <th className="px-3 py-2.5 font-semibold">Mark</th>
                   <th className="px-3 py-2.5 font-semibold">Description</th>
@@ -151,25 +157,30 @@ export default function AcademicsPage() {
       {/* Fees */}
       <Reveal as="section" variant="fade" id="fees" className="scroll-mt-24 border-b border-slate-200 bg-[#FCFBF7]">
         <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
-          <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
-            Fee schedule, {state.currentSemester}
+          <h2 className="font-serif text-2xl font-bold text-theresa-green-950">
+            Fee schedule{info?.currentSemester ? `, ${info.currentSemester}` : ''}
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600">
             Fees may be paid in two instalments at the Bursary, by mobile money, or by bank deposit
-            into the school account. Receipts are issued for every payment; receipts issued at the
-            Bursary are recorded against the pupil&apos;s name.
+            into the school account. Receipts are issued for every payment.
           </p>
 
+          {feeRows.length === 0 && (
+            <p className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white/70 p-6 text-sm text-slate-600">
+              Nothing published yet.
+            </p>
+          )}
+
           {DEPARTMENTS.map((department) => {
-            const rows = state.classFeeStructures.filter((row) => row.department === department);
+            const rows = feeRows.filter((row) => row.department === department);
             if (rows.length === 0) return null;
             return (
               <div key={department} className="mt-8">
-                <h3 className="font-serif text-lg font-bold text-teresa-green-900">{department}</h3>
+                <h3 className="font-serif text-lg font-bold text-theresa-green-900">{department}</h3>
                 <div className="mt-3 overflow-x-auto">
                   <table className="w-full min-w-[760px] border-collapse text-sm">
                     <thead>
-                      <tr className="bg-teresa-green-900 text-left text-xs uppercase tracking-wider text-emerald-50">
+                      <tr className="bg-theresa-green-900 text-left text-xs uppercase tracking-wider text-emerald-50">
                         <th className="px-3 py-2.5 font-semibold">Class</th>
                         <th className="px-3 py-2.5 font-semibold">Tuition</th>
                         <th className="px-3 py-2.5 font-semibold">Extra classes</th>
@@ -200,15 +211,6 @@ export default function AcademicsPage() {
             );
           })}
 
-          <p className="mt-6 text-xs text-slate-500">
-            Updated by the Headmaster on{' '}
-            {new Date(state.classFeeStructures[0]?.updatedAt || Date.now()).toLocaleDateString('en-GB', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
-            . A 5% discount on tuition is allowed where a family settles the whole year in advance.
-          </p>
         </div>
       </Reveal>
 
@@ -216,52 +218,48 @@ export default function AcademicsPage() {
       <Reveal as="section" variant="fade" className="border-b border-slate-200 bg-white">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 lg:grid-cols-12 lg:px-6">
           <div className="lg:col-span-6">
-            <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
+            <h2 className="font-serif text-2xl font-bold text-theresa-green-950">
               Afternoon extra classes
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-slate-700">
-              Extra classes run from 2:30 p.m. to 4:15 p.m., Monday to Friday, in the subject rooms.
-              They are supervised by the subject teachers and are used for revision, past questions
-              and individual help rather than for new material. Attendance is recorded daily and
-              reported to parents with the semester report.
-            </p>
-            <p className="mt-4 text-sm leading-relaxed text-slate-700">
-              Participation is optional but recommended for Basic 6 and JHS 3. The fee per semester
-              is shown in the table above; pupils who are not enrolled go home at 2:30 p.m.
+              Where the school runs extra classes they are supervised by the subject teachers and
+              used for revision, past questions and individual help rather than for new material.
+              Attendance is recorded daily and reported to parents with the semester report.
             </p>
           </div>
 
           <div className="lg:col-span-6" id="feeding">
-            <h2 className="font-serif text-2xl font-bold text-teresa-green-950">
+            <h2 className="font-serif text-2xl font-bold text-theresa-green-950">
               The feeding programme
             </h2>
-            <p className="mt-4 text-sm leading-relaxed text-slate-700">
-              The school kitchen prepares one hot meal each school day: usually rice or kenkey with
-              stew, soup or beans, with fruit twice a week. Meals are served in the dining commons
-              from 12:15 p.m. under the supervision of the class teachers.
-            </p>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl border border-slate-200/80 bg-[#FCFBF7] p-5 shadow-soft card-lift">
-                <h3 className="font-serif text-base font-bold text-teresa-green-950">Pay daily</h3>
-                <p className="mt-1 text-sm text-slate-700">
-                  {formatCurrency(dailyMeal)} per pupil per day, collected by the class teacher each
-                  morning and recorded in the daily feeding register.
-                </p>
+            {dailyMeal > 0 || semesterMealFee > 0 ? (
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                {dailyMeal > 0 && (
+                  <div className="rounded-2xl border border-slate-200/80 bg-[#FCFBF7] p-5 shadow-soft card-lift">
+                    <h3 className="font-serif text-base font-bold text-theresa-green-950">Pay daily</h3>
+                    <p className="mt-1 text-sm text-slate-700">
+                      {formatCurrency(dailyMeal)} per pupil per day, collected by the class teacher
+                      each morning and recorded in the daily feeding register.
+                    </p>
+                  </div>
+                )}
+                {semesterMealFee > 0 && (
+                  <div className="rounded-2xl border border-slate-200/80 bg-[#FCFBF7] p-5 shadow-soft card-lift">
+                    <h3 className="font-serif text-base font-bold text-theresa-green-950">
+                      Prepaid meal card
+                    </h3>
+                    <p className="mt-1 text-sm text-slate-700">
+                      {formatCurrency(semesterMealFee)} for the semester, loaded onto a meal card. A
+                      receipt is issued at the Bursary and each meal taken is recorded.
+                    </p>
+                  </div>
+                )}
               </div>
-              <div className="rounded-2xl border border-slate-200/80 bg-[#FCFBF7] p-5 shadow-soft card-lift">
-                <h3 className="font-serif text-base font-bold text-teresa-green-950">
-                  Prepaid meal card
-                </h3>
-                <p className="mt-1 text-sm text-slate-700">
-                  {formatCurrency(semesterMealFee)} for the semester, loaded onto a meal card. A
-                  receipt is issued at the Bursary and each meal taken is recorded.
-                </p>
-              </div>
-            </div>
-            <p className="mt-4 text-xs text-slate-500">
-              Pupils with a medical dietary requirement should speak to the Headmaster so that the
-              kitchen can make provision.
-            </p>
+            ) : (
+              <p className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-[#FCFBF7] p-6 text-sm text-slate-600">
+                Nothing published yet.
+              </p>
+            )}
           </div>
         </div>
       </Reveal>
@@ -269,26 +267,37 @@ export default function AcademicsPage() {
       {/* Calendar */}
       <Reveal as="section" variant="fade" className="bg-[#FCFBF7]">
         <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
-          <h2 className="font-serif text-2xl font-bold text-teresa-green-950">School calendar</h2>
-          <ol className="mt-6 divide-y divide-slate-200 border-y border-slate-200">
-            {TERM_DATES.map((entry) => (
-              <li key={entry.label} className="flex flex-col gap-1 py-4 sm:flex-row sm:items-baseline sm:gap-6">
-                <span className="w-64 shrink-0 text-sm font-semibold text-slate-900">{entry.label}</span>
-                <span className="text-sm text-slate-600">{entry.detail}</span>
-              </li>
-            ))}
-          </ol>
-          <p className="mt-6 text-sm text-slate-600">
-            Parents with a question about fees or reports should contact the Bursary on{' '}
-            <a href="tel:+233543219087" className="font-semibold text-teresa-green-800 hover:underline">
-              +233 54 321 9087
-            </a>{' '}
-            or{' '}
-            <Link href="/contact" className="font-semibold text-teresa-green-800 hover:underline">
-              send an enquiry
-            </Link>
-            .
-          </p>
+          <h2 className="font-serif text-2xl font-bold text-theresa-green-950">School calendar</h2>
+          {termDates.length > 0 ? (
+            <ol className="mt-6 divide-y divide-slate-200 border-y border-slate-200">
+              {termDates.map((entry) => (
+                <li key={entry.id} className="flex flex-col gap-1 py-4 sm:flex-row sm:items-baseline sm:gap-6">
+                  <span className="w-64 shrink-0 text-sm font-semibold text-slate-900">{entry.label}</span>
+                  <span className="text-sm text-slate-600">{entry.detail}</span>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white/70 p-6 text-sm text-slate-600">
+              Nothing published yet.
+            </p>
+          )}
+          {info?.bursaryPhone && (
+            <p className="mt-6 text-sm text-slate-600">
+              Parents with a question about fees or reports should contact the Bursary on{' '}
+              <a
+                href={`tel:${info.bursaryPhone.replace(/\s/g, '')}`}
+                className="font-semibold text-theresa-green-800 hover:underline"
+              >
+                {info.bursaryPhone}
+              </a>{' '}
+              or{' '}
+              <Link href="/contact" className="font-semibold text-theresa-green-800 hover:underline">
+                send an enquiry
+              </Link>
+              .
+            </p>
+          )}
         </div>
       </Reveal>
     </>

@@ -1,4 +1,4 @@
-import { getSchoolState } from '@/lib/store';
+import { getSiteData } from '@/lib/site-data';
 import { GalleryGrid } from '@/components/site/GalleryGrid';
 import { PageHero } from '@/components/site/PageHero';
 import { Reveal } from '@/components/site/Reveal';
@@ -6,13 +6,12 @@ import { Reveal } from '@/components/site/Reveal';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Gallery | St. Teresa Aubyn Memorial School',
-  description:
-    'Photographs of the compound, the science and computing laboratory, the library, sports day and the dining commons.',
+  title: 'Gallery',
+  description: 'Photographs of the school published by the office.',
 };
 
-export default function GalleryPage() {
-  const state = getSchoolState();
+export default async function GalleryPage() {
+  const { gallery } = await getSiteData();
 
   return (
     <>
@@ -21,15 +20,21 @@ export default function GalleryPage() {
         title="The compound, the classrooms and the field"
         image="/images/sports-culture.jpg"
       >
-          <p className="max-w-3xl leading-relaxed">
-            Photographs taken by the staff during the current academic year. Parents who would like
-            copies of any photograph should ask at the school office.
-          </p>
+        <p className="max-w-3xl leading-relaxed">
+          Photographs published by the school office. Parents who would like copies of any
+          photograph should ask at the school office.
+        </p>
       </PageHero>
 
       <Reveal as="section" variant="fade" className="bg-[#FCFBF7]">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:px-6">
-          <GalleryGrid items={state.gallery} />
+          {gallery.length > 0 ? (
+            <GalleryGrid items={gallery} />
+          ) : (
+            <p className="rounded-2xl border border-dashed border-slate-300 bg-white/70 p-6 text-sm text-slate-600">
+              Nothing published yet.
+            </p>
+          )}
         </div>
       </Reveal>
     </>

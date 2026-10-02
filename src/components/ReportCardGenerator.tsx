@@ -17,11 +17,13 @@ import {
 import {
   ClassFeeStructure,
   DailyFeedingLog,
+  SchoolInformation,
   SchoolStateSnapshot,
   StudentRecord,
   SubjectResult,
   UserRole,
 } from '@/types/school';
+import { SCHOOL_NAME } from '@/lib/constants';
 import { calculateGrade, formatCurrency, formatOrdinal } from '@/lib/grading';
 import { buildClassReportPdf, buildStudentReportPdf } from '@/lib/report-pdf';
 import { downloadPdf } from '@/lib/pdf';
@@ -32,6 +34,8 @@ interface ReportCardGeneratorProps {
   activeRole: UserRole;
   actorName: string;
   initialStudentId?: string;
+  /** The school's published particulars, used on the printed report sheet. */
+  siteInfo?: SchoolInformation | null;
   onStateChange: (newState: SchoolStateSnapshot) => void;
   onNotify: (msg: string, type?: 'success' | 'info') => void;
 }
@@ -41,6 +45,7 @@ export function ReportCardGenerator({
   activeRole,
   actorName,
   initialStudentId,
+  siteInfo,
   onStateChange,
   onNotify,
 }: ReportCardGeneratorProps) {
@@ -212,14 +217,14 @@ export function ReportCardGenerator({
   return (
     <div className="space-y-6">
       {/* Control Toolbar (hidden when printing) */}
-      <div className="bg-white rounded-2xl border border-teresa-green-100 p-5 shadow-sm print:hidden">
+      <div className="bg-white rounded-2xl border border-theresa-green-100 p-5 shadow-sm print:hidden">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teresa-gold-100 text-teresa-gold-900 text-xs font-semibold mb-1">
-              <FileCheck2 className="w-3.5 h-3.5 text-teresa-gold-700" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-theresa-gold-100 text-theresa-gold-900 text-xs font-semibold mb-1">
+              <FileCheck2 className="w-3.5 h-3.5 text-theresa-gold-700" />
               End-of-semester report cards
             </div>
-            <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+            <h3 className="text-xl font-serif font-bold text-theresa-green-950">
               Generate and print pupil report cards
             </h3>
             <p className="text-sm text-slate-600">
@@ -244,7 +249,7 @@ export function ReportCardGenerator({
                       : state.students.find((s) => s.className === cls);
                   if (firstInClass) setSelectedStudentId(firstInClass.id);
                 }}
-                className="px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-teresa-green-600"
+                className="px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-theresa-green-600"
               >
                 <option value="All">All Classes ({state.students.length})</option>
                 {Array.from(new Set(state.students.map((s) => s.className))).map((cls) => (
@@ -263,7 +268,7 @@ export function ReportCardGenerator({
               <select
                 value={currentStudent.id}
                 onChange={(e) => setSelectedStudentId(e.target.value)}
-                className="px-3.5 py-2 rounded-xl border border-teresa-green-300 bg-teresa-green-50/60 text-sm font-semibold text-teresa-green-950 focus:outline-none focus:ring-2 focus:ring-teresa-green-600"
+                className="px-3.5 py-2 rounded-xl border border-theresa-green-300 bg-theresa-green-50/60 text-sm font-semibold text-theresa-green-950 focus:outline-none focus:ring-2 focus:ring-theresa-green-600"
               >
                 {filteredStudents.map((stu) => (
                   <option key={stu.id} value={stu.id}>
@@ -277,7 +282,7 @@ export function ReportCardGenerator({
               <button
                 type="button"
                 onClick={() => setIsEditingRemarks(!isEditingRemarks)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-teresa-green-700 text-teresa-green-800 hover:bg-teresa-green-50 text-sm font-semibold transition"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-theresa-green-700 text-theresa-green-800 hover:bg-theresa-green-50 text-sm font-semibold transition"
               >
                 <Edit3 className="w-4 h-4" />
                 {isEditingRemarks ? 'Close Editor' : 'Edit Remarks'}
@@ -286,7 +291,7 @@ export function ReportCardGenerator({
               <button
                 type="button"
                 onClick={handleDownloadClassPdf}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-teresa-green-700 text-teresa-green-800 hover:bg-teresa-green-50 text-sm font-semibold transition"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-theresa-green-700 text-theresa-green-800 hover:bg-theresa-green-50 text-sm font-semibold transition"
               >
                 <Download className="w-4 h-4" />
                 Whole class PDF
@@ -295,7 +300,7 @@ export function ReportCardGenerator({
               <button
                 type="button"
                 onClick={handleDownloadPdf}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teresa-green-800 text-white hover:bg-teresa-green-900 text-sm font-semibold transition"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-theresa-green-800 text-white hover:bg-theresa-green-900 text-sm font-semibold transition"
               >
                 <Download className="w-4 h-4" />
                 Download PDF
@@ -317,29 +322,29 @@ export function ReportCardGenerator({
         {isEditingRemarks && (
           <form
             onSubmit={handleSaveReportRemarks}
-            className="mt-5 pt-5 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4 bg-teresa-ivory/70 p-4 rounded-xl"
+            className="mt-5 pt-5 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4 bg-theresa-ivory/70 p-4 rounded-xl"
           >
             <div>
-              <label className="block text-xs font-bold text-teresa-green-900 uppercase mb-1">
+              <label className="block text-xs font-bold text-theresa-green-900 uppercase mb-1">
                 Class Teacher&apos;s Official Remark
               </label>
               <textarea
                 rows={2}
                 value={teacherRemarkDraft}
                 onChange={(e) => setTeacherRemarkDraft(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-teresa-green-600 focus:outline-none"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-theresa-green-600 focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-teresa-green-900 uppercase mb-1">
+              <label className="block text-xs font-bold text-theresa-green-900 uppercase mb-1">
                 Headmaster&apos;s Official Remark
               </label>
               <textarea
                 rows={2}
                 value={headmasterRemarkDraft}
                 onChange={(e) => setHeadmasterRemarkDraft(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-teresa-green-600 focus:outline-none"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-theresa-green-600 focus:outline-none"
               />
             </div>
 
@@ -382,7 +387,7 @@ export function ReportCardGenerator({
                   <button
                     type="submit"
                     disabled={saving}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-teresa-gold-500 hover:bg-teresa-gold-600 text-teresa-green-950 font-bold text-sm whitespace-nowrap transition"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-theresa-gold-500 hover:bg-theresa-gold-600 text-theresa-green-950 font-bold text-sm whitespace-nowrap transition"
                   >
                     <Save className="w-4 h-4" />
                     {saving ? 'Saving...' : 'Save Report'}
@@ -397,44 +402,50 @@ export function ReportCardGenerator({
       {/* ===================================================================== */}
       {/* OFFICIAL PRINTABLE TERMINAL REPORT SHEET                              */}
       {/* ===================================================================== */}
-      <div className="bg-white rounded-3xl border-2 border-teresa-gold-400 shadow-xl overflow-hidden print:shadow-none print:border-2 print:rounded-none">
+      <div className="bg-white rounded-3xl border-2 border-theresa-gold-400 shadow-xl overflow-hidden print:shadow-none print:border-2 print:rounded-none">
         {/* Top Ornamental Header Banner */}
-        <div className="bg-gradient-to-r from-teresa-green-950 via-teresa-green-900 to-teresa-green-950 text-white px-6 py-6 border-b-4 border-teresa-gold-400 relative">
+        <div className="bg-gradient-to-r from-theresa-green-950 via-theresa-green-900 to-theresa-green-950 text-white px-6 py-6 border-b-4 border-theresa-gold-400 relative">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <SchoolCrest size="lg" />
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs uppercase tracking-[0.2em] text-teresa-gold-300 font-semibold">
+                  <span className="text-xs uppercase tracking-[0.2em] text-theresa-gold-300 font-semibold">
                     Republic of Ghana • Directorate of Education
                   </span>
                 </div>
                 <h2 className="text-2xl md:text-3xl font-serif font-bold tracking-tight text-white">
-                  ST. TERESA AUBYN MEMORIAL SCHOOL
+                  {siteInfo?.schoolName || SCHOOL_NAME}
                 </h2>
-                <p className="text-xs md:text-sm text-teresa-gold-200 italic font-serif">
-                  &ldquo;Per Ardua Ad Astra — Through Diligence to the Stars&rdquo;
-                </p>
-                <p className="text-xs text-emerald-100/80 mt-1">
-                  P.O. Box TA 188, Heritage Hill Avenue • Tel: +233 24 410 0888 • info@stteresa-aubyn.edu.gh
-                </p>
+                {siteInfo?.motto && (
+                  <p className="text-xs md:text-sm text-theresa-gold-200 italic font-serif">
+                    &ldquo;{siteInfo.motto}&rdquo;
+                  </p>
+                )}
+                {(siteInfo?.postalAddress || siteInfo?.mainPhone || siteInfo?.generalEmail) && (
+                  <p className="text-xs text-emerald-100/80 mt-1">
+                    {[siteInfo?.postalAddress, siteInfo?.mainPhone, siteInfo?.generalEmail]
+                      .filter(Boolean)
+                      .join(' \u2022 ')}
+                  </p>
+                )}
               </div>
             </div>
 
-            <div className="text-center md:text-right bg-white/10 backdrop-blur-sm border border-teresa-gold-400/40 rounded-2xl px-4 py-3">
-              <div className="text-[11px] uppercase tracking-widest text-teresa-gold-300 font-bold">
+            <div className="text-center md:text-right bg-white/10 backdrop-blur-sm border border-theresa-gold-400/40 rounded-2xl px-4 py-3">
+              <div className="text-[11px] uppercase tracking-widest text-theresa-gold-300 font-bold">
                 Terminal report
               </div>
               <div className="text-base font-bold text-white mt-0.5">{state.currentSemester}</div>
               <div className="text-xs text-emerald-200 mt-0.5">
-                Student ID: <span className="font-mono font-bold text-teresa-gold-300">{currentStudent.studentCode}</span>
+                Student ID: <span className="font-mono font-bold text-theresa-gold-300">{currentStudent.studentCode}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Student Bio & Academic Snapshot Bar */}
-        <div className="p-6 bg-teresa-ivory/80 border-b border-teresa-gold-200">
+        <div className="p-6 bg-theresa-ivory/80 border-b border-theresa-gold-200">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-sm">
               <div className="flex items-start gap-3">
@@ -442,7 +453,7 @@ export function ReportCardGenerator({
                   <img
                     src={currentStudent.photo}
                     alt={currentStudent.fullName}
-                    className="h-14 w-14 shrink-0 rounded-lg border border-teresa-gold-300 object-cover"
+                    className="h-14 w-14 shrink-0 rounded-lg border border-theresa-gold-300 object-cover"
                   />
                 ) : (
                   <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 text-[8px] font-bold uppercase text-slate-400">
@@ -453,7 +464,7 @@ export function ReportCardGenerator({
                   <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                     Pupil / Student Name
                   </div>
-                  <div className="text-sm font-bold text-teresa-green-950 mt-0.5">
+                  <div className="text-sm font-bold text-theresa-green-950 mt-0.5">
                     {currentStudent.fullName}
                   </div>
                   <div className="text-xs text-slate-500">{currentStudent.gender}</div>
@@ -465,10 +476,10 @@ export function ReportCardGenerator({
               <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                 Class & Stream
               </div>
-              <div className="text-sm font-bold text-teresa-green-950 mt-0.5">
+              <div className="text-sm font-bold text-theresa-green-950 mt-0.5">
                 {currentStudent.className}
               </div>
-              <div className="text-xs text-teresa-green-700 font-medium">
+              <div className="text-xs text-theresa-green-700 font-medium">
                 {classFeeStructure?.department || 'Academic Stream'}
               </div>
             </div>
@@ -477,10 +488,10 @@ export function ReportCardGenerator({
               <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                 Semester Average
               </div>
-              <div className="text-lg font-mono font-extrabold text-teresa-green-800 mt-0.5">
+              <div className="text-lg font-mono font-extrabold text-theresa-green-800 mt-0.5">
                 {academicSummary.averageScore}%
               </div>
-              <div className="text-xs font-semibold text-teresa-gold-700">
+              <div className="text-xs font-semibold text-theresa-gold-700">
                 Grade {academicSummary.overallGrade} ({academicSummary.overallRemark})
               </div>
             </div>
@@ -489,7 +500,7 @@ export function ReportCardGenerator({
               <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                 Position in Class
               </div>
-              <div className="text-lg font-serif font-extrabold text-teresa-gold-700 mt-0.5">
+              <div className="text-lg font-serif font-extrabold text-theresa-gold-700 mt-0.5">
                 {academicSummary.classPosition}
               </div>
               <div className="text-xs text-slate-500">
@@ -516,7 +527,7 @@ export function ReportCardGenerator({
               <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                 Next Term Re-Opening
               </div>
-              <div className="text-sm font-bold text-teresa-green-950 mt-0.5">
+              <div className="text-sm font-bold text-theresa-green-950 mt-0.5">
                 {state.nextSemesterReopening}
               </div>
               <div className="text-xs text-slate-500">Parent: {currentStudent.guardianName}</div>
@@ -527,8 +538,8 @@ export function ReportCardGenerator({
         {/* Subject Performance Table */}
         <div className="p-6">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-teresa-green-900 flex items-center gap-2">
-              <GraduationCap className="w-4 h-4 text-teresa-gold-600" />
+            <h4 className="text-sm font-bold uppercase tracking-wider text-theresa-green-900 flex items-center gap-2">
+              <GraduationCap className="w-4 h-4 text-theresa-gold-600" />
               Continuous assessment (30%) and examination (70%)
             </h4>
             <span className="text-xs font-mono text-slate-500">
@@ -539,7 +550,7 @@ export function ReportCardGenerator({
           <div className="overflow-x-auto rounded-2xl border border-slate-200">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-teresa-green-900 text-white text-xs uppercase tracking-wider">
+                <tr className="bg-theresa-green-900 text-white text-xs uppercase tracking-wider">
                   <th className="py-3.5 px-4 font-semibold">Subject</th>
                   <th className="py-3.5 px-3 font-semibold text-center">Class Score (30%)</th>
                   <th className="py-3.5 px-3 font-semibold text-center">Exam Score (70%)</th>
@@ -562,7 +573,7 @@ export function ReportCardGenerator({
                     return (
                       <tr
                         key={res.id}
-                        className={idx % 2 === 0 ? 'bg-white' : 'bg-teresa-ivory/50'}
+                        className={idx % 2 === 0 ? 'bg-white' : 'bg-theresa-ivory/50'}
                       >
                         <td className="py-3 px-4 font-bold text-slate-900">{res.subject}</td>
                         <td className="py-3 px-3 text-center font-mono text-slate-700">
@@ -571,7 +582,7 @@ export function ReportCardGenerator({
                         <td className="py-3 px-3 text-center font-mono text-slate-700">
                           {res.examScore}
                         </td>
-                        <td className="py-3 px-3 text-center font-mono font-extrabold text-teresa-green-900">
+                        <td className="py-3 px-3 text-center font-mono font-extrabold text-theresa-green-900">
                           {res.totalScore}
                         </td>
                         <td className="py-3 px-3 text-center">
@@ -590,7 +601,7 @@ export function ReportCardGenerator({
               </tbody>
               {studentResults.length > 0 && (
                 <tfoot>
-                  <tr className="bg-teresa-gold-50 border-t-2 border-teresa-gold-300 font-bold text-teresa-green-950 text-sm">
+                  <tr className="bg-theresa-gold-50 border-t-2 border-theresa-gold-300 font-bold text-theresa-green-950 text-sm">
                     <td className="py-3.5 px-4">Semester total and average</td>
                     <td className="py-3.5 px-3 text-center font-mono">
                       {studentResults.reduce((s, r) => s + r.classScore, 0)}
@@ -598,16 +609,16 @@ export function ReportCardGenerator({
                     <td className="py-3.5 px-3 text-center font-mono">
                       {studentResults.reduce((s, r) => s + r.examScore, 0)}
                     </td>
-                    <td className="py-3.5 px-3 text-center font-mono text-base text-teresa-green-900">
+                    <td className="py-3.5 px-3 text-center font-mono text-base text-theresa-green-900">
                       {academicSummary.totalObtained} / {academicSummary.maxPossible} (
                       {academicSummary.averageScore}%)
                     </td>
                     <td className="py-3.5 px-3 text-center">
-                      <span className="inline-flex px-2.5 py-0.5 rounded-full bg-teresa-green-900 text-teresa-gold-300 text-xs font-bold">
+                      <span className="inline-flex px-2.5 py-0.5 rounded-full bg-theresa-green-900 text-theresa-gold-300 text-xs font-bold">
                         {academicSummary.overallGrade}
                       </span>
                     </td>
-                    <td colSpan={2} className="py-3.5 px-4 text-teresa-green-900">
+                    <td colSpan={2} className="py-3.5 px-4 text-theresa-green-900">
                       Overall Standing: {academicSummary.overallRemark} ({academicSummary.classPosition} in {currentStudent.className})
                     </td>
                   </tr>
@@ -638,7 +649,7 @@ export function ReportCardGenerator({
                   Conduct & Character Assessment
                 </div>
                 <div className="text-sm font-semibold text-slate-800 mt-1 flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-teresa-gold-600 shrink-0" />
+                  <Sparkles className="w-4 h-4 text-theresa-gold-600 shrink-0" />
                   {currentStudent.conduct}
                 </div>
               </div>
@@ -647,16 +658,16 @@ export function ReportCardGenerator({
                   Co-Curricular Interest & Talent
                 </div>
                 <div className="text-sm font-semibold text-slate-800 mt-1 flex items-center gap-1.5">
-                  <Award className="w-4 h-4 text-teresa-green-700 shrink-0" />
+                  <Award className="w-4 h-4 text-theresa-green-700 shrink-0" />
                   {currentStudent.interestTalent}
                 </div>
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-teresa-green-50/70 border border-teresa-green-200">
+            <div className="p-4 rounded-2xl bg-theresa-green-50/70 border border-theresa-green-200">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-teresa-green-900 flex items-center gap-1.5">
-                  <UserCheck className="w-4 h-4 text-teresa-green-700" />
+                <span className="text-xs font-bold uppercase tracking-wider text-theresa-green-900 flex items-center gap-1.5">
+                  <UserCheck className="w-4 h-4 text-theresa-green-700" />
                   Class Teacher&apos;s Terminal Remark ({classFeeStructure?.classTeacher || 'Class Teacher'})
                 </span>
               </div>
@@ -665,10 +676,10 @@ export function ReportCardGenerator({
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-teresa-gold-50/80 border border-teresa-gold-300">
+            <div className="p-4 rounded-2xl bg-theresa-gold-50/80 border border-theresa-gold-300">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-900 flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-teresa-gold-700" />
+                <span className="text-xs font-bold uppercase tracking-wider text-theresa-gold-900 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-theresa-gold-700" />
                   Headmaster&apos;s endorsement
                 </span>
                 {currentStudent.reportEndorsed && (
@@ -685,11 +696,11 @@ export function ReportCardGenerator({
           </div>
 
           {/* Right 5 cols: Financial Clearance & Next Semester Fee Bill */}
-          <div className="lg:col-span-5 bg-teresa-ivory rounded-2xl border border-teresa-gold-300 p-4 flex flex-col justify-between">
+          <div className="lg:col-span-5 bg-theresa-ivory rounded-2xl border border-theresa-gold-300 p-4 flex flex-col justify-between">
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-teresa-green-900 mb-3 flex items-center justify-between">
+              <div className="text-xs font-bold uppercase tracking-wider text-theresa-green-900 mb-3 flex items-center justify-between">
                 <span>Bursary & Feeding Clearance ({currentStudent.className})</span>
-                <span className="px-2 py-0.5 rounded bg-teresa-gold-200 text-teresa-green-950 text-[10px]">
+                <span className="px-2 py-0.5 rounded bg-theresa-gold-200 text-theresa-green-950 text-[10px]">
                   Fee rates for this class
                 </span>
               </div>
@@ -711,7 +722,7 @@ export function ReportCardGenerator({
 
                 <div className="flex items-center justify-between py-1.5 border-b border-slate-200">
                   <span className="text-slate-600">Daily Feeding Rate ({currentStudent.className}):</span>
-                  <span className="font-mono font-semibold text-teresa-green-800">
+                  <span className="font-mono font-semibold text-theresa-green-800">
                     {formatCurrency(classFeeStructure?.dailyMealFee || 20)} / day ({studentFeedingLogs.length} days logged)
                   </span>
                 </div>
@@ -734,9 +745,9 @@ export function ReportCardGenerator({
             </div>
 
             {/* Signatures Footer */}
-            <div className="mt-4 pt-3 border-t border-dashed border-teresa-gold-400 grid grid-cols-2 gap-4 text-center">
+            <div className="mt-4 pt-3 border-t border-dashed border-theresa-gold-400 grid grid-cols-2 gap-4 text-center">
               <div>
-                <div className="font-serif italic text-sm text-teresa-green-800">
+                <div className="font-serif italic text-sm text-theresa-green-800">
                   {classFeeStructure?.classTeacher || 'M. Osei-Tutu'}
                 </div>
                 <div className="border-t border-slate-300 mt-1 pt-1 text-[10px] uppercase tracking-wider text-slate-500">
@@ -744,7 +755,7 @@ export function ReportCardGenerator({
                 </div>
               </div>
               <div>
-                <div className="font-serif italic text-sm text-teresa-gold-800 font-bold">
+                <div className="font-serif italic text-sm text-theresa-gold-800 font-bold">
                   Rev. Fr. B. K. Arthur
                 </div>
                 <div className="border-t border-slate-300 mt-1 pt-1 text-[10px] uppercase tracking-wider text-slate-500">
