@@ -6,6 +6,7 @@ import { getSchoolState } from '@/lib/store';
 import { ProspectusDownload } from '@/components/site/ProspectusDownload';
 import { PageHero } from '@/components/site/PageHero';
 import { Reveal } from '@/components/site/Reveal';
+import { ApplicationStatusChecker } from '@/components/site/ApplicationStatusChecker';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +31,7 @@ export default async function AdmissionsPage() {
       <PageHero
         eyebrow="Admissions"
         title="Applying for a place"
-        image="/images/campus-hero.jpg"
+        art="admissions"
       >
         <p className="max-w-3xl leading-relaxed">
           Places are offered throughout the year when a class has room.
@@ -38,10 +39,16 @@ export default async function AdmissionsPage() {
           are considered in the order they are received.
         </p>
         <div className="mt-7 flex flex-wrap items-center gap-3">
+          <Link
+            href="/admissions/apply"
+            className="inline-flex items-center rounded-xl bg-theresa-gold-400 px-5 py-3 text-sm font-bold text-theresa-green-950 shadow-[0_16px_40px_-18px_rgba(217,175,55,0.75)] hover:bg-theresa-gold-300 magnetic-btn shine"
+          >
+            Apply for a place online
+          </Link>
           <ProspectusDownload state={state} content={content} />
           <Link
             href="/contact"
-            className="inline-flex items-center rounded-xl bg-theresa-green-800 px-5 py-3 text-sm font-semibold text-white hover:bg-theresa-green-900 magnetic-btn shine"
+            className="inline-flex items-center rounded-xl border border-theresa-green-900/20 bg-white/80 px-5 py-3 text-sm font-semibold text-theresa-green-900 hover:bg-white magnetic-btn"
           >
             Book a visit or ask a question
           </Link>
@@ -184,6 +191,12 @@ export default async function AdmissionsPage() {
               )}
             </div>
           </aside>
+        </div>
+      </Reveal>
+
+      <Reveal as="section" variant="fade" id="check" className="border-t border-slate-200 bg-[#FCFBF7]">
+        <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
+          <ApplicationStatusChecker />
         </div>
       </Reveal>
     </>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { appendAuditLog, getSchoolState, saveSchoolState, toClientState } from '@/lib/store';
-import { getSession } from '@/lib/auth';
+import { getSession, hashPassword } from '@/lib/auth';
 import { StudentRecord } from '@/types/school';
 
 export const dynamic = 'force-dynamic';
@@ -36,8 +36,16 @@ export async function POST(req: NextRequest) {
 
     if (action === 'add_student') {
       const state = getSchoolState();
-      const { fullName, gender, dateOfBirth, className, guardianName, guardianPhone, photo } =
-        body;
+      const {
+        fullName,
+        gender,
+        dateOfBirth,
+        className,
+        guardianName,
+        guardianPhone,
+        guardianEmail,
+        photo,
+      } = body;
 
       if (!fullName || !className || !guardianName) {
         return NextResponse.json(
@@ -57,6 +65,7 @@ export async function POST(req: NextRequest) {
         className,
         guardianName: String(guardianName).trim(),
         guardianPhone: String(guardianPhone || '+233 24 000 0000').trim(),
+        guardianEmail: guardianEmail ? String(guardianEmail).trim() : undefined,
         photo: readPhoto(photo),
         tuitionPaid: 0,
         extraClassesPaid: 0,
@@ -83,6 +92,45 @@ export async function POST(req: NextRequest) {
       saveSchoolState(state);
 
       return NextResponse.json({ ok: true, student: newStudent, state: toClientState(state) });
+    }
+
+    /*
+     * Issue (or replace) a parent access PIN for a pupil. The PIN is shown to
+     * the office once, to be handed to the family; only its hash is kept.
+     */
+    if (action === 'issue_parent_pin') {
+      const state = getSchoolState();
+      const { studentId } = body;
+      const pupil = state.students.find(
+        (entry) => entry.id === studentId || entry.studentCode === studentId
+      );
+
+      if (!pupil) {
+        return NextResponse.json({ error: 'Pupil not found.' }, { status: 404 });
+      }
+
+      const pin = String(Math.floor(100000 + Math.random() * 900000));
+      pupil.accessPinHash = hashPassword(pin);
+      pupil.accessPinIssuedAt = new Date().toISOString();
+
+      appendAuditLog(state, {
+        actorName: session.fullName,
+        actorRole: session.role,
+        action: 'Issued a parent access PIN',
+        category: 'parents',
+        details: `Issued a parent access PIN for ${pupil.fullName} (${pupil.studentCode}, ${pupil.className}).`,
+      });
+      saveSchoolState(state);
+
+      return NextResponse.json({
+        ok: true,
+        studentId: pupil.id,
+        studentName: pupil.fullName,
+        studentCode: pupil.studentCode,
+        pin,
+        issuedAt: pupil.accessPinIssuedAt,
+        state: toClientState(state),
+      });
     }
 
     return NextResponse.json({ error: 'Unsupported action' }, { status: 400 });

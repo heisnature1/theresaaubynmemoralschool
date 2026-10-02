@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, GraduationCap, Quote, ShieldCheck, Utensils } from 'lucide-react';
 import { SchoolCrest } from '@/components/SchoolCrest';
+import { GradientArt } from '@/components/site/GradientArt';
 import { SCHOOL_NAME } from '@/lib/constants';
 import { getSiteData } from '@/lib/site-data';
 
@@ -33,17 +34,10 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#F4F1E8]">
-      {/* Animated campus backdrop */}
+      {/* Animated backdrop, drawn with the school's own gradients */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <img
-          src="/images/campus-hero.jpg"
-          alt=""
-          aria-hidden="true"
-          className="h-full w-full object-cover opacity-[0.14] animate-ken-burns"
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#F7F5EE] via-white/80 to-theresa-green-50" />
-        <div className="hero-blob -left-24 top-1/4 h-96 w-96 bg-theresa-green-400/20 animate-float-slow" />
-        <div className="hero-blob -right-24 bottom-0 h-80 w-80 bg-theresa-gold-400/25 animate-float" />
+        <GradientArt variant="portal" className="h-full w-full opacity-[0.28]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#F7F5EE] via-white/85 to-theresa-green-50" />
         <div className="absolute inset-0 pattern-grid opacity-40" />
       </div>
 

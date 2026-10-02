@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession, hashPassword, passwordProblem, verifyPassword } from '@/lib/auth';
 import { appendAuditLog, getSchoolState, saveSchoolState } from '@/lib/store';
+import { setSupabaseStaffPassword } from '@/lib/supabase/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,16 +41,32 @@ export async function PATCH(req: NextRequest) {
     }
 
     staff.passwordHash = hashPassword(String(newPassword));
+
+    // Keep the Supabase Auth password in step when the account is linked.
+    const supabaseResult = await setSupabaseStaffPassword(
+      staff.authUserId || '',
+      String(newPassword)
+    );
+
     appendAuditLog(state, {
       actorName: staff.fullName,
       actorRole: staff.role,
       action: 'Changed portal password',
       category: 'system',
-      details: `${staff.fullName} updated their staff portal password.`,
+      details: `${staff.fullName} updated their staff portal password${
+        supabaseResult.ok ? ' (Supabase Auth and the portal record)' : ''
+      }.`,
     });
     saveSchoolState(state);
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({
+      ok: true,
+      supabaseAuth: supabaseResult.ok
+        ? 'Your Supabase Auth password was changed too.'
+        : supabaseResult.notConfigured
+        ? 'Supabase Auth is not configured for this deployment.'
+        : 'Your Supabase Auth password could not be reached; the portal password was changed.',
+    });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Could not update password.' },

@@ -6,6 +6,8 @@
  * read through `getSiteData()` in `src/lib/site-data.ts`.
  */
 
+import { UserRole } from '@/types/school';
+
 export const SCHOOL_NAME = 'St Theresa Aubyn Memorial School';
 
 export const SHORT_SCHOOL_NAME = 'St Theresa';
@@ -21,3 +23,10 @@ export const DEPARTMENT_SUBJECTS_FULL = [
   'Creative Arts & Design',
   'French & Ghanaian Language',
 ];
+
+/** How each role is spoken about on the website and in the portal. */
+export const ROLE_LABELS: Record<UserRole, string> = {
+  super_admin: 'Super Administrator',
+  headmaster: 'Administrator',
+  teacher: 'Teacher',
+};

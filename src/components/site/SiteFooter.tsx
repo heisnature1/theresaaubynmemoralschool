@@ -105,6 +105,7 @@ export function SiteFooter({
         <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-emerald-100/70 sm:flex-row sm:items-center sm:justify-between">
           <p>&copy; {new Date().getFullYear()} {info?.schoolName || SCHOOL_NAME}. All rights reserved.</p>
           <div className="flex flex-wrap items-center gap-4">
+            <Link href="/login/parent" className="hover:text-theresa-gold-200">Parent sign-in</Link>
             <Link href="/login/administrator" className="hover:text-theresa-gold-200">Administrator sign-in</Link>
             <Link href="/login/teacher" className="hover:text-theresa-gold-200">Teacher sign-in</Link>
             <Link href="/login/super-admin" className="hover:text-theresa-gold-200">Super Administrator</Link>

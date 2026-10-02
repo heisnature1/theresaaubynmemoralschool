@@ -9,6 +9,8 @@ import {
   verifyPassword,
 } from '@/lib/auth';
 import { appendAuditLog, getSchoolState, saveSchoolState } from '@/lib/store';
+import { isSupabaseConfigured } from '@/lib/supabase/client';
+import { signInWithSupabase } from '@/lib/supabase/auth';
 import { UserRole } from '@/types/school';
 
 export const dynamic = 'force-dynamic';
@@ -55,8 +57,9 @@ export async function POST(req: NextRequest) {
     }
 
     const expectedRole = PORTAL_ROLES[String(portal || '')] || null;
+    const normalisedEmail = String(email).trim().toLowerCase();
     const forwarded = headers().get('x-forwarded-for') || 'local';
-    const throttleKey = `${forwarded}:${String(email).toLowerCase()}`;
+    const throttleKey = `${forwarded}:${normalisedEmail}`;
 
     if (tooManyAttempts(throttleKey)) {
       return NextResponse.json(
@@ -66,11 +69,44 @@ export async function POST(req: NextRequest) {
     }
 
     const state = getSchoolState();
-    const staff = state.staff.find(
-      (member) => member.email.toLowerCase() === String(email).trim().toLowerCase()
-    );
+    const staff = state.staff.find((member) => member.email.toLowerCase() === normalisedEmail);
 
-    if (!staff || !staff.isActive || !verifyPassword(String(password), staff.passwordHash)) {
+    if (!staff) {
+      noteFailedAttempt(throttleKey);
+      return NextResponse.json(
+        { error: 'Those credentials do not match our records. Please try again.' },
+        { status: 401 }
+      );
+    }
+
+    /*
+     * Signing in.
+     *
+     * When a Supabase project is connected, the password is checked by
+     * Supabase Auth. Should Supabase not accept it — because the account still
+     * carries one of the portal's own bootstrap passwords, for instance — the
+     * same credentials are then checked against the school's own scrypt hash,
+     * so a school can connect Supabase without locking its office out.
+     */
+    let method: 'supabase' | 'portal' = 'portal';
+    let authenticated = false;
+
+    if (isSupabaseConfigured()) {
+      const supabaseResult = await signInWithSupabase(normalisedEmail, String(password));
+      if (supabaseResult.ok) {
+        authenticated = true;
+        method = 'supabase';
+        if (supabaseResult.userId && staff.authUserId !== supabaseResult.userId) {
+          staff.authUserId = supabaseResult.userId;
+        }
+      }
+    }
+
+    if (!authenticated) {
+      authenticated = verifyPassword(String(password), staff.passwordHash);
+    }
+
+    if (!authenticated || !staff.isActive) {
       noteFailedAttempt(throttleKey);
       return NextResponse.json(
         { error: 'Those credentials do not match our records. Please try again.' },
@@ -100,12 +136,15 @@ export async function POST(req: NextRequest) {
       actorRole: staff.role,
       action: 'Signed in to the staff portal',
       category: 'system',
-      details: `${staff.fullName} (${staff.email}) signed in from ${forwarded}.`,
+      details: `${staff.fullName} (${staff.email}) signed in from ${forwarded} using ${
+        method === 'supabase' ? 'Supabase Auth' : 'the portal password'
+      }.`,
     });
     saveSchoolState(state);
 
     const response = NextResponse.json({
       ok: true,
+      method,
       redirect: HOME_FOR_ROLE[staff.role],
       user: { fullName: staff.fullName, role: staff.role, staffId: staff.staffId },
     });

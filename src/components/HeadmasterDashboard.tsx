@@ -11,6 +11,7 @@ import {
   Edit3,
   FileSpreadsheet,
   GraduationCap,
+  KeyRound,
   Layers,
   Receipt,
   Save,
@@ -32,6 +33,7 @@ import {
 import { formatCurrency, SCHOOL_CLASSES } from '@/lib/grading';
 import { ReportCardGenerator } from './ReportCardGenerator';
 import { PhotoCapture } from '@/components/ui/PhotoCapture';
+import { AdmissionsRegister } from '@/components/portal/AdmissionsRegister';
 
 interface HeadmasterDashboardProps {
   state: SchoolStateSnapshot;
@@ -285,6 +287,41 @@ export function HeadmasterDashboard({
     () => state.teacherRegistrations.filter((r) => r.status === 'pending'),
     [state.teacherRegistrations]
   );
+
+  /* ---------------------------------------------------------------- */
+  /* Parent access PINs — the code a family uses to sign in at /parents */
+  /* ---------------------------------------------------------------- */
+  const [parentPin, setParentPin] = useState<{
+    pupil: string;
+    code: string;
+    pin: string;
+  } | null>(null);
+  const [issuingPin, setIssuingPin] = useState<string | null>(null);
+
+  async function handleIssueParentPin(pupil: { id: string; fullName: string; studentCode: string }) {
+    setIssuingPin(pupil.id);
+    try {
+      const response = await fetch('/api/school', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'issue_parent_pin', studentId: pupil.id }),
+      });
+      const data = await response.json();
+
+      if (!response.ok || !data.ok) {
+        onNotify(data.error || 'A parent PIN could not be issued.', 'info');
+        return;
+      }
+
+      if (data.state) onStateChange(data.state as SchoolStateSnapshot);
+      setParentPin({ pupil: pupil.fullName, code: pupil.studentCode, pin: data.pin });
+      onNotify(`A parent access PIN was issued for ${pupil.fullName}.`);
+    } catch {
+      onNotify('The server could not be reached.', 'info');
+    } finally {
+      setIssuingPin(null);
+    }
+  }
 
   async function handleReviewRegistration(
     regId: string,
@@ -959,7 +996,17 @@ export function HeadmasterDashboard({
       {/* TAB 2b: ADMISSIONS — ENROL A PUPIL WITH A PASSPORT PHOTOGRAPH         */}
       {/* ===================================================================== */}
       {activeTab === 'admissions' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="space-y-6">
+          {/* The searchable applications register comes first: here the office
+              finds a family, moves an application on and enrols the child. */}
+          <AdmissionsRegister
+            applications={state.admissionApplications}
+            currentUser={{ fullName: headmaster.fullName, role: 'headmaster' }}
+            onStateChange={onStateChange}
+            onNotify={onNotify}
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Enrolment form */}
           <section className="lg:col-span-7 bg-white rounded-3xl border border-theresa-green-100 p-6 shadow-sm animate-fade-up">
             <div className="flex items-start justify-between gap-4 mb-5">
@@ -1158,6 +1205,29 @@ export function HeadmasterDashboard({
                 />
               </div>
 
+              {parentPin && (
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-dashed border-theresa-gold-400 bg-theresa-gold-50 px-4 py-3">
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-theresa-gold-800">
+                      Parent access PIN — written down and handed over once
+                    </p>
+                    <p className="mt-1 font-mono text-lg font-bold text-theresa-green-950">
+                      {parentPin.pin}
+                    </p>
+                    <p className="text-xs text-slate-600">
+                      {parentPin.pupil} &middot; signs in at /login/parent with {parentPin.code}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setParentPin(null)}
+                    className="rounded-xl border border-theresa-gold-300 bg-white px-3 py-2 text-xs font-semibold text-theresa-gold-800"
+                  >
+                    Done
+                  </button>
+                </div>
+              )}
+
               <ul className="mt-4 max-h-[420px] space-y-2 overflow-y-auto pr-1">
                 {filteredPupils.map((pupil) => (
                   <li
@@ -1181,6 +1251,15 @@ export function HeadmasterDashboard({
                         {pupil.className} &middot; {pupil.studentCode}
                       </p>
                     </div>
+                    <button
+                      type="button"
+                      disabled={issuingPin === pupil.id}
+                      onClick={() => handleIssueParentPin(pupil)}
+                      title="Issue a parent access PIN"
+                      className="shrink-0 rounded-xl border border-slate-200 p-2 text-slate-500 transition hover:border-theresa-green-500 hover:text-theresa-green-800 disabled:opacity-50"
+                    >
+                      <KeyRound className="h-3.5 w-3.5" />
+                    </button>
                     <span className="shrink-0 rounded-full bg-theresa-green-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-theresa-green-800">
                       {pupil.gender === 'Female' ? 'F' : 'M'}
                     </span>
@@ -1194,6 +1273,7 @@ export function HeadmasterDashboard({
               </ul>
             </section>
           </aside>
+          </div>
         </div>
       )}
 

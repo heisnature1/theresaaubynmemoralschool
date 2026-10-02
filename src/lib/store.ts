@@ -14,6 +14,11 @@ import {
  * website's published content lives in the database (see `site-data.ts`) and
  * the portal's records are entered by the school itself. The only thing seeded
  * here are the two bootstrap staff accounts that the office signs in with.
+ *
+ * The store covers the whole working year: staff accounts, teaching
+ * applications, admissions applications, class fees, pupils, fee receipts, the
+ * feeding register, marks, enquiries and the audit trail. A store written by
+ * an earlier version is migrated on read, so nothing entered so far is lost.
  */
 
 const STORE_FILE_PATH = '/tmp/st-theresa-aubyn-state-v2.json';
@@ -64,6 +69,7 @@ function createDefaultState(): SchoolStateSnapshot {
     nextSemesterReopening: '',
     staff,
     teacherRegistrations: [],
+    admissionApplications: [],
     classFeeStructures: [],
     students: [],
     feePayments: [],
@@ -72,6 +78,27 @@ function createDefaultState(): SchoolStateSnapshot {
     contactInquiries: [],
     auditLogs: [],
     gallery: [],
+  };
+}
+
+/**
+ * Brings a store written by an earlier version up to date: collections added
+ * since then are filled in so that a school that has been keeping records
+ * through the portal keeps every one of them.
+ */
+function migrateState(state: SchoolStateSnapshot): SchoolStateSnapshot {
+  return {
+    ...state,
+    teacherRegistrations: state.teacherRegistrations ?? [],
+    admissionApplications: state.admissionApplications ?? [],
+    classFeeStructures: state.classFeeStructures ?? [],
+    students: state.students ?? [],
+    feePayments: state.feePayments ?? [],
+    dailyFeedingLogs: state.dailyFeedingLogs ?? [],
+    academicResults: state.academicResults ?? [],
+    contactInquiries: state.contactInquiries ?? [],
+    auditLogs: state.auditLogs ?? [],
+    gallery: state.gallery ?? [],
   };
 }
 
@@ -101,7 +128,7 @@ export function getSchoolState(): SchoolStateSnapshot {
       const raw = fs.readFileSync(STORE_FILE_PATH, 'utf-8');
       const parsed = JSON.parse(raw) as SchoolStateSnapshot;
       if (parsed && Array.isArray(parsed.students) && Array.isArray(parsed.classFeeStructures)) {
-        memoryState = ensureStaffCredentials(parsed);
+        memoryState = ensureStaffCredentials(migrateState(parsed));
         return memoryState;
       }
     }
@@ -114,12 +141,16 @@ export function getSchoolState(): SchoolStateSnapshot {
   return memoryState;
 }
 
-/** Strips anything that must never reach the browser (password hashes). */
+/**
+ * Strips anything that must never reach the browser: staff and applicant
+ * password hashes, and the parent access PINs held against pupil records.
+ */
 export function toClientState(state: SchoolStateSnapshot): SchoolStateSnapshot {
   return {
     ...state,
     staff: state.staff.map(({ passwordHash, ...rest }) => rest),
     teacherRegistrations: state.teacherRegistrations.map(({ passwordHash, ...rest }) => rest),
+    students: state.students.map(({ accessPinHash, ...rest }) => rest),
   };
 }
 

@@ -38,7 +38,7 @@ export default async function AcademicsPage() {
       <PageHero
         eyebrow="Academics and fees"
         title="The teaching programme and what it costs"
-        image="/images/stem-lab.jpg"
+        art="academics"
       >
         <p className="max-w-3xl leading-relaxed">
           {info?.currentSemester

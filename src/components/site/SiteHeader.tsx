@@ -25,6 +25,7 @@ const NAV_LINKS = [
 ];
 
 const PORTAL_LINKS = [
+  { href: '/login/parent', label: 'Parent', hint: 'Fees, feeding, marks and report cards' },
   { href: '/login/super-admin', label: 'Super Administrator', hint: 'Proprietor and governing council' },
   { href: '/login/administrator', label: 'Administrator', hint: 'Headmaster, bursary and office staff' },
   { href: '/login/teacher', label: 'Teacher', hint: 'Class and subject teachers' },

@@ -18,7 +18,7 @@ export default async function GalleryPage() {
       <PageHero
         eyebrow="Gallery"
         title="The compound, the classrooms and the field"
-        image="/images/sports-culture.jpg"
+        art="gallery"
       >
         <p className="max-w-3xl leading-relaxed">
           Photographs published by the school office. Parents who would like copies of any
