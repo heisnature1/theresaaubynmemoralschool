@@ -1,13 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { calculateGrade } from '@/lib/grading';
-import { appendAuditLog, getSchoolState, saveSchoolState } from '@/lib/store';
+import { appendAuditLog, getSchoolState, saveSchoolState, toClientState } from '@/lib/store';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
+import { getSession } from '@/lib/auth';
 import { SubjectResult, UserRole } from '@/types/school';
 
 export const dynamic = 'force-dynamic';
 
 // POST /api/results -> Enter or update a student's academic subject score (Class Score 30% + Exam Score 70%)
 export async function POST(req: NextRequest) {
+  const session = getSession();
+  if (!session) {
+    return NextResponse.json({ error: 'Teacher sign-in required.' }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const {
@@ -99,7 +105,7 @@ export async function POST(req: NextRequest) {
     });
 
     saveSchoolState(state);
-    return NextResponse.json({ ok: true, result: resultRecord, state });
+    return NextResponse.json({ ok: true, result: resultRecord, state: toClientState(state) });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to save student result' },
@@ -110,6 +116,11 @@ export async function POST(req: NextRequest) {
 
 // PATCH /api/results -> Update student's End-of-Semester Report metadata (Teacher Remark, Headmaster Remark, Attendance, Endorsement)
 export async function PATCH(req: NextRequest) {
+  const session = getSession();
+  if (!session) {
+    return NextResponse.json({ error: 'Teacher sign-in required.' }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const {
@@ -154,7 +165,7 @@ export async function PATCH(req: NextRequest) {
     });
 
     saveSchoolState(state);
-    return NextResponse.json({ ok: true, student, state });
+    return NextResponse.json({ ok: true, student, state: toClientState(state) });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to update report metadata' },

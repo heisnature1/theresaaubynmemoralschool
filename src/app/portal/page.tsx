@@ -1,16 +1,10 @@
-import React from 'react';
-import { getSchoolState } from '@/lib/store';
-import { SchoolPlatform } from '@/components/SchoolPlatform';
+import { redirect } from 'next/navigation';
+import { HOME_FOR_ROLE, getSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-export default function PortalPage() {
-  const initialState = getSchoolState();
-  return (
-    <SchoolPlatform
-      initialState={initialState}
-      defaultMode="portal"
-      defaultRole="super_admin"
-    />
-  );
+export default function PortalIndexPage() {
+  const session = getSession();
+  if (!session) redirect('/login/administrator');
+  redirect(HOME_FOR_ROLE[session.role]);
 }

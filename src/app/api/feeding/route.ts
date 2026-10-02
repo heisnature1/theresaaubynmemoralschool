@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { appendAuditLog, getSchoolState, saveSchoolState } from '@/lib/store';
+import { appendAuditLog, getSchoolState, saveSchoolState, toClientState } from '@/lib/store';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
+import { getSession } from '@/lib/auth';
 import { DailyFeedingLog, FeedingStatus, UserRole } from '@/types/school';
 
 export const dynamic = 'force-dynamic';
 
 // POST /api/feeding -> Log daily feeding fee collection by student name and date (single or batch)
 export async function POST(req: NextRequest) {
+  const session = getSession();
+  if (!session) {
+    return NextResponse.json({ error: 'Teacher sign-in required.' }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const {
@@ -18,10 +24,11 @@ export async function POST(req: NextRequest) {
       amount,
       status = 'paid',
       paymentMethod = 'Cash',
-      loggedByTeacher = 'Mr. Emmanuel Osei-Tutu',
-      actorRole = 'teacher',
       notes = '',
     } = body;
+
+    const loggedByTeacher = session.fullName;
+    const actorRole = session.role;
 
     const state = getSchoolState();
     const dateStr = collectionDate || new Date().toISOString().split('T')[0];
@@ -69,7 +76,7 @@ export async function POST(req: NextRequest) {
       });
 
       saveSchoolState(state);
-      return NextResponse.json({ ok: true, countLogged, state });
+      return NextResponse.json({ ok: true, countLogged, state: toClientState(state) });
     }
 
     // Mode: Single student entry by Student ID or Student Name + Date
@@ -159,7 +166,7 @@ export async function POST(req: NextRequest) {
     });
 
     saveSchoolState(state);
-    return NextResponse.json({ ok: true, feedingLog: logEntry, state });
+    return NextResponse.json({ ok: true, feedingLog: logEntry, state: toClientState(state) });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to log daily feeding fee' },

@@ -9,11 +9,10 @@ import {
   Clock,
   Coins,
   FileSpreadsheet,
+  KeyRound,
   PlusCircle,
   Search,
   Send,
-  Sparkles,
-  UserPlus,
   Utensils,
 } from 'lucide-react';
 import {
@@ -32,7 +31,9 @@ interface TeacherDashboardProps {
   state: SchoolStateSnapshot;
   onStateChange: (newState: SchoolStateSnapshot) => void;
   onNotify: (msg: string, type?: 'success' | 'info') => void;
-  initialTab?: 'results' | 'feeding' | 'signup' | 'reports';
+  initialTab?: 'results' | 'feeding' | 'reports' | 'profile';
+  /** Details of the teacher who is signed in. */
+  currentUser?: { fullName: string; staffId: string; email: string };
 }
 
 export function TeacherDashboard({
@@ -40,21 +41,27 @@ export function TeacherDashboard({
   onStateChange,
   onNotify,
   initialTab = 'results',
+  currentUser,
 }: TeacherDashboardProps) {
   const teachers = useMemo(
     () => state.staff.filter((s) => s.role === 'teacher'),
     [state.staff]
   );
 
+  const signedInTeacher = useMemo(
+    () => teachers.find((t) => t.email.toLowerCase() === (currentUser?.email || '').toLowerCase()),
+    [teachers, currentUser]
+  );
+
   const [activeTeacherId, setActiveTeacherId] = useState<string>(
-    teachers[0]?.id || 'stf-t1'
+    signedInTeacher?.id || teachers[0]?.id || 'stf-t1'
   );
   const activeTeacher = useMemo(
     () => teachers.find((t) => t.id === activeTeacherId) || teachers[0],
     [teachers, activeTeacherId]
   );
 
-  const [activeTab, setActiveTab] = useState<'results' | 'feeding' | 'signup' | 'reports'>(
+  const [activeTab, setActiveTab] = useState<'results' | 'feeding' | 'reports' | 'profile'>(
     initialTab
   );
 
@@ -275,71 +282,63 @@ export function TeacherDashboard({
   }, [filteredFeedingLogs]);
 
   // =========================================================================
-  // 3. TEACHER SIGN-UP REQUEST STATE
+  // 3. MY ACCOUNT (password change)
   // =========================================================================
-  const [regName, setRegName] = useState('');
-  const [regEmail, setRegEmail] = useState('');
-  const [regPhone, setRegPhone] = useState('');
-  const [regQual, setRegQual] = useState('B.Ed. Basic Education (UCC)');
-  const [regClass, setRegClass] = useState('Basic 5');
-  const [regSubjects, setRegSubjects] = useState<string[]>([
-    'Mathematics',
-    'Integrated Science',
-  ]);
-  const [regExp, setRegExp] = useState(3);
-  const [regStatement, setRegStatement] = useState('');
-  const [submittingReg, setSubmittingReg] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(
+    null
+  );
 
-  function toggleSubjectSelection(subj: string) {
-    setRegSubjects((prev) =>
-      prev.includes(subj) ? prev.filter((s) => s !== subj) : [...prev, subj]
-    );
-  }
+  async function handlePasswordChange(event: React.FormEvent) {
+    event.preventDefault();
+    setPasswordMessage(null);
 
-  async function handleTeacherSignupSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!regName.trim() || !regEmail.trim() || !regPhone.trim()) return;
-    setSubmittingReg(true);
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage({ kind: 'error', text: 'The two new passwords do not match.' });
+      return;
+    }
+
+    setChangingPassword(true);
     try {
-      const res = await fetch('/api/teachers', {
-        method: 'POST',
+      const response = await fetch('/api/auth/password', {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: regName,
-          email: regEmail,
-          phone: regPhone,
-          qualification: regQual,
-          requestedClass: regClass,
-          subjects: regSubjects,
-          experienceYears: regExp,
-          statement: regStatement,
-        }),
+        body: JSON.stringify({ currentPassword, newPassword }),
       });
-      const data = await res.json();
-      if (data.ok && data.state) {
-        onStateChange(data.state);
-        setRegName('');
-        setRegEmail('');
-        setRegPhone('');
-        setRegStatement('');
-        onNotify(
-          'Teacher registration request submitted! The Headmaster can now review and approve it.'
-        );
+      const data = await response.json();
+
+      if (!response.ok || !data.ok) {
+        setPasswordMessage({ kind: 'error', text: data.error || 'The password could not be changed.' });
+        return;
       }
+
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setPasswordMessage({
+        kind: 'ok',
+        text: 'Your password has been changed. Use the new one the next time you sign in.',
+      });
+      onNotify('Password updated.');
+    } catch {
+      setPasswordMessage({ kind: 'error', text: 'The server could not be reached. Please try again.' });
     } finally {
-      setSubmittingReg(false);
+      setChangingPassword(false);
     }
   }
 
   return (
     <div className="space-y-6">
-      {/* Top Role Banner & Active Teacher Selector */}
+      {/* Signed-in teacher banner */}
       <div className="bg-gradient-to-r from-teresa-green-900 via-teresa-green-800 to-teresa-green-900 rounded-3xl p-6 text-white shadow-lg border border-teresa-gold-400/30">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teresa-gold-400/20 border border-teresa-gold-400/40 text-teresa-gold-300 text-xs font-bold uppercase tracking-wider">
               <BookOpen className="w-3.5 h-3.5" />
-              Teacher Academic & Daily Operations Portal
+              Class teacher&apos;s desk
             </div>
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-white">
               Welcome, {activeTeacher?.fullName || 'Class Teacher'}
@@ -351,22 +350,14 @@ export function TeacherDashboard({
             </p>
           </div>
 
-          {/* Switch Active Teacher Session */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/15">
-            <label className="block text-[11px] uppercase tracking-wider text-teresa-gold-300 font-bold mb-1">
-              Active Teacher Session
-            </label>
-            <select
-              value={activeTeacher?.id || ''}
-              onChange={(e) => setActiveTeacherId(e.target.value)}
-              className="px-3 py-2 rounded-xl bg-teresa-green-950/90 border border-teresa-gold-400/40 text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-teresa-gold-400"
-            >
-              {teachers.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.fullName} ({t.assignedClass || 'Faculty'} • {t.staffId})
-                </option>
-              ))}
-            </select>
+          <div className="rounded-2xl border border-white/15 bg-white/10 p-3.5 text-xs text-emerald-50">
+            <p className="font-bold uppercase tracking-wider text-teresa-gold-300">Signed in</p>
+            <p className="mt-1 font-semibold text-white">
+              {currentUser?.fullName || activeTeacher?.fullName}
+            </p>
+            <p className="text-emerald-100/80">
+              Staff number {currentUser?.staffId || activeTeacher?.staffId}
+            </p>
           </div>
         </div>
 
@@ -382,7 +373,7 @@ export function TeacherDashboard({
             }`}
           >
             <ClipboardCheck className="w-4 h-4" />
-            1. Enter Student Results
+            Assessment marks
           </button>
 
           <button
@@ -395,7 +386,7 @@ export function TeacherDashboard({
             }`}
           >
             <Utensils className="w-4 h-4" />
-            2. Daily Feeding Fee Log (By Name & Date)
+            Daily feeding register
           </button>
 
           <button
@@ -408,25 +399,20 @@ export function TeacherDashboard({
             }`}
           >
             <FileSpreadsheet className="w-4 h-4" />
-            3. Generate End-of-Semester Reports
+            Report cards
           </button>
 
           <button
             type="button"
-            onClick={() => setActiveTab('signup')}
+            onClick={() => setActiveTab('profile')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
-              activeTab === 'signup'
+              activeTab === 'profile'
                 ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
-            <UserPlus className="w-4 h-4" />
-            4. Submit Teacher Sign-Up Request
-            {state.teacherRegistrations.filter((r) => r.status === 'pending').length > 0 && (
-              <span className="px-2 py-0.5 text-xs rounded-full bg-teresa-green-950 text-teresa-gold-300">
-                {state.teacherRegistrations.filter((r) => r.status === 'pending').length} Pending
-              </span>
-            )}
+            <KeyRound className="w-4 h-4" />
+            My account
           </button>
         </div>
       </div>
@@ -441,10 +427,10 @@ export function TeacherDashboard({
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
-                  Continuous Assessment & Exams
+                  Continuous assessment and examination
                 </span>
                 <h3 className="text-xl font-serif font-bold text-teresa-green-950">
-                  Enter Student Subject Score
+                  Enter a subject mark
                 </h3>
               </div>
               <div className="w-10 h-10 rounded-xl bg-teresa-green-50 flex items-center justify-center text-teresa-green-800">
@@ -575,7 +561,7 @@ export function TeacherDashboard({
                 </div>
               </div>
 
-              {/* Live Auto-Calculated Grade Preview */}
+              {/* Grade preview as marks are typed */}
               <div className="p-4 rounded-2xl bg-teresa-ivory border border-teresa-gold-300 flex items-center justify-between">
                 <div>
                   <div className="text-xs font-bold uppercase text-slate-500">
@@ -687,7 +673,7 @@ export function TeacherDashboard({
 
             <div className="mt-4 p-4 rounded-2xl bg-teresa-green-50/70 border border-teresa-green-200 flex items-center justify-between text-xs text-teresa-green-900">
               <span>
-                <strong>Tip:</strong> Click any subject row above to load its scores into the left editor for instant updates.
+                <strong>Tip:</strong> Select a subject row to load its marks in the editor on the left.
               </span>
               <span className="font-mono font-bold">
                 {currentStudentResults.length} Subjects Recorded
@@ -747,7 +733,7 @@ export function TeacherDashboard({
                   {formatCurrency(totalCollectedOnSelectedDate)}
                 </div>
                 <div className="text-xs text-emerald-700 font-semibold mt-0.5">
-                  Synced with Headmaster & Bursar Ledger
+                  Also recorded in the Bursary's fee ledger
                 </div>
               </div>
               <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-800">
@@ -761,13 +747,13 @@ export function TeacherDashboard({
             <div className="lg:col-span-5 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
               <div className="mb-4">
                 <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
-                  Daily Nutrition Ledger
+                  Daily feeding register
                 </span>
                 <h3 className="text-xl font-serif font-bold text-teresa-green-950">
-                  Log Feeding Fee by Student Name & Date
+                  Feeding fee by pupil and date
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Select or enter a student&apos;s name and collection date to record their daily meal fee.
+                  Choose a pupil and the date, and record the meal fee collected.
                 </p>
               </div>
 
@@ -787,7 +773,7 @@ export function TeacherDashboard({
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    Quick Pick From Roster (or Type Student Name Below)
+                    Choose a pupil from the class list
                   </label>
                   <select
                     value={
@@ -920,7 +906,7 @@ export function TeacherDashboard({
                       1-Click Class Feeding Register ({feedingDate})
                     </span>
                     <h3 className="text-lg font-serif font-bold text-teresa-green-950">
-                      Student Roll-Call & Instant Feeding Status
+                      Class roll-call for the day
                     </h3>
                   </div>
 
@@ -930,7 +916,7 @@ export function TeacherDashboard({
                       onChange={(e) => setFeedingClassFilter(e.target.value)}
                       className="px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold"
                     >
-                      <option value="All">All Classes</option>
+                      <option value="All">All classes</option>
                       {Array.from(new Set(state.students.map((s) => s.className))).map((c) => (
                         <option key={c} value={c}>
                           {c}
@@ -944,7 +930,7 @@ export function TeacherDashboard({
                         onClick={() => handleBatchMarkClassPaid(feedingClassFilter)}
                         className="px-3 py-2 rounded-xl bg-teresa-gold-400 hover:bg-teresa-gold-500 text-teresa-green-950 text-xs font-bold transition"
                       >
-                        Mark All {feedingClassFilter} Paid
+                        Mark the whole of {feedingClassFilter} as paid
                       </button>
                     )}
                   </div>
@@ -955,7 +941,7 @@ export function TeacherDashboard({
                   <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Filter register by student name or class..."
+                    placeholder="Search the register by name or class…"
                     value={feedingSearchQuery}
                     onChange={(e) => setFeedingSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-teresa-green-600 focus:outline-none"
@@ -1126,223 +1112,116 @@ export function TeacherDashboard({
       )}
 
       {/* ===================================================================== */}
-      {/* TAB 4: SUBMIT TEACHER SIGN-UP REQUEST                                 */}
+      {/* TAB 4: MY ACCOUNT                                                     */}
       {/* ===================================================================== */}
-      {activeTab === 'signup' && (
+      {activeTab === 'profile' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left 6 cols: New Teacher Sign-Up Request Form */}
-          <div className="lg:col-span-6 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
-            <div className="mb-4">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teresa-gold-100 text-teresa-gold-900 text-xs font-bold mb-1">
-                <Sparkles className="w-3.5 h-3.5 text-teresa-gold-700" />
-                Faculty Onboarding Workflow
-              </div>
-              <h3 className="text-xl font-serif font-bold text-teresa-green-950">
-                Submit New Teacher Sign-Up Request
-              </h3>
-              <p className="text-xs text-slate-600 mt-0.5">
-                New educators submit their credentials here. Once approved by the Headmaster, an official Staff ID is issued automatically.
-              </p>
-            </div>
-
-            <form onSubmit={handleTeacherSignupSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    Full Name & Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Mr. Kwabena Okyere"
-                    value={regName}
-                    onChange={(e) => setRegName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teresa-green-600 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="k.okyere@stteresa-aubyn.edu.gh"
-                    value={regEmail}
-                    onChange={(e) => setRegEmail(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teresa-green-600 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    Phone Number *
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="+233 24 555 0192"
-                    value={regPhone}
-                    onChange={(e) => setRegPhone(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    Requested Class *
-                  </label>
-                  <select
-                    value={regClass}
-                    onChange={(e) => setRegClass(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-bold text-teresa-green-950"
-                  >
-                    {SCHOOL_CLASSES.map((cls) => (
-                      <option key={cls} value={cls}>
-                        {cls}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    Years Experience
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={40}
-                    value={regExp}
-                    onChange={(e) => setRegExp(Number(e.target.value))}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-mono"
-                  />
-                </div>
-              </div>
-
+          <div className="lg:col-span-5 bg-white rounded-2xl border border-teresa-green-100 p-6 shadow-sm">
+            <h3 className="font-serif text-xl font-bold text-teresa-green-950">My staff record</h3>
+            <dl className="mt-4 space-y-3 text-sm">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Academic & Teaching Qualification *
+                <dt className="text-xs uppercase tracking-wider text-slate-500">Name</dt>
+                <dd className="font-semibold text-slate-900">
+                  {activeTeacher?.fullName || currentUser?.fullName}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wider text-slate-500">Staff number</dt>
+                <dd className="font-mono text-slate-800">
+                  {activeTeacher?.staffId || currentUser?.staffId}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wider text-slate-500">Email</dt>
+                <dd className="text-slate-800">{activeTeacher?.email || currentUser?.email}</dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wider text-slate-500">Class</dt>
+                <dd className="text-slate-800">{activeTeacher?.assignedClass || 'Not assigned'}</dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wider text-slate-500">Subjects</dt>
+                <dd className="text-slate-800">{activeTeacher?.subjects.join(', ') || '—'}</dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wider text-slate-500">Qualification</dt>
+                <dd className="text-slate-800">{activeTeacher?.qualification || '—'}</dd>
+              </div>
+            </dl>
+            <p className="mt-5 border-t border-slate-100 pt-4 text-xs leading-relaxed text-slate-500">
+              Corrections to your name, class or subjects are made by the Headmaster from the
+              administration portal.
+            </p>
+          </div>
+
+          <div className="lg:col-span-7 bg-white rounded-2xl border border-teresa-green-100 p-6 shadow-sm">
+            <h3 className="font-serif text-xl font-bold text-teresa-green-950">Change my password</h3>
+            <p className="mt-1 text-sm text-slate-600">
+              Passwords must be at least eight characters long and contain a letter and a number.
+            </p>
+
+            <form onSubmit={handlePasswordChange} className="mt-5 space-y-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-slate-800">
+                  Current password
                 </label>
                 <input
-                  type="text"
+                  type="password"
                   required
-                  placeholder="e.g. B.Ed. Mathematics & Science (UCC)"
-                  value={regQual}
-                  onChange={(e) => setRegQual(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full rounded-md border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-teresa-green-700 focus:ring-2 focus:ring-teresa-green-100"
                 />
               </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">
-                  Subjects Specialized (Click to Select)
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {SCHOOL_SUBJECTS.map((subj) => {
-                    const selected = regSubjects.includes(subj);
-                    return (
-                      <button
-                        key={subj}
-                        type="button"
-                        onClick={() => toggleSubjectSelection(subj)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
-                          selected
-                            ? 'bg-teresa-green-800 text-white border-teresa-green-800'
-                            : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                        }`}
-                      >
-                        {subj}
-                      </button>
-                    );
-                  })}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1.5 block text-sm font-semibold text-slate-800">
+                    New password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    minLength={8}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full rounded-md border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-teresa-green-700 focus:ring-2 focus:ring-teresa-green-100"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-semibold text-slate-800">
+                    Repeat new password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    minLength={8}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full rounded-md border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-teresa-green-700 focus:ring-2 focus:ring-teresa-green-100"
+                  />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Professional Teaching Statement
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder="Briefly state your teaching philosophy and class readiness..."
-                  value={regStatement}
-                  onChange={(e) => setRegStatement(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
-                />
-              </div>
+              {passwordMessage && (
+                <p
+                  className={`rounded-md border px-3.5 py-2.5 text-sm ${
+                    passwordMessage.kind === 'ok'
+                      ? 'border-teresa-green-200 bg-teresa-green-50 text-teresa-green-900'
+                      : 'border-rose-200 bg-rose-50 text-rose-800'
+                  }`}
+                >
+                  {passwordMessage.text}
+                </p>
+              )}
 
               <button
                 type="submit"
-                disabled={submittingReg}
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 hover:from-teresa-green-900 hover:to-teresa-green-800 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition"
+                disabled={changingPassword}
+                className="rounded-md bg-teresa-green-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teresa-green-900 disabled:opacity-60"
               >
-                <Send className="w-4 h-4 text-teresa-gold-300" />
-                {submittingReg
-                  ? 'Submitting Application...'
-                  : 'Submit Sign-Up Request for Headmaster Approval'}
+                {changingPassword ? 'Saving…' : 'Change password'}
               </button>
             </form>
-          </div>
-
-          {/* Right 6 cols: Live Registration Queue Status */}
-          <div className="lg:col-span-6 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
-            <h3 className="text-xl font-serif font-bold text-teresa-green-950 mb-1">
-              Teacher Registration Applications Status
-            </h3>
-            <p className="text-xs text-slate-500 mb-4">
-              Track sign-up requests awaiting Headmaster approval and recently onboarded teachers.
-            </p>
-
-            <div className="space-y-3">
-              {state.teacherRegistrations.map((reg) => (
-                <div
-                  key={reg.id}
-                  className="p-4 rounded-2xl border border-slate-200 bg-teresa-ivory/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                >
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-900 text-sm">{reg.fullName}</span>
-                      <span className="px-2 py-0.5 rounded bg-teresa-green-100 text-teresa-green-900 text-[11px] font-bold">
-                        Class: {reg.requestedClass}
-                      </span>
-                    </div>
-                    <div className="text-xs text-slate-600 mt-0.5">{reg.qualification}</div>
-                    <div className="text-xs text-slate-500 mt-1">
-                      Subjects: {reg.subjects.join(', ')}
-                    </div>
-                    {reg.assignedStaffId && (
-                      <div className="text-xs font-mono font-bold text-teresa-green-800 mt-1">
-                        Issued Staff ID: {reg.assignedStaffId}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="shrink-0">
-                    {reg.status === 'pending' && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold">
-                        <Clock className="w-3.5 h-3.5" />
-                        Pending Headmaster
-                      </span>
-                    )}
-                    {reg.status === 'approved' && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 text-xs font-bold">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Approved
-                      </span>
-                    )}
-                    {reg.status === 'rejected' && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-100 text-rose-900 border border-rose-300 text-xs font-bold">
-                        Declined
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       )}
