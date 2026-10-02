@@ -1,6 +1,9 @@
 -- =============================================================================
--- ST. TERESA AUBYN MEMORIAL SCHOOL - SUPABASE POSTGRESQL SCHEMA & RLS POLICIES
--- Designed for Vercel + Supabase TypeScript Integration
+-- ST. TERESA AUBYN MEMORIAL SCHOOL - SCHOOL RECORDS DATABASE (POSTGRESQL)
+--
+-- Optional. The portal runs on the server's own store out of the box; run this
+-- file only if the school wants its records held in a hosted PostgreSQL
+-- database (for example Supabase, hosted on Vercel or elsewhere).
 -- =============================================================================
 
 -- Enable UUID generation
@@ -31,10 +34,10 @@ exception
   when duplicate_object then null;
 end $$;
 
--- 2. Staff Profiles Table (linked to Supabase Auth or standalone portal auth)
+-- 2. Staff records. Staff sign in through the portal, which stores a scrypt
+--    hash of each password in password_hash.
 create table if not exists public.profiles (
   id uuid primary key default uuid_generate_v4(),
-  auth_user_id uuid unique,
   staff_id text unique not null,
   full_name text not null,
   email text unique not null,
@@ -44,6 +47,8 @@ create table if not exists public.profiles (
   subjects text[] default '{}',
   qualification text,
   is_active boolean not null default true,
+  password_hash text,
+  last_login_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -59,6 +64,7 @@ create table if not exists public.teacher_registrations (
   subjects text[] not null default '{}',
   experience_years integer not null default 1,
   statement text,
+  password_hash text,
   status registration_status not null default 'pending',
   reviewed_by text,
   reviewed_at timestamptz,

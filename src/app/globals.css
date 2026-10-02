@@ -2,24 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  scroll-behavior: smooth;
-}
-
 body {
-  background-color: #FAF8F3;
-  color: #0f172a;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  background-color: #fcfbf7;
+  color: #12181c;
 }
 
-/* Custom Scrollbar in St. Teresa Green & Gold */
+/* A restrained scrollbar in the school colours */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f3efe4;
+  background: #f1eee6;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -31,11 +26,17 @@ body {
   background: #09392a;
 }
 
+/* Report cards are printed without the surrounding application chrome */
 @media print {
   body {
     background: #ffffff !important;
   }
+
   .print\:hidden {
     display: none !important;
+  }
+
+  @page {
+    margin: 12mm;
   }
 }

@@ -1,69 +1,170 @@
-# St. Teresa Aubyn Memorial School — Website & Role-Based Management Portal
+# St. Teresa Aubyn Memorial School — Website & Staff Portal
 
-A complete, modern school management website and role-based cloud portal for **St. Teresa Aubyn Memorial School**, engineered with **Next.js (App Router)**, **TypeScript**, **Tailwind CSS**, and **Supabase** for seamless hosting on **Vercel**.
+The public website and the staff records system for **St. Teresa Aubyn Memorial School**, a day
+school for KG 1 to JHS 3 founded in 1988.
 
----
-
-## ✨ Key Features
-
-### 1. Public Website (Emerald Green & Imperial Gold Aesthetic)
-- **Public Homepage & Hero**: Modern emerald-green (`#09392A`) and imperial-gold (`#D9AF37`) design with smooth animations, institutional metrics, and direct role-portal launchers.
-- **Our History & Heritage (`#history`)**: Interactive timeline chronicling the school's founding on October 2, 1988, in honor of Late Madam Teresa Aubyn through its 2026 cloud transformation.
-- **Live Class Fee & Academic Stream Preview (`#academics`)**: Real-time display of Early Childhood, Lower Primary, Upper Primary, and Junior High fee schedules.
-- **Interactive Image Gallery (`#gallery`)**: Filterable campus photography across *Campus & Heritage*, *STEM & Academics*, *Sports & Culture*, and *Student Life & Dining* with a full-screen Lightbox modal.
-- **Contact Details & Admissions Inquiry (`#contact`)**: Official postal/GPS address, telephone directory, emails, visiting hours, and an interactive inquiry form connected to `/api/contact`.
+The website carries the school's notices, term dates, academic programme, fee schedule, admissions
+information, photo gallery and enquiry form. Behind it sits a staff portal where the Headmaster and
+the Bursary keep the fee books, class teachers enter marks and the daily feeding register, and
+report cards are printed or downloaded as PDFs.
 
 ---
 
-### 2. Three Role-Based Dashboards (`/portal` or Instant Header Switcher)
+## The pages
 
-1. **Super Admin Dashboard (School Owner — Full Visibility)**
-   - Complete institutional visibility across all revenue streams (Class Tuition, Afternoon Extra Classes, Semester Meal Plans, and Daily Feeding Cash Collections).
-   - Class-by-class financial & academic health matrix (`KG 1` through `JHS 3`).
-   - Real-time **System Audit Log** tracking all Headmaster and Teacher actions.
-   - Student enrollment form, full staff directory, owner override for teacher approvals, public inquiry inbox, and Supabase Cloud status inspector.
+**Public website** (`/`)
 
-2. **Headmaster Dashboard**
-   - **Manage Student Fees by Class, Extra Classes & Meal Fees**: Interactive rate configurator for every class (`KG 1`–`JHS 3`) covering Class Tuition Fee, Extra Classes Fee, Daily Meal Fee, Semester Meal Plan, and ICT/Books levy.
-   - **Student Fee Collections & Receipts**: Record payments (`tuition`, `extra_classes`, `meal_fee`) and issue official receipts (`STA-RCP-2026-...`).
-   - **Approve Teacher Registrations**: Review pending Teacher Sign-Up Requests submitted via the Teacher Portal, assign classes, and approve/decline with automatic Staff ID generation (`STA-TCH-...`).
-   - **End-of-Semester Report Endorsements**: Review student academic performance and customize Headmaster remarks.
+| Page | Address | What is on it |
+| --- | --- | --- |
+| Home | `/` | School introduction, notices for parents, term dates, headmaster's welcome, departments, fees at a glance |
+| About the school | `/about` | History and the memorial, values, leadership and the teaching staff |
+| Academics & fees | `/academics` | Departments, assessment method, grading key, the full fee schedule, extra classes, the feeding programme, calendar |
+| Admissions | `/admissions` | The four steps, documents required, assessment for older applicants, FAQs, downloadable prospectus (PDF) |
+| Gallery | `/gallery` | Photographs of the compound, filterable by category |
+| Contact | `/contact` | Telephone numbers, email addresses, hours, directions and an enquiry form |
 
-3. **Teacher Portal**
-   - **Enter Student Results**: Record Continuous Assessment (`Class Score` out of 30) and `Exam Score` (out of 70) with automatic calculation of Total (`100%`), Grade (`A1`–`F9`), and Proficiency Remark.
-   - **Log Daily Feeding Fee Collections by Student Name & Date**: Select any date and student name (or use the 1-click class roll-call table / batch class marker) to log daily feeding fees (`Paid`, `Exempt`, `Unpaid`) by payment method (`Cash`, `Mobile Money`, `Prepaid Meal Card`).
-   - **Submit Teacher Sign-Up Requests**: Onboarding application form for new educators that routes directly to the Headmaster's approval queue.
-   - **Generate End-of-Semester Reports**: Preview, customize remarks/attendance, export CSV, and print official terminal report cards.
+**Sign-in pages** (`/login/...`)
+
+| Page | Address | Who uses it |
+| --- | --- | --- |
+| Super Administrator | `/login/super-admin` | The proprietor and governing council |
+| Administrator | `/login/administrator` | The Headmaster, Bursary and school office |
+| Teacher | `/login/teacher` | Class and subject teachers |
+
+**Teacher applications** — `/register/teacher`. Applicants choose their own password when applying;
+once the Headmaster approves the application the account becomes active and the applicant signs in
+with that password.
+
+**Staff portal** (`/portal/...`, requires sign-in)
+
+| Page | Address | What it does |
+| --- | --- | --- |
+| School overview | `/portal/super-admin` | Income by stream, fees outstanding by class, pupils registered, staff, teaching applications, parent enquiries and a record of who changed what |
+| Administration | `/portal/administrator` | Fee schedule by class, fee payments and receipts, teaching applications, report endorsements |
+| Class teacher | `/portal/teacher` | Continuous assessment and exam marks, the daily feeding register by pupil and date, report cards, password change |
+| Report cards | `/portal/reports` | Report cards for any pupil, with a PDF download and a print view |
 
 ---
 
-## 🛠️ Tech Stack & TypeScript Backend
+## Report cards as PDF
 
-- **Frontend**: Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Lucide Icons
-- **Backend API Routes (TypeScript)**:
-  - `GET / POST /api/school` — Full school state snapshot, student enrollment, and demo state reset
-  - `PATCH / POST /api/fees` — Class fee structure management (Tuition, Extra Classes, Meal Fees) & student payment receipts
-  - `POST / PATCH /api/teachers` — Teacher sign-up request submission & Headmaster approval workflow
-  - `POST /api/feeding` — Single & batch daily feeding fee collection logging by student name and date
-  - `POST / PATCH /api/results` — Student subject result entry (30% CA + 70% Exam) & terminal report remark updates
-  - `POST / PATCH /api/contact` — Public contact & admissions inquiry submissions
-- **Database**: Supabase PostgreSQL (`@supabase/supabase-js`, `@supabase/ssr`) with automatic fallback to a persistent server store when running in preview mode without external credentials.
+Report cards are produced as real PDF files, built by a small PDF writer in `src/lib/pdf.ts` that
+needs no external library. Each card carries the school heading and motto, pupil details, the
+subject table (continuous assessment out of 30, examination out of 70, total, grade, remarks and
+subject teacher), the summary strip, teacher and headmaster remarks, fee clearance and the grading
+key, with a signature block at the foot.
+
+Two ways to obtain them:
+
+- **Download PDF** in the portal saves the selected pupil's card.
+- **Print** uses the browser's print dialogue, which also offers "Save as PDF".
+
+Server-side, `GET /api/reports/:studentId/pdf` returns the same document (any signed-in member of
+staff), and `GET /api/reports/class/pdf?className=JHS+3` returns a whole class, one pupil per page.
+A prospectus for parents is generated the same way from `/admissions`.
 
 ---
 
-## 🚀 Deploying to Vercel & Connecting Supabase
+## Staff accounts
 
-1. **Create a Supabase Project**:
-   - Open the Supabase SQL Editor and run [`supabase/schema.sql`](./supabase/schema.sql) to create all tables, enums, and Row-Level Security (RLS) policies.
-2. **Configure Environment Variables on Vercel**:
-   - Copy `.env.example` to `.env.local` (or add in Vercel Project Settings → Environment Variables):
-     ```env
-     NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
-     NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-     SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
-     ```
-3. **Run Locally**:
-   ```bash
-   npm install
-   npm run dev
-   ```
+Passwords are stored as scrypt hashes in the school records and are never sent to the browser.
+Sessions are signed cookies that expire after eight hours of use.
+
+The accounts created with the school, printed here for the office to change after the first
+sign-in:
+
+| Role | Email | First password |
+| --- | --- | --- |
+| Super Administrator | `owner@stteresa-aubyn.edu.gh` | `Teresa@1988` |
+| Administrator (Headmaster) | `headmaster@stteresa-aubyn.edu.gh` | `Campus@1988` |
+| Teacher | `e.oseitutu@stteresa-aubyn.edu.gh` | `Teacher@2026` |
+
+Every other teacher on the seeded staff list may sign in with `Staff@2026` and should change it at
+once from **My account**. Five failed sign-in attempts from one address hold further attempts for
+ten minutes. Anyone may change their own password; a forgotten password is reset by the Super
+Administrator from the staff directory.
+
+Set a long random `AUTH_SECRET` in production so that session cookies cannot be forged.
+
+---
+
+## School records
+
+The portal keeps one set of records covering staff, teaching applications, class fee structures,
+pupils, fee payments and receipts, the daily feeding register, subject marks, parent enquiries and
+an activity record.
+
+- **Default (no setup):** records are held on the server, so the school can start work at once.
+- **Hosted database (optional):** set the Supabase variables below, then run
+  [`supabase/schema.sql`](./supabase/schema.sql) in the database's SQL editor to create the tables
+  and row-level security policies. The portal writes to both.
+
+The store lives at `/tmp/st-teresa-aubyn-state-v2.json` when no database is configured, which is
+suitable for a single server but not for a fleet of them.
+
+---
+
+## Running the project
+
+```bash
+npm install
+npm run dev        # http://localhost:3000
+npm run build      # production build
+npm run typecheck  # TypeScript
+npm start          # serve the production build
+```
+
+Environment variables (copy `.env.example` to `.env.local`):
+
+```env
+# Optional — leave blank to keep records on the server
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Required in production — signs staff session cookies
+AUTH_SECRET=
+```
+
+---
+
+## How it is built
+
+- **Next.js 14** (App Router) with **TypeScript** and **React 18**
+- **Tailwind CSS**, school colours defined in `tailwind.config.ts`
+- Route handlers under `src/app/api/` for sign-in, pupils, fees, feeding, marks, applications,
+  enquiries and PDFs
+- `src/lib/auth.ts` — password hashing, session cookies, role guards
+- `src/lib/pdf.ts` — the PDF writer
+- `src/lib/report-pdf.ts` and `src/lib/prospectus-pdf.ts` — the printed documents
+- `src/lib/store.ts` — school records and the seeded first-run data
+
+### Layout
+
+```
+src/
+  app/
+    (site)/           public pages, header and footer
+    (auth)/           sign-in pages and teaching applications
+    portal/           staff portal (sign-in required)
+    api/              route handlers
+  components/
+    site/             public website components
+    auth/             sign-in and application forms
+    portal/           portal shell and workspace
+    *Dashboard.tsx    the three role workspaces
+    ReportCardGenerator.tsx
+  lib/                auth, store, grading, PDF writers
+supabase/schema.sql   optional hosted database schema
+```
+
+---
+
+## Notes for the office
+
+- Fee rates are entered by the Headmaster under **Administration → Fees by class** and appear on the
+  public fee table straight away.
+- Feeding may be recorded either per pupil and date, or for a whole class in one action.
+- Marks are entered per pupil and subject; the grade and remark are worked out from the 30/70 split.
+- Report cards cannot be edited after printing, but the remarks and attendance may be corrected in
+  the portal before a card is downloaded.

@@ -23,6 +23,8 @@ import {
   UserRole,
 } from '@/types/school';
 import { calculateGrade, formatCurrency, formatOrdinal } from '@/lib/grading';
+import { buildClassReportPdf, buildStudentReportPdf } from '@/lib/report-pdf';
+import { downloadPdf } from '@/lib/pdf';
 import { SchoolCrest } from './SchoolCrest';
 
 interface ReportCardGeneratorProps {
@@ -183,43 +185,19 @@ export function ReportCardGenerator({
     }
   }
 
-  function handleExportCSV() {
-    if (!currentStudent) return;
-    const rows = [
-      ['St. Teresa Aubyn Memorial School - End of Semester Report'],
-      ['Student Name', currentStudent.fullName],
-      ['Student ID', currentStudent.studentCode],
-      ['Class', currentStudent.className],
-      ['Semester', state.currentSemester],
-      ['Average Score', `${academicSummary.averageScore}%`],
-      ['Class Position', `${academicSummary.classPosition} of ${academicSummary.classSize}`],
-      [],
-      ['Subject', 'Class Score (30)', 'Exam Score (70)', 'Total Score (100)', 'Grade', 'Remark', 'Teacher'],
-      ...studentResults.map((r) => [
-        r.subject,
-        String(r.classScore),
-        String(r.examScore),
-        String(r.totalScore),
-        r.grade,
-        r.remark,
-        r.enteredBy,
-      ]),
-    ];
+  function handleDownloadClassPdf() {
+    const className = currentStudent?.className;
+    if (!className) return;
+    const pdf = buildClassReportPdf(state, className);
+    downloadPdf(pdf, `${className.replace(/\s+/g, '-')}-semester-reports.pdf`);
+    onNotify(`All report cards for ${className} downloaded as one PDF.`);
+  }
 
-    const csvContent =
-      'data:text/csv;charset=utf-8,' +
-      rows.map((e) => e.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute(
-      'download',
-      `${currentStudent.fullName.replace(/\s+/g, '_')}_Semester_Report.csv`
-    );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    onNotify(`Downloaded CSV report for ${currentStudent.fullName}`, 'info');
+  function handleDownloadPdf() {
+    if (!currentStudent) return;
+    const pdf = buildStudentReportPdf(state, { student: currentStudent, results: studentResults });
+    downloadPdf(pdf, `${currentStudent.fullName.replace(/\s+/g, '-')}-semester-report.pdf`);
+    onNotify(`Report card for ${currentStudent.fullName} downloaded as a PDF.`);
   }
 
   if (!currentStudent) {
@@ -239,13 +217,13 @@ export function ReportCardGenerator({
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teresa-gold-100 text-teresa-gold-900 text-xs font-semibold mb-1">
               <FileCheck2 className="w-3.5 h-3.5 text-teresa-gold-700" />
-              Official End-of-Semester Terminal Report Engine
+              End-of-semester report cards
             </div>
             <h3 className="text-xl font-serif font-bold text-teresa-green-950">
-              Generate & Print Student Semester Report Cards
+              Generate and print pupil report cards
             </h3>
             <p className="text-sm text-slate-600">
-              Combines continuous class assessments (30%), semester exams (70%), attendance, fee clearance, and official remarks.
+              Continuous assessment out of 30, the examination out of 70, attendance, fee clearance and the teachers' remarks on a single sheet.
             </p>
           </div>
 
@@ -307,20 +285,29 @@ export function ReportCardGenerator({
 
               <button
                 type="button"
-                onClick={handleExportCSV}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 text-sm font-semibold transition"
+                onClick={handleDownloadClassPdf}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-teresa-green-700 text-teresa-green-800 hover:bg-teresa-green-50 text-sm font-semibold transition"
               >
                 <Download className="w-4 h-4" />
-                CSV
+                Whole class PDF
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDownloadPdf}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teresa-green-800 text-white hover:bg-teresa-green-900 text-sm font-semibold transition"
+              >
+                <Download className="w-4 h-4" />
+                Download PDF
               </button>
 
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 text-white hover:from-teresa-green-900 hover:to-teresa-green-800 text-sm font-semibold shadow-sm transition"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 text-sm font-semibold transition"
               >
-                <Printer className="w-4 h-4 text-teresa-gold-300" />
-                Print Report Card
+                <Printer className="w-4 h-4" />
+                Print
               </button>
             </div>
           </div>
@@ -436,7 +423,7 @@ export function ReportCardGenerator({
 
             <div className="text-center md:text-right bg-white/10 backdrop-blur-sm border border-teresa-gold-400/40 rounded-2xl px-4 py-3">
               <div className="text-[11px] uppercase tracking-widest text-teresa-gold-300 font-bold">
-                Official Terminal Report
+                Terminal report
               </div>
               <div className="text-base font-bold text-white mt-0.5">{state.currentSemester}</div>
               <div className="text-xs text-emerald-200 mt-0.5">
@@ -527,7 +514,7 @@ export function ReportCardGenerator({
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-bold uppercase tracking-wider text-teresa-green-900 flex items-center gap-2">
               <GraduationCap className="w-4 h-4 text-teresa-gold-600" />
-              Continuous Assessment (30%) & End-of-Semester Examination (70%) Breakdown
+              Continuous assessment (30%) and examination (70%)
             </h4>
             <span className="text-xs font-mono text-slate-500">
               Total Marks: {academicSummary.totalObtained} / {academicSummary.maxPossible}
@@ -589,7 +576,7 @@ export function ReportCardGenerator({
               {studentResults.length > 0 && (
                 <tfoot>
                   <tr className="bg-teresa-gold-50 border-t-2 border-teresa-gold-300 font-bold text-teresa-green-950 text-sm">
-                    <td className="py-3.5 px-4">SEMESTER AGGREGATE & AVERAGE</td>
+                    <td className="py-3.5 px-4">Semester total and average</td>
                     <td className="py-3.5 px-3 text-center font-mono">
                       {studentResults.reduce((s, r) => s + r.classScore, 0)}
                     </td>
@@ -667,7 +654,7 @@ export function ReportCardGenerator({
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-900 flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-teresa-gold-700" />
-                  Headmaster&apos;s Official Endorsement (Rev. Fr. Bernard Kweku Arthur, M.Ed.)
+                  Headmaster&apos;s endorsement
                 </span>
                 {currentStudent.reportEndorsed && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">
@@ -688,7 +675,7 @@ export function ReportCardGenerator({
               <div className="text-xs font-bold uppercase tracking-wider text-teresa-green-900 mb-3 flex items-center justify-between">
                 <span>Bursary & Feeding Clearance ({currentStudent.className})</span>
                 <span className="px-2 py-0.5 rounded bg-teresa-gold-200 text-teresa-green-950 text-[10px]">
-                  Headmaster Approved Rates
+                  Fee rates for this class
                 </span>
               </div>
 

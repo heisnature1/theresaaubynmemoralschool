@@ -15,13 +15,33 @@ import {
   TeacherRegistrationRequest,
   UserRole,
 } from '@/types/school';
+import { hashPassword } from './auth';
 import { calculateGrade } from './grading';
-import { isSupabaseConfigured } from './supabase/client';
 import { INITIAL_GALLERY_ITEMS, SCHOOL_HISTORY_MILESTONES } from './constants';
 
 export { INITIAL_GALLERY_ITEMS, SCHOOL_HISTORY_MILESTONES };
 
-const STORE_FILE_PATH = '/tmp/st-teresa-aubyn-state-v1.json';
+const STORE_FILE_PATH = '/tmp/st-teresa-aubyn-state-v2.json';
+
+/**
+ * Password hashes for the accounts the school office issues by hand.
+ * Change these (Super Admin → Staff Directory) before going live.
+ */
+const ISSUED_CREDENTIALS: Record<string, string> = {
+  'owner@stteresa-aubyn.edu.gh':
+    'scrypt$e1b61c2645d4d5d87d35674c8353eddb$ab435b070eff555472cb6ba7798dbc40045665612be7a841fc3964486a9d5e4223e391f77bae6875ccb9c92c86ea76cf5827ba457cc92473648f93c3620595b5',
+  'headmaster@stteresa-aubyn.edu.gh':
+    'scrypt$c46924bf2d9afb8f44e6a94e27ba453c$ce9a8c5c74d2af1e5616b99c39a44609161cabf90fdaf9108da8a157c44fcfcfbf21bbd3754348471aba3790cdaa249024ed599aa2594e8700bb00b84f00bc42',
+  'e.oseitutu@stteresa-aubyn.edu.gh':
+    'scrypt$55505090f3c8def3a73c6d88539ddc6c$6e5484565d33ac719df964a07a4769011184357477e2944b3306e02d43d95ea41ea47a9a2cde09e3d3077a46fd8419036a4f79b99d6e2bf6708b3ae2bb0296c1',
+};
+
+/** First-run passwords for the remaining teachers created with the school. */
+const NEW_TEACHER_PASSWORDS: Record<string, string> = {
+  'p.mensahkorsah@stteresa-aubyn.edu.gh': 'Staff@2026',
+  'a.owusuansah@stteresa-aubyn.edu.gh': 'Staff@2026',
+  'i.dadzie@stteresa-aubyn.edu.gh': 'Staff@2026',
+};
 
 function buildInitialResults(): SubjectResult[] {
   const semester = '2026/2027 - First Semester';
@@ -126,6 +146,7 @@ function createDefaultState(): SchoolStateSnapshot {
       subjects: ['Executive Governance', 'Institutional Quality Assurance'],
       isActive: true,
       joinedDate: '1988-10-02',
+      passwordHash: ISSUED_CREDENTIALS['owner@stteresa-aubyn.edu.gh'],
     },
     {
       id: 'stf-hm',
@@ -138,6 +159,7 @@ function createDefaultState(): SchoolStateSnapshot {
       subjects: ['School Administration', 'Religious & Moral Education'],
       isActive: true,
       joinedDate: '2014-09-01',
+      passwordHash: ISSUED_CREDENTIALS['headmaster@stteresa-aubyn.edu.gh'],
     },
     {
       id: 'stf-t1',
@@ -151,6 +173,7 @@ function createDefaultState(): SchoolStateSnapshot {
       subjects: ['Mathematics', 'Integrated Science', 'Computing & ICT'],
       isActive: true,
       joinedDate: '2019-09-10',
+      passwordHash: ISSUED_CREDENTIALS['e.oseitutu@stteresa-aubyn.edu.gh'],
     },
     {
       id: 'stf-t2',
@@ -164,6 +187,7 @@ function createDefaultState(): SchoolStateSnapshot {
       subjects: ['English Language', 'Social Studies', 'Religious & Moral Education', 'French & Ghanaian Language'],
       isActive: true,
       joinedDate: '2020-01-15',
+      passwordHash: hashPassword(NEW_TEACHER_PASSWORDS['p.mensahkorsah@stteresa-aubyn.edu.gh']),
     },
     {
       id: 'stf-t3',
@@ -177,6 +201,21 @@ function createDefaultState(): SchoolStateSnapshot {
       subjects: ['Creative Arts & Design', 'English Language', 'Mathematics'],
       isActive: true,
       joinedDate: '2022-09-05',
+      passwordHash: hashPassword(NEW_TEACHER_PASSWORDS['a.owusuansah@stteresa-aubyn.edu.gh']),
+    },
+    {
+      id: 'stf-t4',
+      staffId: 'STA-TCH-104',
+      fullName: 'Mr. Isaac Kwesi Dadzie',
+      email: 'i.dadzie@stteresa-aubyn.edu.gh',
+      phone: '+233 27 899 5401',
+      role: 'teacher',
+      assignedClass: 'JHS 2',
+      qualification: 'B.A. French & Francophone Studies (UG)',
+      subjects: ['French & Ghanaian Language', 'Social Studies'],
+      isActive: true,
+      joinedDate: '2026-10-01',
+      passwordHash: hashPassword(NEW_TEACHER_PASSWORDS['i.dadzie@stteresa-aubyn.edu.gh']),
     },
   ];
 
@@ -838,7 +877,6 @@ function createDefaultState(): SchoolStateSnapshot {
   ];
 
   return {
-    supabaseConnected: isSupabaseConfigured(),
     currentSemester: '2026/2027 - First Semester',
     nextSemesterReopening: 'January 12, 2027',
     staff,
@@ -856,24 +894,46 @@ function createDefaultState(): SchoolStateSnapshot {
 
 let memoryState: SchoolStateSnapshot | null = null;
 
-export function getSchoolState(): SchoolStateSnapshot {
-  if (memoryState) {
-    memoryState.supabaseConnected = isSupabaseConfigured();
-    return memoryState;
+/**
+ * Makes sure every staff account has a usable password. Accounts created before
+ * the portal introduced staff sign-in inherit the password issued by the office.
+ */
+function ensureStaffCredentials(state: SchoolStateSnapshot): SchoolStateSnapshot {
+  for (const member of state.staff) {
+    if (member.passwordHash) continue;
+    const email = member.email.toLowerCase();
+    if (ISSUED_CREDENTIALS[email]) {
+      member.passwordHash = ISSUED_CREDENTIALS[email];
+    } else if (NEW_TEACHER_PASSWORDS[email]) {
+      member.passwordHash = hashPassword(NEW_TEACHER_PASSWORDS[email]);
+    }
   }
+
+  for (const registration of state.teacherRegistrations) {
+    if (registration.status === 'pending' && !registration.passwordHash) {
+      // Applications submitted before sign-in was introduced: the office issues
+      // a fresh password when the request is approved.
+      registration.passwordHash = undefined;
+    }
+  }
+
+  return state;
+}
+
+export function getSchoolState(): SchoolStateSnapshot {
+  if (memoryState) return ensureStaffCredentials(memoryState);
 
   try {
     if (fs.existsSync(STORE_FILE_PATH)) {
       const raw = fs.readFileSync(STORE_FILE_PATH, 'utf-8');
       const parsed = JSON.parse(raw) as SchoolStateSnapshot;
       if (parsed && Array.isArray(parsed.students) && Array.isArray(parsed.classFeeStructures)) {
-        parsed.supabaseConnected = isSupabaseConfigured();
-        memoryState = parsed;
+        memoryState = ensureStaffCredentials(parsed);
         return memoryState;
       }
     }
   } catch {
-    // Fallback to default state if /tmp read fails
+    // Fall back to a fresh state if the store file cannot be read
   }
 
   memoryState = createDefaultState();
@@ -881,8 +941,16 @@ export function getSchoolState(): SchoolStateSnapshot {
   return memoryState;
 }
 
+/** Strips anything that must never reach the browser (password hashes). */
+export function toClientState(state: SchoolStateSnapshot): SchoolStateSnapshot {
+  return {
+    ...state,
+    staff: state.staff.map(({ passwordHash, ...rest }) => rest),
+    teacherRegistrations: state.teacherRegistrations.map(({ passwordHash, ...rest }) => rest),
+  };
+}
+
 export function saveSchoolState(state: SchoolStateSnapshot): SchoolStateSnapshot {
-  state.supabaseConnected = isSupabaseConfigured();
   memoryState = state;
   try {
     const dir = path.dirname(STORE_FILE_PATH);

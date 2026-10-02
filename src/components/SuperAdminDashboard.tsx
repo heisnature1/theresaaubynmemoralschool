@@ -6,19 +6,13 @@ import {
   Award,
   BarChart3,
   CheckCircle2,
-  Cloud,
   Coins,
-  Copy,
   Database,
-  Eye,
   FileSpreadsheet,
-  GraduationCap,
   Layers,
   Mail,
   PlusCircle,
-  RefreshCw,
   Shield,
-  Sparkles,
   TrendingUp,
   UserCheck,
   UserPlus,
@@ -33,14 +27,12 @@ interface SuperAdminDashboardProps {
   state: SchoolStateSnapshot;
   onStateChange: (newState: SchoolStateSnapshot) => void;
   onNotify: (msg: string, type?: 'success' | 'info') => void;
-  onSwitchRole?: (role: 'super_admin' | 'headmaster' | 'teacher') => void;
 }
 
 export function SuperAdminDashboard({
   state,
   onStateChange,
   onNotify,
-  onSwitchRole,
 }: SuperAdminDashboardProps) {
   const owner = useMemo(
     () =>
@@ -52,7 +44,7 @@ export function SuperAdminDashboard({
   );
 
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'finances' | 'directory' | 'reports' | 'cloud'
+    'overview' | 'finances' | 'directory' | 'reports' | 'inquiries'
   >('overview');
 
   // New Student Enrollment state
@@ -107,6 +99,24 @@ export function SuperAdminDashboard({
     state.teacherRegistrations,
   ]);
 
+  async function handleResetStaffPassword(staffId: string, name: string) {
+    const res = await fetch('/api/staff', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ staffId }),
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      onNotify(data.error || 'The password could not be reset.', 'info');
+      return;
+    }
+
+    onNotify(
+      `Temporary password for ${name}: ${data.password} — hand it over in person; it should be changed at the next sign-in.`
+    );
+  }
+
   async function handleEnrollStudent(e: React.FormEvent) {
     e.preventDefault();
     if (!stuName.trim() || !stuGuardian.trim()) return;
@@ -159,83 +169,46 @@ export function SuperAdminDashboard({
     }
   }
 
-  async function handleResetDemoState() {
-    const res = await fetch('/api/school', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'reset' }),
-    });
-    const data = await res.json();
-    if (data.ok && data.state) {
-      onStateChange(data.state);
-      onNotify('Reset school database to initial seed state.', 'info');
-    }
-  }
-
   return (
     <div className="space-y-6">
       {/* Super Admin Executive Header Banner */}
       <div className="bg-gradient-to-r from-teresa-green-950 via-teresa-green-900 to-teresa-green-950 rounded-3xl p-6 text-white shadow-xl border-2 border-teresa-gold-400/50 relative overflow-hidden">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 relative z-10">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teresa-gold-400 text-teresa-green-950 text-xs font-extrabold uppercase tracking-wider">
-              <Eye className="w-3.5 h-3.5" />
-              Super Admin • School Owner Full Visibility Suite
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teresa-gold-400 text-teresa-green-950 text-xs font-bold uppercase tracking-wider">
+              Proprietor &middot; governing council
             </div>
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-white">
               {owner.fullName}
             </h2>
             <p className="text-sm text-emerald-100/85">
-              Executive Proprietor & Chair of Council • Complete real-time visibility across Headmaster Bursary, Teacher Portals, Daily Feeding, & Academic Reports
+              Oversight of fee income, the feeding returns, pupil records, staff appointments and
+              every terminal report issued by the school.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            {onSwitchRole && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => onSwitchRole('headmaster')}
-                  className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold text-teresa-gold-200 transition"
-                >
-                  Inspect Headmaster View →
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onSwitchRole('teacher')}
-                  className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold text-teresa-gold-200 transition"
-                >
-                  Inspect Teacher View →
-                </button>
-              </>
-            )}
-            <button
-              type="button"
-              onClick={handleResetDemoState}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-teresa-gold-400/20 hover:bg-teresa-gold-400/30 border border-teresa-gold-400/40 text-xs font-bold text-teresa-gold-300 transition"
-              title="Reset demo state"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              Reset Seed Data
-            </button>
+            <span className="rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-emerald-50">
+              {state.currentSemester}
+            </span>
           </div>
         </div>
 
-        {/* Top-Level Full Visibility KPI Cards */}
+        {/* KPI cards */}
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 border border-teresa-gold-400/30">
             <div className="text-[10px] uppercase tracking-wider text-teresa-gold-300 font-bold">
-              Total Gross Revenue
+              Total fee income
             </div>
             <div className="text-lg font-mono font-extrabold text-white mt-0.5">
               {formatCurrency(metrics.totalRevenue)}
             </div>
-            <div className="text-[11px] text-emerald-300">All Fee Streams</div>
+            <div className="text-[11px] text-emerald-300">Tuition, meals and feeding</div>
           </div>
 
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 border border-white/15">
             <div className="text-[10px] uppercase tracking-wider text-emerald-200 font-bold">
-              Class Tuition Paid
+              Tuition received
             </div>
             <div className="text-lg font-mono font-extrabold text-white mt-0.5">
               {formatCurrency(metrics.totalTuitionPaid)}
@@ -245,7 +218,7 @@ export function SuperAdminDashboard({
 
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 border border-white/15">
             <div className="text-[10px] uppercase tracking-wider text-emerald-200 font-bold">
-              Extra Classes Revenue
+              Extra classes received
             </div>
             <div className="text-lg font-mono font-extrabold text-teresa-gold-300 mt-0.5">
               {formatCurrency(metrics.totalExtraPaid)}
@@ -255,7 +228,7 @@ export function SuperAdminDashboard({
 
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 border border-white/15">
             <div className="text-[10px] uppercase tracking-wider text-emerald-200 font-bold">
-              Daily Feeding + Meal Plan
+              Feeding &amp; meal plans
             </div>
             <div className="text-lg font-mono font-extrabold text-white mt-0.5">
               {formatCurrency(metrics.totalMealPrepaid + metrics.totalDailyFeedingCash)}
@@ -267,7 +240,7 @@ export function SuperAdminDashboard({
 
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 border border-white/15">
             <div className="text-[10px] uppercase tracking-wider text-emerald-200 font-bold">
-              School Academic Index
+              Average subject score
             </div>
             <div className="text-lg font-mono font-extrabold text-white mt-0.5">
               {metrics.avgAcademicScore}% Avg
@@ -279,13 +252,13 @@ export function SuperAdminDashboard({
 
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 border border-white/15">
             <div className="text-[10px] uppercase tracking-wider text-emerald-200 font-bold">
-              Staff & Teacher Queue
+              Staff on the roll
             </div>
             <div className="text-lg font-mono font-extrabold text-white mt-0.5">
               {state.staff.length} Active Staff
             </div>
             <div className="text-[11px] text-teresa-gold-300">
-              {metrics.pendingTeachers} Pending Sign-Ups
+              {metrics.pendingTeachers} applications pending
             </div>
           </div>
         </div>
@@ -302,7 +275,7 @@ export function SuperAdminDashboard({
             }`}
           >
             <BarChart3 className="w-4 h-4" />
-            1. Executive Full-Visibility Matrix & Audit Log
+            Overview &amp; activity
           </button>
 
           <button
@@ -315,7 +288,7 @@ export function SuperAdminDashboard({
             }`}
           >
             <Coins className="w-4 h-4" />
-            2. All Fee Ledgers & Daily Feeding Collections
+            Fees &amp; feeding
           </button>
 
           <button
@@ -328,7 +301,7 @@ export function SuperAdminDashboard({
             }`}
           >
             <Users className="w-4 h-4" />
-            3. Students, Faculty & Teacher Approvals
+            Pupils, staff &amp; appointments
           </button>
 
           <button
@@ -341,20 +314,20 @@ export function SuperAdminDashboard({
             }`}
           >
             <FileSpreadsheet className="w-4 h-4" />
-            4. End-of-Semester Reports Inspector
+            Report cards
           </button>
 
           <button
             type="button"
-            onClick={() => setActiveTab('cloud')}
+            onClick={() => setActiveTab('inquiries')}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition ${
-              activeTab === 'cloud'
+              activeTab === 'inquiries'
                 ? 'bg-teresa-gold-400 text-teresa-green-950 shadow-md'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
-            <Database className="w-4 h-4" />
-            5. Inquiries & Supabase / Vercel Cloud Status
+            <Mail className="w-4 h-4" />
+            Enquiries from parents
           </button>
         </div>
       </div>
@@ -364,19 +337,19 @@ export function SuperAdminDashboard({
       {/* ===================================================================== */}
       {activeTab === 'overview' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left 8 cols: Class-by-Class Financial & Academic Performance Matrix */}
+          {/* Left 8 cols: class-by-class position */}
           <div className="lg:col-span-8 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
-                  Owner Institutional Oversight
+                  Fees and marks by class
                 </span>
                 <h3 className="text-xl font-serif font-bold text-teresa-green-950">
-                  Class-by-Class Fee Structure, Feeding Rate & Academic Standing
+                  Class fee rates, feeding rate and average marks
                 </h3>
               </div>
               <span className="px-3 py-1 rounded-full bg-teresa-green-50 text-teresa-green-900 text-xs font-bold">
-                11 Active Class Streams
+                {state.classFeeStructures.length} classes
               </span>
             </div>
 
@@ -443,16 +416,16 @@ export function SuperAdminDashboard({
             </div>
           </div>
 
-          {/* Right 4 cols: Live Institutional Activity & Audit Stream */}
+          {/* Right 4 cols: activity record */}
           <div className="lg:col-span-4 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <span className="text-xs font-bold uppercase tracking-wider text-teresa-green-700">
-                    Real-Time Telemetry
+                    Activity record
                   </span>
                   <h3 className="text-xl font-serif font-bold text-teresa-green-950">
-                    System Audit Log
+                    Who changed what, and when
                   </h3>
                 </div>
                 <div className="w-9 h-9 rounded-xl bg-teresa-gold-100 flex items-center justify-center text-teresa-gold-800">
@@ -499,10 +472,10 @@ export function SuperAdminDashboard({
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
-                  Teacher Daily Collections
+                  Recorded by the class teachers
                 </span>
                 <h3 className="text-xl font-serif font-bold text-teresa-green-950">
-                  Daily Feeding Fee Ledger (By Student & Date)
+                  Daily feeding register
                 </h3>
               </div>
               <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 font-mono text-xs font-bold">
@@ -595,25 +568,25 @@ export function SuperAdminDashboard({
       )}
 
       {/* ===================================================================== */}
-      {/* TAB 3: STUDENTS, FACULTY & TEACHER APPROVALS                          */}
+      {/* TAB 3: PUPILS, STAFF AND TEACHING APPLICATIONS                       */}
       {/* ===================================================================== */}
       {activeTab === 'directory' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left 4 cols: Enroll New Student Form */}
+          {/* Left 4 cols: pupil registration */}
           <div className="lg:col-span-4 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
             <div className="mb-4">
               <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
-                Admissions Registry
+                Admissions register
               </span>
               <h3 className="text-xl font-serif font-bold text-teresa-green-950">
-                Enroll New Student
+                Register a new pupil
               </h3>
             </div>
 
             <form onSubmit={handleEnrollStudent} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Student Full Name *
+                  Pupil's full name *
                 </label>
                 <input
                   type="text"
@@ -691,26 +664,27 @@ export function SuperAdminDashboard({
                 className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-teresa-green-800 to-teresa-green-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition"
               >
                 <PlusCircle className="w-4 h-4 text-teresa-gold-300" />
-                {enrolling ? 'Enrolling...' : 'Enroll Student into Roster'}
+                {enrolling ? 'Saving…' : 'Add pupil to the register'}
               </button>
             </form>
           </div>
 
-          {/* Right 8 cols: Staff Directory & Pending Teacher Sign-Ups */}
+          {/* Right 8 cols: Staff directory and teaching applications */}
           <div className="lg:col-span-8 space-y-6">
             <div className="bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
               <h3 className="text-xl font-serif font-bold text-teresa-green-950 mb-3">
-                Active Leadership & Teaching Faculty ({state.staff.length})
+                Staff on the roll ({state.staff.length})
               </h3>
               <div className="overflow-x-auto rounded-2xl border border-slate-200">
                 <table className="w-full text-left border-collapse text-sm">
                   <thead>
                     <tr className="bg-teresa-green-900 text-white text-xs uppercase">
-                      <th className="py-3 px-4">Staff ID</th>
+                      <th className="py-3 px-4">Staff number</th>
                       <th className="py-3 px-3">Full Name</th>
                       <th className="py-3 px-3">Role</th>
                       <th className="py-3 px-3">Class</th>
-                      <th className="py-3 px-4">Qualification</th>
+                      <th className="py-3 px-3">Qualification</th>
+                      <th className="py-3 px-4 text-right">Sign-in</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
@@ -731,8 +705,17 @@ export function SuperAdminDashboard({
                         <td className="py-3 px-3 font-semibold text-slate-700">
                           {stf.assignedClass || 'All-School'}
                         </td>
-                        <td className="py-3 px-4 text-xs text-slate-600">
+                        <td className="py-3 px-3 text-xs text-slate-600">
                           {stf.qualification}
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <button
+                            type="button"
+                            onClick={() => handleResetStaffPassword(stf.id, stf.fullName)}
+                            className="rounded-md border border-slate-300 px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+                          >
+                            Reset password
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -744,7 +727,7 @@ export function SuperAdminDashboard({
             {/* Teacher Sign-up Requests Queue */}
             <div className="bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
               <h3 className="text-lg font-serif font-bold text-teresa-green-950 mb-3">
-                Teacher Registration Queue (Owner & Headmaster Oversight)
+                Teaching applications
               </h3>
               <div className="space-y-3">
                 {state.teacherRegistrations.map((reg) => (
@@ -791,7 +774,7 @@ export function SuperAdminDashboard({
       )}
 
       {/* ===================================================================== */}
-      {/* TAB 4: END-OF-SEMESTER REPORTS INSPECTOR                              */}
+      {/* TAB 4: REPORT CARDS                                                   */}
       {/* ===================================================================== */}
       {activeTab === 'reports' && (
         <ReportCardGenerator
@@ -804,127 +787,108 @@ export function SuperAdminDashboard({
       )}
 
       {/* ===================================================================== */}
-      {/* TAB 5: PUBLIC INQUIRIES & SUPABASE + VERCEL ARCHITECTURE              */}
       {/* ===================================================================== */}
-      {activeTab === 'cloud' && (
+      {/* TAB 5: PARENT ENQUIRIES & OUTSTANDING FEES                            */}
+      {/* ===================================================================== */}
+      {activeTab === 'inquiries' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left 6 cols: Public Contact & Admissions Inquiries */}
-          <div className="lg:col-span-6 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
+          <div className="lg:col-span-7 bg-white rounded-2xl border border-teresa-green-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
-                  Public Website Inbox
+                  Messages from the website
                 </span>
                 <h3 className="text-xl font-serif font-bold text-teresa-green-950">
-                  Contact & Admissions Inquiries ({state.contactInquiries.length})
+                  Enquiries received ({state.contactInquiries.length})
                 </h3>
               </div>
               <Mail className="w-5 h-5 text-teresa-green-800" />
             </div>
 
+            {state.contactInquiries.length === 0 && (
+              <p className="text-sm text-slate-600">
+                No enquiries have been received through the website this term.
+              </p>
+            )}
+
             <div className="space-y-3">
-              {state.contactInquiries.map((inq) => (
-                <div
-                  key={inq.id}
-                  className="p-4 rounded-2xl border border-slate-200 bg-teresa-ivory/50 space-y-1.5"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900 text-sm">{inq.subject}</span>
-                    <span className="px-2.5 py-0.5 rounded-full bg-teresa-green-100 text-teresa-green-900 text-[11px] font-bold uppercase">
-                      {inq.status}
+              {state.contactInquiries.map((inquiry) => (
+                <article key={inquiry.id} className="rounded-xl border border-slate-200 bg-teresa-ivory/50 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-sm font-bold text-slate-900">{inquiry.subject}</span>
+                    <span className="rounded-sm bg-teresa-green-100 px-2 py-0.5 text-[11px] font-bold uppercase text-teresa-green-900">
+                      {inquiry.status}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-700 leading-relaxed">{inq.message}</p>
-                  <div className="text-[11px] text-slate-500 pt-1 flex flex-wrap gap-3">
+                  <p className="mt-1.5 text-xs leading-relaxed text-slate-700">{inquiry.message}</p>
+                  <div className="mt-2 flex flex-wrap gap-4 text-[11px] text-slate-500">
                     <span>
-                      <strong>From:</strong> {inq.fullName}
+                      <strong>From:</strong> {inquiry.fullName}
                     </span>
                     <span>
-                      <strong>Email:</strong> {inq.email}
+                      <strong>Email:</strong> {inquiry.email}
                     </span>
                     <span>
-                      <strong>Phone:</strong> {inq.phone}
+                      <strong>Telephone:</strong> {inquiry.phone}
+                    </span>
+                    <span>
+                      <strong>Class:</strong> {inquiry.childClass || 'Not stated'}
                     </span>
                   </div>
-                </div>
+                </article>
               ))}
             </div>
           </div>
 
-          {/* Right 6 cols: Supabase + Vercel Cloud Integration Inspector */}
-          <div className="lg:col-span-6 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
-                  TypeScript Backend Architecture
-                </span>
-                <h3 className="text-xl font-serif font-bold text-teresa-green-950">
-                  Vercel + Supabase Cloud Integration
-                </h3>
-              </div>
-              <Cloud className="w-6 h-6 text-teresa-gold-600" />
+          <div className="lg:col-span-5 bg-white rounded-2xl border border-teresa-green-100 p-6 shadow-sm">
+            <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
+              Bursary follow-up
+            </span>
+            <h3 className="text-xl font-serif font-bold text-teresa-green-950">
+              Fees still outstanding by class
+            </h3>
+            <p className="mt-1 text-xs text-slate-500">
+              Class tuition and extra classes compared with the amounts recorded as paid.
+            </p>
+
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="text-left text-xs uppercase tracking-wider text-slate-500">
+                    <th className="py-2 font-semibold">Class</th>
+                    <th className="py-2 text-right font-semibold">Pupils</th>
+                    <th className="py-2 text-right font-semibold">Outstanding</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {state.classFeeStructures.map((fee) => {
+                    const pupils = state.students.filter((pupil) => pupil.className === fee.className);
+                    const outstanding = pupils.reduce((total, pupil) => {
+                      const tuition = Math.max(0, fee.tuitionFee - pupil.tuitionPaid);
+                      const extra = Math.max(0, fee.extraClassesFee - pupil.extraClassesPaid);
+                      return total + tuition + extra;
+                    }, 0);
+
+                    return (
+                      <tr key={fee.id}>
+                        <th scope="row" className="py-2 text-left font-semibold text-slate-800">
+                          {fee.className}
+                        </th>
+                        <td className="py-2 text-right text-slate-700">{pupils.length}</td>
+                        <td className="py-2 text-right font-mono text-slate-900">
+                          {outstanding > 0 ? formatCurrency(outstanding) : '—'}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
 
-            <div className="p-4 rounded-2xl bg-teresa-green-950 text-white space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-300">
-                  Active Storage Engine
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  {state.supabaseConnected
-                    ? 'Connected to Live Supabase PostgreSQL'
-                    : 'Hybrid Stateful Engine (Supabase-Ready)'}
-                </span>
-              </div>
-              <p className="text-xs text-emerald-100/80 leading-relaxed">
-                Built with Next.js App Router TypeScript API Routes (<code className="text-teresa-gold-300">/api/school</code>, <code className="text-teresa-gold-300">/api/fees</code>, <code className="text-teresa-gold-300">/api/feeding</code>, <code className="text-teresa-gold-300">/api/teachers</code>, <code className="text-teresa-gold-300">/api/results</code>, <code className="text-teresa-gold-300">/api/contact</code>) and <code className="text-teresa-gold-300">@supabase/supabase-js</code>.
-              </p>
-            </div>
-
-            <div className="space-y-2 text-xs text-slate-700">
-              <div className="font-bold text-teresa-green-950 uppercase tracking-wider">
-                Supabase Schema & Row-Level Security (`supabase/schema.sql`)
-              </div>
-              <ul className="grid grid-cols-2 gap-2">
-                {[
-                  'public.profiles (Role-Based Staff)',
-                  'public.teacher_registrations',
-                  'public.class_fee_structures',
-                  'public.students (Full Roster)',
-                  'public.fee_payments (Receipts)',
-                  'public.daily_feeding_logs',
-                  'public.academic_results',
-                  'public.audit_logs (Owner Trail)',
-                ].map((tbl) => (
-                  <li
-                    key={tbl}
-                    className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-mono text-[11px] text-teresa-green-900"
-                  >
-                    ✓ {tbl}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-teresa-ivory border border-teresa-gold-300 flex items-center justify-between">
-              <div className="text-xs text-slate-700">
-                <strong>Deploy to Vercel:</strong> Add <code className="font-mono">NEXT_PUBLIC_SUPABASE_URL</code> and <code className="font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> in Vercel Project Settings.
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard?.writeText(
-                    'NEXT_PUBLIC_SUPABASE_URL=\nNEXT_PUBLIC_SUPABASE_ANON_KEY=\nSUPABASE_SERVICE_ROLE_KEY='
-                  );
-                  onNotify('Copied .env template to clipboard!', 'info');
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-teresa-green-900 text-teresa-gold-300 text-xs font-bold shrink-0"
-              >
-                <Copy className="w-3.5 h-3.5" />
-                Copy .env Keys
-              </button>
-            </div>
+            <p className="mt-4 border-t border-slate-100 pt-3 text-xs leading-relaxed text-slate-500">
+              Receipts are recorded by the Bursary and appear in the fees ledger. Parents are
+              reminded of balances through the class teachers.
+            </p>
           </div>
         </div>
       )}

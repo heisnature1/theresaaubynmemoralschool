@@ -207,8 +207,10 @@ export function HeadmasterDashboard({
         onStateChange(data.state);
         onNotify(
           decision === 'approved'
-            ? `Approved teacher registration! Assigned Staff ID ${data.registration.assignedStaffId} (${assignedClass}).`
-            : 'Teacher registration request declined.',
+            ? data.issuedPassword
+              ? `Application approved. Staff number ${data.registration.assignedStaffId} (${assignedClass}). Issue the temporary password: ${data.issuedPassword}`
+              : `Application approved. Staff number ${data.registration.assignedStaffId} (${assignedClass}). The applicant may now sign in with the password chosen at application.`
+            : 'Teaching application declined.',
           decision === 'approved' ? 'success' : 'info'
         );
       }
@@ -243,13 +245,13 @@ export function HeadmasterDashboard({
           <div className="space-y-1">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teresa-gold-400/20 border border-teresa-gold-400/40 text-teresa-gold-300 text-xs font-bold uppercase tracking-wider">
               <ShieldCheck className="w-3.5 h-3.5" />
-              Office of the Headmaster • Administration & Bursary
+              Office of the Headmaster &middot; administration and bursary
             </div>
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-white">
               {headmaster.fullName}
             </h2>
             <p className="text-sm text-emerald-100/85">
-              Staff ID: <span className="font-mono font-bold text-teresa-gold-300">{headmaster.staffId}</span> • Direct oversight of Class Fee Schedules, Extra Classes, Meal Fees, Faculty Registrations & Terminal Reports
+              Staff number <span className="font-mono font-bold text-teresa-gold-300">{headmaster.staffId}</span> &middot; fee schedules, extra classes, meals, staff appointments and terminal reports
             </p>
           </div>
 
@@ -257,7 +259,7 @@ export function HeadmasterDashboard({
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-white/15">
               <div className="text-[10px] uppercase tracking-wider text-teresa-gold-300 font-bold">
-                Tuition Collected
+                Tuition received
               </div>
               <div className="text-base font-mono font-extrabold text-white">
                 {formatCurrency(financialTotals.tuitionCollected)}
@@ -273,10 +275,10 @@ export function HeadmasterDashboard({
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-white/15">
               <div className="text-[10px] uppercase tracking-wider text-teresa-gold-300 font-bold">
-                Pending Teachers
+                Applications
               </div>
               <div className="text-base font-mono font-extrabold text-teresa-gold-300">
-                {pendingRegistrations.length} Requests
+                {pendingRegistrations.length} awaiting
               </div>
             </div>
           </div>
@@ -294,7 +296,7 @@ export function HeadmasterDashboard({
             }`}
           >
             <Layers className="w-4 h-4" />
-            1. Fees by Class, Extra Classes & Meal Rates
+            Fees by class
           </button>
 
           <button
@@ -307,7 +309,7 @@ export function HeadmasterDashboard({
             }`}
           >
             <CreditCard className="w-4 h-4" />
-            2. Student Fee Collections & Meal Ledgers
+            Payments &amp; receipts
           </button>
 
           <button
@@ -320,7 +322,7 @@ export function HeadmasterDashboard({
             }`}
           >
             <UserCheck className="w-4 h-4" />
-            3. Approve Teacher Registrations
+            Teaching applications
             {pendingRegistrations.length > 0 && (
               <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-xs font-extrabold">
                 {pendingRegistrations.length}
@@ -338,7 +340,7 @@ export function HeadmasterDashboard({
             }`}
           >
             <FileSpreadsheet className="w-4 h-4" />
-            4. End-of-Semester Reports & Endorsements
+            Report cards
           </button>
         </div>
       </div>
@@ -353,7 +355,7 @@ export function HeadmasterDashboard({
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
-                  Headmaster Fee Configurator
+                  Fee rates by class
                 </span>
                 <h3 className="text-xl font-serif font-bold text-teresa-green-950">
                   Configure {editingClass?.className} Rates
@@ -510,7 +512,7 @@ export function HeadmasterDashboard({
                   {state.currentSemester} • Master Fee Schedule
                 </span>
                 <h3 className="text-xl font-serif font-bold text-teresa-green-950">
-                  Student Fees by Class, Extra Classes & Meal Fee Schedule
+                  Fee schedule for every class
                 </h3>
               </div>
               <span className="text-xs text-slate-500">
@@ -576,17 +578,17 @@ export function HeadmasterDashboard({
       {/* ===================================================================== */}
       {activeTab === 'student_payments' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left 4 cols: Record Student Fee Payment Form */}
+          {/* Left 4 cols: Record a fee payment Form */}
           <div className="lg:col-span-4 bg-white rounded-3xl border border-teresa-green-100 p-6 shadow-sm">
             <div className="mb-4">
               <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
-                Bursary Cashier Desk
+                Bursary desk
               </span>
               <h3 className="text-xl font-serif font-bold text-teresa-green-950">
-                Record Student Fee Payment
+                Record a fee payment
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Issue an instant receipt for Class Tuition, Extra Classes, or Semester Meal Fees.
+                Record a payment and issue a receipt for class tuition, afternoon extra classes or the semester meal plan.
               </p>
             </div>
 
@@ -691,10 +693,10 @@ export function HeadmasterDashboard({
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div>
                   <span className="text-xs font-bold uppercase tracking-wider text-teresa-green-700">
-                    Student Accounts By Class
+                    Pupil accounts by class
                   </span>
                   <h3 className="text-xl font-serif font-bold text-teresa-green-950">
-                    Class Tuition, Extra Classes & Meal Fee Standing
+                    Tuition, extra classes and meals
                   </h3>
                 </div>
 
@@ -837,13 +839,13 @@ export function HeadmasterDashboard({
             <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-teresa-gold-700">
-                  Faculty Credential Verification
+                  Teaching applications
                 </span>
                 <h3 className="text-2xl font-serif font-bold text-teresa-green-950">
-                  Teacher Sign-Up Requests & Headmaster Approval Queue
+                  Teaching applications waiting for a decision
                 </h3>
                 <p className="text-sm text-slate-600">
-                  Review teacher sign-up requests submitted via the Teacher Portal. Approving an educator automatically issues their official Staff ID and activates portal access.
+                  Applications submitted through the school website. Approving a teacher issues their staff number and opens access to the teacher portal; applicants sign in with the password they chose when applying.
                 </p>
               </div>
               <div className="px-4 py-2 rounded-2xl bg-teresa-ivory border border-teresa-gold-300 text-sm font-bold text-teresa-green-950">
@@ -877,7 +879,7 @@ export function HeadmasterDashboard({
                           {reg.status === 'pending' && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold">
                               <Clock className="w-3.5 h-3.5" />
-                              Awaiting Headmaster Approval
+                              Awaiting a decision
                             </span>
                           )}
                           {reg.status === 'approved' && (
@@ -958,7 +960,7 @@ export function HeadmasterDashboard({
                               className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition"
                             >
                               <CheckCircle2 className="w-4 h-4" />
-                              Approve & Issue ID
+                              Approve and issue a staff number
                             </button>
 
                             <button

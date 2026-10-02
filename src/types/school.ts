@@ -18,6 +18,9 @@ export interface StaffProfile {
   qualification: string;
   isActive: boolean;
   joinedDate: string;
+  /** scrypt hash, never exposed to the browser */
+  passwordHash?: string;
+  lastLoginAt?: string;
 }
 
 export interface TeacherRegistrationRequest {
@@ -31,6 +34,8 @@ export interface TeacherRegistrationRequest {
   experienceYears: number;
   statement: string;
   status: RegistrationStatus;
+  /** scrypt hash captured at application time, never exposed to the browser */
+  passwordHash?: string;
   reviewedBy?: string;
   reviewedAt?: string;
   assignedStaffId?: string;
@@ -159,7 +164,6 @@ export interface HistoryMilestone {
 }
 
 export interface SchoolStateSnapshot {
-  supabaseConnected: boolean;
   currentSemester: string;
   nextSemesterReopening: string;
   staff: StaffProfile[];

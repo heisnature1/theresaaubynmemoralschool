@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { appendAuditLog, getSchoolState, saveSchoolState } from '@/lib/store';
+import { appendAuditLog, getSchoolState, saveSchoolState, toClientState } from '@/lib/store';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
+import { getSession } from '@/lib/auth';
 import { ContactInquiry } from '@/types/school';
 
 export const dynamic = 'force-dynamic';
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
     });
 
     saveSchoolState(state);
-    return NextResponse.json({ ok: true, inquiry: newInquiry, state });
+    return NextResponse.json({ ok: true, inquiry: newInquiry, state: toClientState(state) });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to submit inquiry' },
@@ -64,6 +65,11 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const session = getSession();
+  if (!session) {
+    return NextResponse.json({ error: 'Sign-in required.' }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const { inquiryId, status } = body;
@@ -76,7 +82,7 @@ export async function PATCH(req: NextRequest) {
 
     inq.status = status || 'responded';
     saveSchoolState(state);
-    return NextResponse.json({ ok: true, inquiry: inq, state });
+    return NextResponse.json({ ok: true, inquiry: inq, state: toClientState(state) });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to update inquiry' },

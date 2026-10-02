@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { appendAuditLog, getSchoolState, saveSchoolState } from '@/lib/store';
+import { appendAuditLog, getSchoolState, saveSchoolState, toClientState } from '@/lib/store';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
+import { getSession } from '@/lib/auth';
 import { FeeCategory, FeePaymentRecord, UserRole } from '@/types/school';
 
 export const dynamic = 'force-dynamic';
 
 // PATCH /api/fees -> Update class fee structure (Tuition, Extra Classes, Meal Fees by Class)
 export async function PATCH(req: NextRequest) {
+  const session = getSession();
+  if (!session || !['super_admin', 'headmaster'].includes(session.role)) {
+    return NextResponse.json({ error: 'Administrator sign-in required.' }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const {
@@ -80,7 +86,7 @@ export async function PATCH(req: NextRequest) {
     });
 
     saveSchoolState(state);
-    return NextResponse.json({ ok: true, feeStructure: target, state });
+    return NextResponse.json({ ok: true, feeStructure: target, state: toClientState(state) });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to update class fee structure' },
@@ -91,6 +97,11 @@ export async function PATCH(req: NextRequest) {
 
 // POST /api/fees -> Record a student fee payment (tuition, extra_classes, or meal_fee)
 export async function POST(req: NextRequest) {
+  const session = getSession();
+  if (!session || !['super_admin', 'headmaster'].includes(session.role)) {
+    return NextResponse.json({ error: 'Administrator sign-in required.' }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const {
@@ -177,7 +188,7 @@ export async function POST(req: NextRequest) {
     });
 
     saveSchoolState(state);
-    return NextResponse.json({ ok: true, payment: newPayment, state });
+    return NextResponse.json({ ok: true, payment: newPayment, state: toClientState(state) });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to record fee payment' },
